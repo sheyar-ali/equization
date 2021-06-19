@@ -1,0 +1,1369 @@
+* {
+  box-sizing: border-box !important;
+  font-family: "Cairo";
+}
+
+/* Public Styles Of The Navbar */
+.navbar {
+  padding: 15px 1rem;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  -webkit-transition: background-color 0.2s ease-in-out,
+    display 0.2s ease-in-out;
+  -moz-transition: background-color 0.2s ease-in-out, display 0.2s ease-in-out;
+  -ms-transition: background-color 0.2s ease-in-out, display 0.2s ease-in-out;
+  -o-transition: background-color 0.2s ease-in-out, display 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, display 0.2s ease-in-out;
+  z-index: 99999;
+}
+
+.langs,
+.exit {
+  width: 10%;
+}
+
+.v-list-item__title {
+  text-align: center !important;
+}
+
+.logo {
+  width: 12%;
+  right: 45%;
+}
+
+.top-navbar i,
+.top-navbar .my-account span {
+  color: #ffc961 !important;
+}
+
+.navbar .nav-icon {
+  width: -webkit-fit-content !important;
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+}
+
+.navbar .account-navbar .fa-bars {
+  font-size: 37px;
+  cursor: pointer;
+  z-index: 999999;
+}
+
+.navbar .my-account {
+  padding: 0 15px;
+  margin-right: 10px;
+  width: -webkit-fit-content !important;
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+  border-radius: 20px;
+}
+
+.navbar .my-account:hover span {
+  display: block !important;
+}
+
+.navbar .my-account i {
+  margin-left: 10px !important;
+  margin-top: 3px !important;
+  font-size: 27px !important;
+}
+
+.navbar .my-account span {
+  font-size: 20px;
+  font-family: "Almarai" !important;
+  font-weight: 600;
+  display: none;
+}
+
+.scroll-navbar i,
+.form-navbar i,
+.play-navbar i,
+.play-navbar .exit span,
+.account-navbar .my-account span,
+.scroll-navbar .v-select__selection.v-select__selection--comma,
+.form-navbar .v-select__selection.v-select__selection--comma,
+.play-navbar .v-select__selection.v-select__selection--comma,
+.scroll-navbar,
+.scroll-navbar .my-account span,
+.form-navbar .my-account span {
+  color: #ff5e94 !important;
+}
+
+i.fa-bars {
+  font-size: 37px;
+  color: #ffc961;
+  cursor: pointer;
+  z-index: 999999;
+}
+/* End Of The Pubkic Styles In The Navbar */
+
+/* -- Start Of The Home Page -- */
+a,
+input,
+button,
+select {
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul {
+  margin-bottom: 0;
+}
+
+.menu-links i,
+.section,
+.section-title,
+.feature-header,
+a.show,
+.parts-menu,
+.choose,
+.create-number,
+.create-account .row,
+.create,
+footer,
+.social,
+.social-media ul {
+  align-items: center !important;
+}
+
+.menu-links ul,
+.home-content,
+.section-title,
+.social,
+footer {
+  flex-direction: column;
+}
+
+.tests-container .card:hover h4,
+.categories-content .card:hover h4 {
+  color: #ff5e94 !important;
+}
+
+.tests-container h4,
+.categories-content h4 {
+  font-size: 21px;
+  font-family: "Almarai";
+  padding: 0 10px;
+}
+
+.num-content,
+.tests-container .card,
+.categories-content .card,
+.form-section,
+.quiz-page .container,
+.account-section-content,
+.account-menu,
+.play-page-container {
+  border: 1px solid #efedff;
+  -webkit-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+  -moz-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+  -ms-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+  -o-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+  box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+}
+
+.tests-container .card:hover,
+.categories-content .card:hover {
+  -webkit-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+  -moz-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+  -ms-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+  -o-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+  box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+}
+
+.tests-container .card:hover,
+.categories-content .card:hover,
+.tests-container .departments span:hover,
+.categories-content .category-description span:hover {
+  -webkit-transform: scale(1.02);
+  -moz-transform: scale(1.02);
+  -ms-transform: scale(1.02);
+  -o-transform: scale(1.02);
+  transform: scale(1.02);
+}
+
+.tests-container .departments span,
+.categories-content .category-description span {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  max-width: 45%;
+  margin: 0 5px 10px;
+  color: #3a3798;
+  padding: 1px 7px;
+  font-size: 15px;
+  border: 1.5px solid #3a3798;
+  border-radius: 5px;
+}
+
+.tests-container .departments span:hover,
+.categories-content .category-description span:hover {
+  background-color: rgba(58, 55, 152, 0.1);
+}
+
+.tests-container .card,
+.tests-container h4,
+.tests-container .departments span,
+.categories-content .card,
+.categories-content h4,
+.categories-content .category-description span {
+  -webkit-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  -moz-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  -ms-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  -o-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
+    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.departments span:hover,
+.categories-content .category-description span:hover {
+  background-color: rgba(58, 55, 152, 0.1);
+}
+
+.numbers .row,
+.numbers-content,
+.quizs .row,
+.choose,
+.create,
+.create-account .row,
+.feature-header,
+.feature-row,
+.footer-content {
+  justify-content: space-between;
+}
+/* End Of The Home Page */
+
+.top-navbar .v-input.v-input--is-focused i,
+.v-input.v-input--is-focused label,
+.menu-links .langs .v-input__icon.v-input__icon--append,
+.v-input.v-input--is-focused label,
+.v-input.v-input--is-focused label {
+  color: #ffc961 !important;
+}
+
+.menu-links
+  .langs
+  .v-input__icon.v-input__icon--append
+  .v-icon.notranslate.mdi.mdi-menu-down {
+  color: inherit !important;
+}
+
+.scroll-navbar .v-input.v-input--is-focused i,
+.form-navbar.navbar .v-input.v-input--is-focused i,
+.v-input.v-input--is-focused label {
+  color: #ff5e94 !important;
+}
+
+/* QuizComponent In Shared-Components Style and QuizCategoriesPage Component */
+.test-title,
+.account-navbar .my-account span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Strat Of The Public Styles For The Forms */
+.form-section {
+  width: 80%;
+  margin-top: 70px;
+  padding: 30px 30px 20px;
+  border: 2px solid #ecebff;
+  border-radius: 10px;
+}
+
+.form-container {
+  padding-left: 35px !important;
+  padding-bottom: 0 !important;
+}
+
+.form-description {
+  padding-right: 35px !important;
+}
+
+.error .v-alert__content {
+  text-align: right;
+  font-size: 20px;
+  margin-top: 3px;
+}
+
+.v-input--checkbox {
+  margin-top: -10px !important;
+}
+
+.v-text-field input {
+  padding: 0 !important;
+  line-height: normal !important;
+}
+
+.check-btn .v-label {
+  margin: 10px 7px 10px 0px;
+}
+
+.form-section .v-input__slot,
+.form-section button,
+.account-section-content button.sub-btn {
+  border-radius: 10px;
+}
+
+.form-section button,
+.account-section-content button.sub-btn {
+  background-color: #3a3798 !important;
+  padding-bottom: 3px !important;
+}
+
+.form-section button.v-icon--link.v-icon.mdi {
+  background-color: transparent !important;
+}
+
+.form-section a.back-to {
+  width: 55%;
+  padding: 10px 3px;
+  margin-top: 30px;
+  background-color: rgba(58, 55, 152, 0.7) !important;
+  border-radius: 10px;
+}
+
+.form-section a.back-to span {
+  font-family: "Cairo" !important;
+}
+
+.v-input fieldset {
+  border: 2px solid #b8b8d8 !important;
+  border-radius: 8px !important;
+}
+
+.v-input.v-input--is-focused fieldset {
+  border: 2px solid #3d3697 !important;
+}
+
+.v-input.v-input--is-focused i,
+.v-input.v-input--is-focused label {
+  color: #3d3697 !important;
+}
+
+.v-input label {
+  color: #9292b1 !important;
+}
+
+.v-input input,
+.v-input textarea,
+.v-input label {
+  font-size: 18px !important;
+}
+
+.v-input textarea {
+  padding-top: 4px !important;
+}
+
+.v-messages__message,
+.error--text,
+.v-application.error--text {
+  color: #d24747 !important;
+}
+
+.eye-icon {
+  cursor: pointer;
+}
+
+p.form-title-description,
+p.alert-description,
+p.form-description {
+  font-size: 23px;
+  line-height: 40px;
+  color: #8f89b0;
+  margin-bottom: 0 !important;
+}
+
+p.form-description {
+  margin-bottom: 30px !important;
+}
+
+.v-alert.error {
+  display: none;
+}
+
+.form-section .v-alert__icon {
+  margin-top: 5px !important;
+  font-size: 35px !important;
+}
+/* End Of The Public Styles Of The Forms */
+
+/* Start Of The Pagniation Style */
+.v-pagination__item.v-pagination__item--active.primary {
+  background-color: #ff5e94 !important;
+  color: #fff !important;
+}
+
+.v-pagination__item,
+.v-pagination .v-icon {
+  color: #ff5e94 !important;
+}
+/* End Of The Pagniation Style */
+
+/* Start Of The Public Styles In Account Pages */
+.page-section {
+  min-height: calc(100vh - 74px) !important;
+}
+
+.account-section {
+  margin-top: 143px;
+}
+
+.account-section .container,
+.play-page .container {
+  padding: 12px 5% !important;
+}
+
+.account-section-container {
+  padding: 0 20px 0 0 !important;
+}
+
+.account-section-content {
+  padding: 12px 25px !important;
+  border: 2px solid #ecebff;
+  border-radius: 10px;
+}
+
+.account-section-content .v-select__selection.v-select__selection--comma {
+  width: 100% !important;
+  text-align: right !important;
+  color: #a4abbb !important;
+}
+
+/* Add Question Page */
+.add-explanation p,
+.tiptap-vuetify-editor__content p {
+  width: 95% !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 29px !important;
+  text-align: justify;
+  margin: 0 auto 15px !important;
+}
+
+.tiptap-container + button {
+  font-size: 18px !important;
+  height: auto !important;
+  letter-spacing: 0 !important;
+  font-weight: 600 !important;
+  padding: 7px 16px !important;
+}
+
+.answers .v-radio .theme--light.v-icon,
+.answers .v-input--checkbox .theme--light.v-icon {
+  color: #3a3798 !important;
+}
+/* End Of Add Question Page */
+
+/* Start Of The Public Style Of The Forms In Account Page */
+.account-section-content .forms {
+  margin: 35px 0 5px !important;
+}
+
+.account-section-content .file-input {
+  margin: 30px 0 !important;
+}
+
+.account-section-content .v-input--selection-controls {
+  margin-top: 0 !important;
+}
+
+.account-section-content .radios-label {
+  font-size: 20px !important;
+  margin-bottom: 0.3rem !important;
+}
+
+.account-section-content .radios-box .v-label {
+  margin: 0 5px !important;
+  margin-left: 12px !important;
+}
+
+.account-section-content
+  .multi-selections
+  .v-select__selection.v-select__selection--comma {
+  width: auto !important;
+  font-size: 18px !important;
+}
+
+.account-section-content
+  .multi-selections
+  .v-select__selection.v-select__selection--comma {
+  color: #000 !important;
+  margin-left: 7px !important;
+}
+
+.account-section-content .v-select__selection.v-select__selection--comma {
+  font-size: 18px !important;
+}
+
+.account-section-content .multi-selections .v-select__selections {
+  justify-content: flex-start !important;
+}
+
+.account-section-content .v-textarea .v-input__slot {
+  height: 210px !important;
+}
+
+.edit-quiz .account-section-content .v-textarea .v-input__slot {
+  height: 165px !important;
+}
+
+.edit-quiz .radios-label {
+  display: flex !important;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 16px !important;
+}
+
+.account-section-content .quiz-creation-img {
+  height: 228px;
+  background-color: #dddfee;
+  border-radius: 10px;
+}
+
+.account-section-content .added-img {
+  object-fit: cover !important;
+}
+
+.account-section-content .v-text-field input {
+  line-height: normal !important;
+}
+
+.account-section-content .v-label,
+.v-dialog .v-label {
+  margin-bottom: 0 !important;
+  min-height: 35px !important;
+}
+
+.account-section-content .sub-btn-content {
+  margin-bottom: 31px;
+  margin-top: -6px;
+  padding: 0 12px;
+}
+
+.account-section-content .sub-btn-content .sub-btn {
+  padding: 5px 16px !important;
+}
+
+.v-dialog {
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.v-dialog .v-select__selections {
+  display: flex;
+  justify-content: flex-start !important;
+}
+
+.v-dialog
+  .v-select__selections
+  .v-select__selection.v-select__selection--comma {
+  font-size: 18px !important;
+  color: #000 !important;
+}
+
+.question-page .empty-data a {
+  display: none !important;
+}
+
+.clear-img {
+  min-height: 35px;
+  min-width: 35px;
+  width: webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content !important;
+  background-color: rgba(58, 55, 152, 0.7);
+  font-size: 18px;
+  border-radius: 50%;
+  bottom: 3px;
+  left: 5px !important;
+  right: auto !important;
+  cursor: pointer;
+}
+
+.clear-img i {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media only screen and (max-width: 600px) {
+  .question-page .account-header-content {
+    flex-direction: column !important;
+  }
+
+  .question-page .account-header-content h2 {
+    font-size: 17px !important;
+    margin-bottom: 10px;
+    text-align: center !important;
+  }
+
+  .account-menu-content {
+    padding: 0 !important;
+  }
+
+  .account-menu-content .account-card {
+    display: none !important;
+  }
+
+  .account-section {
+    margin-top: 65px !important;
+  }
+
+  .account-section .sub-btn-content {
+    justify-content: center !important;
+  }
+
+  .account-section button.sub-btn {
+    min-width: 55% !important;
+  }
+}
+
+@media only screen and (max-width: 959px) {
+  .account-section-container {
+    padding: 0 !important;
+  }
+
+  .account-section-content {
+    border: none !important;
+  }
+
+  .account-menu-content .account-card {
+    display: none !important;
+  }
+
+  .account-section {
+    margin-top: 55px !important;
+  }
+
+  .account-layout-container footer {
+    margin-bottom: 70px !important;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 767px) {
+  .question-page .account-header-content h2 {
+    font-size: 23px !important;
+  }
+}
+
+@media only screen and (min-width: 1264px) {
+  .quizzes .col-lg-3 {
+    flex: 0 0 33% !important;
+    max-width: 33% !important;
+  }
+
+  .account-section-content .tests-container .departments span {
+    max-width: 75% !important;
+  }
+}
+/* End Of The Account Pages */
+
+/* Public Style For Play Quiz Pages */
+.play-page {
+  margin-top: 55px !important;
+}
+
+.play-page-container {
+  min-height: calc(100vh - 95px);
+  margin-bottom: 15px !important;
+  padding: 8px 15px 15px;
+  border-radius: 10px;
+}
+
+.settings-container .v-input__slot {
+  margin-bottom: 0 !important;
+}
+
+.settings-container .v-input--selection-controls__input {
+  height: 40px !important;
+  width: 40px !important;
+  margin-left: 15px !important;
+  margin-top: 3px;
+}
+
+.settings-container .v-input--selection-controls__input .v-icon.mdi {
+  margin-left: 7px;
+  margin-top: 2px;
+  font-size: 30px;
+}
+
+.settings-container .v-input--selection-controls__ripple {
+  left: 0 !important;
+}
+
+.settings-container .settings-content label {
+  font-size: 25px !important;
+  margin-bottom: 0 !important;
+  font-weight: 600 !important;
+  color: #75769a !important;
+}
+
+.players-numbers .play-header-content {
+  margin-right: 0 !important;
+}
+
+.play-navbar .v-input.v-input--is-focused i,
+.v-input.v-input--is-focused label {
+  color: #ff5e94 !important;
+}
+
+.play-page .question-container .v-progress-linear__determinate.primary {
+  background-color: #ff5e94 !important;
+  border-color: #ff5e94 !important;
+}
+
+.play-page .answer-result {
+  padding: 25px 50px;
+}
+
+.play-page .answer-result-content {
+  padding: 15px 25px;
+  background-color: #abe7e7;
+  border-radius: 10px;
+}
+
+.play-page .answer-result-content h2 {
+  color: #3a3798;
+  font-weight: 600;
+  font-size: 25px;
+}
+
+.play-page .answer-result-content button {
+  width: fit-content !important;
+  padding: 5px 30px !important;
+  background-color: #7fa9a8;
+  letter-spacing: 0;
+  font-size: 20px;
+  border-radius: 10px !important;
+}
+
+.play-page .result-description {
+  width: 85% !important;
+  margin: 10px auto 30px;
+}
+
+.play-page .headers + hr {
+  margin-bottom: 23px;
+}
+
+.play-page .headers h3 {
+  color: #a4abbb !important;
+}
+
+.play-page .table-body,
+.play-page .table-head {
+  padding: 3px 0;
+}
+
+.play-page .table-head,
+.play-page .table-body-content > div {
+  width: 33.33% !important;
+}
+
+.play-page .table-body h2 {
+  color: #3a3798 !important;
+}
+
+.play-page .headers h3,
+.play-page .table-body h2 {
+  font-size: 23px;
+  font-weight: 600;
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.play-page .result-icon {
+  height: 30px !important;
+  width: 30px !important;
+  border-radius: 50%;
+}
+
+.play-page .result-icon {
+  font-size: 20px;
+}
+
+.play-page .result-icon.true-icon {
+  background-color: #4cb050;
+}
+
+.play-page .result-icon.false-icon {
+  background-color: #ec4539;
+}
+
+.play-page .description {
+  font-size: 23px;
+  color: #a4abbb;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.play-page .next-question {
+  min-width: 180px !important;
+  min-height: 50px;
+  background-color: #3a3798 !important;
+  margin: 65px auto !important;
+  border-radius: 10px;
+}
+
+/* Media Queries For Play Pages */
+
+@media only screen and (max-width: 600px) {
+  .play-page.play-quiz,
+  .play-page {
+    margin-top: 42px !important;
+  }
+
+  .play-page.play-quiz .play-page-container {
+    min-height: calc(100vh - 85px);
+    margin-bottom: 5px !important;
+    position: relative;
+  }
+
+  .play-quiz .question-timer,
+  .play-quiz .question-number {
+    display: none !important;
+  }
+
+  .play-quiz.quiz-scoreboard .question-number,
+  .play-quiz.quiz-scoreboard .question-timer {
+    display: flex !important;
+    margin-bottom: 10px;
+    padding: 3px 25px;
+  }
+
+  .play-quiz .v-divider:first-of-type {
+    margin: 0.7rem 0 !important;
+  }
+
+  .play-quiz .v-divider.header-divider {
+    margin: 0.25rem 0 !important;
+  }
+
+  .play-quiz .question-order {
+    margin: 0 !important;
+    font-size: 13px !important;
+    padding: 2px 25px !important;
+  }
+
+  .play-quiz .question-container {
+    margin: 0 !important;
+  }
+
+  .play-quiz .question-container .question {
+    padding: 10px !important;
+  }
+
+  .play-quiz .question-img {
+    margin: 10px 0 0 !important;
+  }
+
+  .play-quiz .question-container .question-answers {
+    margin-top: 10px !important;
+  }
+
+  .play-quiz .answer label {
+    padding: 5px 10px !important;
+    font-size: 16px !important;
+  }
+
+  .play-quiz .question-container .answer-content p.text {
+    height: 45px !important;
+  }
+
+  .play-quiz .answer-container {
+    margin-bottom: 5px !important;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .play-page .answer-result-content {
+    flex-direction: column;
+  }
+
+  .play-page .answer-result {
+    padding: 5px;
+  }
+
+  .play-page .result-description {
+    width: 100% !important;
+  }
+
+  .play-page .answer-result-content {
+    padding: 20px 5px;
+  }
+
+  .play-page .answer-result-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 25px;
+  }
+
+  .play-page .headers {
+    display: none !important;
+  }
+
+  .play-page .table-body,
+  .play-page .table-body-content {
+    flex-wrap: wrap;
+  }
+
+  .play-page .table-body-content > div:first-of-type {
+    flex-basis: 100% !important;
+  }
+
+  .play-page .table-body-content hr:first-of-type,
+  .play-page .description {
+    display: block !important;
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  .play-page.players-numbers .play-header-content {
+    flex-direction: column !important;
+  }
+
+  .play-page.players-numbers .play-header-content h2,
+  .play-page.players-numbers .play-header-content button {
+    width: fit-content !important;
+  }
+
+  .play-page.players-numbers .play-header-content h2 {
+    margin-bottom: 20px !important;
+  }
+
+  .play-page.players-numbers .play-header-content button {
+    margin-top: 20px !important;
+    font-size: 25px !important;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .settings-container {
+    padding: 30px 0 !important;
+  }
+
+  .settings-container .v-input--selection-controls__input {
+    margin-left: 5px !important;
+  }
+
+  .settings-container .settings-content label {
+    font-size: 20px !important;
+  }
+
+  .play-page .container {
+    padding: 0 !important;
+  }
+
+  .play-page-container {
+    padding: 10px 15px !important;
+  }
+
+  .play-page .table-body-content > div {
+    width: 49% !important;
+  }
+
+  .play-page .answer-result-content h2 {
+    font-size: 20px !important;
+    line-height: 29px;
+  }
+
+  .play-page .answer-result-content button {
+    font-size: 18px;
+  }
+}
+
+@media only screen and (min-width: 767px) and (max-width: 1200px) {
+  .play-page .answer-result {
+    padding: 15px !important;
+  }
+
+  .play-page .answer-result-content {
+    flex-direction: column !important;
+  }
+
+  .play-page .answer-result-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 25px;
+  }
+
+  .play-page .result-description {
+    width: 95% !important;
+  }
+}
+/* End Of The Public Style For Play Quiz Pages */
+
+/* Start Of The Public Media Queries */
+@media only screen and (max-width: 600px) {
+  .navbar {
+    padding: 10px 0 !important;
+  }
+
+  .navbar .langs {
+    display: none;
+  }
+
+  .logo {
+    width: 55% !important;
+  }
+
+  .langs {
+    width: 45% !important;
+  }
+
+  .navbar .my-account {
+    padding: 7px !important;
+    margin-left: 0 !important;
+    margin-right: 15px !important;
+    border-radius: 40px;
+  }
+
+  .navbar .my-account:hover span {
+    display: none !important;
+  }
+
+  .navbar .my-account span {
+    display: none !important;
+  }
+
+  .navbar .my-account i {
+    margin: 0 !important;
+  }
+
+  .numbers .row,
+  .numbers-content,
+  .quizs .row,
+  .feature-row {
+    justify-content: center;
+  }
+
+  .quizs .row .col-sm-12,
+  .categories-content,
+  .tests-container {
+    flex: 0 0 90% !important;
+  }
+
+  .v-input label {
+    font-size: 15px !important;
+  }
+
+  .form-section {
+    margin-top: 40px !important;
+  }
+
+  .form-section {
+    width: 98% !important;
+  }
+
+  .form-section .row {
+    flex-direction: column-reverse;
+  }
+
+  .form-description {
+    padding: 0 !important;
+  }
+
+  p.form-title-description {
+    line-height: 32px !important;
+    margin-bottom: 30px !important;
+  }
+
+  .form-container {
+    padding: 20px 0 !important;
+  }
+
+  .form-content-img {
+    display: none;
+  }
+
+  .form-title {
+    font-size: 27px !important;
+  }
+
+  .v-alert__content,
+  p.form-title-description,
+  p.alert-description,
+  p.form-description {
+    font-size: 20px !important;
+  }
+
+  .form-section button,
+  .form-section a.back-to {
+    padding: 5px 0 !important;
+    width: 70% !important;
+  }
+
+  .check-btn .v-label {
+    font-size: 12px !important;
+  }
+
+  /* Explore Page */
+  .explore .tests-container {
+    flex: 0 0 80% !important;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 992px) {
+  .navbar {
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+  }
+
+  .navbar .langs {
+    display: none !important;
+  }
+
+  .logo {
+    width: 35% !important;
+  }
+
+  .langs {
+    width: 22% !important;
+  }
+
+  .numbers .row,
+  .numbers-content,
+  .quizs .row,
+  .feature-row {
+    justify-content: center;
+  }
+
+  .quizs .row .col-sm-12,
+  .tests-container,
+  .categories-content {
+    flex: 0 0 80% !important;
+  }
+
+  .form-section {
+    width: 95% !important;
+  }
+
+  .form-container {
+    padding-left: 0 !important;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 767px) {
+  .logo {
+    position: relative;
+    left: 25%;
+    width: 45% !important;
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  .logo {
+    left: 3% !important;
+    right: auto !important;
+  }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1200px) {
+  .logo {
+    width: 25% !important;
+    right: 36% !important;
+  }
+
+  .langs {
+    width: 12% !important;
+  }
+
+  .check-btn .v-label {
+    font-size: 15px !important;
+  }
+
+  .form-section {
+    width: 95% !important;
+  }
+}
+
+@media only screen and (min-width: 1200px) and (max-width: 1500px) {
+  .logo {
+    width: 15% !important;
+  }
+}
+
+@media only screen and (min-width: 1904px) {
+  .container {
+    max-width: 1185px !important;
+  }
+
+  .account-section .container--fluid,
+  .play-page .container--fluid {
+    max-width: 85% !important;
+  }
+
+  .form-section {
+    width: 65% !important;
+  }
+}
+/* End Of The Public Media Quires */
+
+/* English, French Languages Style */
+body.ltr {
+  direction: ltr !important;
+}
+
+body.ltr .nav-icon {
+  text-align: left !important;
+}
+
+.ltr .navbar .langs {
+  display: flex;
+  justify-content: flex-end;
+}
+
+body.ltr .feature-header h3 {
+  text-align: left !important;
+}
+
+.ltr .title-description {
+  text-align: justify !important;
+}
+
+.ltr .form-container {
+  padding-left: 0 !important;
+  padding-right: 35px !important;
+}
+
+.ltr .form-description {
+  padding-right: 0 !important;
+  padding-left: 35px !important;
+}
+
+.ltr .error .v-alert__content {
+  text-align: left;
+}
+
+.ltr img[alt="create-account-img"],
+.ltr img[alt="reset-passord-succeeded-img"],
+.ltr img[alt="forgot-password-img"],
+.ltr .search-box i,
+.ltr .back-icon,
+.ltr .play-navbar .exit i {
+  transform: scaleX(-1) !important;
+}
+
+/* Public Ltr Style Directon Of The Account Pages */
+.ltr .account-section-container {
+  padding: 0 0 0 20px !important;
+}
+
+.ltr .account-section-content .v-select__selection.v-select__selection--comma {
+  text-align: left !important;
+}
+
+.ltr
+  .account-section-content
+  .multi-selections
+  .v-select__selection.v-select__selection--comma {
+  margin-right: 7px !important;
+  margin-left: 0 !important;
+}
+
+.ltr
+  .account-section-content
+  .v-input--radio-group.v-input--radio-group--row
+  .v-radio {
+  margin-right: 0 !important;
+  margin-left: 16px !important;
+}
+
+.ltr .edit-quiz .v-input--radio-group.v-input--radio-group--row .v-radio,
+.edit-quiz .v-input--radio-group.v-input--radio-group--row .v-radio {
+  margin: 0 !important;
+}
+
+.ltr .account-section-content .radios-box .v-label {
+  margin-left: 5px !important;
+  margin-right: 12px !important;
+}
+
+/* Medias In The English And French Languages */
+.ltr .navbar .my-account {
+  margin-right: 0 !important;
+  margin-left: 10px !important;
+}
+
+.ltr .navbar .my-account i {
+  margin-right: 10px !important;
+  margin-left: 0 !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .ltr .navbar .langs {
+    display: none !important;
+  }
+
+  .ltr .logo {
+    left: auto !important;
+    right: 15%;
+  }
+
+  .ltr .navbar .my-account {
+    margin-right: 0 !important;
+    margin-left: 15px !important;
+  }
+
+  .navbar .my-account i,
+  .ltr .navbar .my-account i {
+    margin: 0 !important;
+  }
+
+  .ltr .form-description,
+  .ltr .form-container {
+    padding: 0 !important;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 767px) {
+  .ltr .logo {
+    left: auto !important;
+    right: 25% !important;
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  .ltr .logo {
+    right: 3% !important;
+    left: auto !important;
+  }
+}
+/* Account Pages Only */
+@media only screen and (max-width: 959px) {
+  .ltr .account-section-container {
+    padding: 0 !important;
+  }
+}
+
+.ltr .clear-img {
+  right: 5px !important;
+  left: auto !important;
+}
+
+/* Public Ltr Direction Style For Play Pages */
+.ltr .settings-container .v-input--selection-controls__input {
+  margin-left: 0 !important;
+  margin-right: 20px !important;
+}
+
+.ltr .play-page.players-numbers .play-header-content {
+  margin-left: 0 !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .ltr .settings-container .v-input--selection-controls__input {
+    margin-left: 0px !important;
+    margin-right: 5px !important;
+  }
+}

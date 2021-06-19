@@ -1,0 +1,593 @@
+{
+  "playNavbar": {
+    "exitText": "Exit"
+  },
+  "errorPage": {
+    "pageTitle": "An Error Occured",
+    "link": "Go to Home Page",
+    "pageNotFound": "404 Not Found"
+  },
+  "menu": {
+    "menuLinks": {
+      "firstLink": "Home",
+      "secondLink": "All Quizes",
+      "thirdLink": "Register an account",
+      "forthLink": "sign in",
+      "fifthLink": "About Platform",
+      "sixthLink": "Platform features",
+      "seventhLink": "How It Works",
+      "useCases": "Use cases",
+      "lastLink": "Contact Us"
+    }
+  },
+  "homePageTitle": "Home",
+  "homeSection": {
+    "introText": "Equization is a platform for the creation of interactive quizzes for engaging audience.",
+    "homeBtns": {
+      "firstBtn": "Create your first quiz",
+      "secondBtn": "Join a quiz"
+    }
+  },
+  "numbersSection": {
+    "firstCardTitle": "Quizes number",
+    "secondCardTitle": "Questions number",
+    "lastCardTitle": "Players number"
+  },
+  "featuresSection": {
+    "featureSectionTitle": "WHY EQUIZATION ?",
+    "featureTitleText": "The platform aims to take advantage of the technological revolution to bring about a change in the boring methods of education followed in the traditional classrooms by igniting the spirit of competition among the attendees. The platform can be used to create interactive quizzes within a few minutes and turn any classroom or hall into a competition arena.",
+    "firstFeature": {
+      "featureTitle": "Interactive quizzes",
+      "featureText": "The platform has simple interfaces through which you can create interactive quizzes within minutes."
+    },
+    "secondFeature": {
+      "featureTitle": "Competitive atmosphere",
+      "featureText": "Any class or meeting can be turned into a competitive arena in which attendees can compete."
+    },
+    "thirdFeature": {
+      "featureTitle": "Entertaining education",
+      "featureText": "The platform aims to add entertainment to education by conducting interactive quizzes for students."
+    },
+    "forthFeature": {
+      "featureTitle": "Share quizzes",
+      "featureText": "Quizzes can be shared with friends or family members on all social media platforms."
+    },
+    "fifthFeature": {
+      "featureTitle": "Instant results",
+      "featureText": "The quizzes can be taken individually or in groups, and immediate results can be obtained, which can be downloaded as an excel file."
+    },
+    "lastFeature": {
+      "featureTitle": "Remote quizzes",
+      "featureText": "It is possible to join the quizzes regardless of the geographical location of the participants."
+    }
+  },
+  "quizesSection": {
+    "quizesSectionTitle": "Featured Quizes",
+    "question": "questions",
+    "player": "players",
+    "showQuizes": "browse quizes"
+  },
+  "howSection": {
+    "howTitle": "How it works ?",
+    "partsMenu": {
+      "firstPart": "Quiz creation section",
+      "secondPart": "Interactive section"
+    },
+    "firstDepartment": {
+      "firstDepartmentMenu": {
+        "firstLink": "Create an account",
+        "secondLink": "Create quiz",
+        "lastLink": "Share Quiz"
+      },
+      "firstDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "To create any quiz, the user must first create an account on the platform .",
+          "boxLink": "Create An Acount"
+        },
+        "secondBox": {
+          "boxTitle": "Each quiz can be:",
+          "firstBoxLink": "Public to all platform users or private only to the user who created it.",
+          "secondBoxLink": "Appropriate for any school stage (elementary - preparatory - secondary - university - specialist).",
+          "lastBoxLink": "Belongs to one or more categories (physics - chemistry - sport - art - general information ... etc.).",
+          "boxLink": "Create Quiz"
+        },
+        "thirdBox": {
+          "boxTitle": "After completing the quiz creation, the quiz can be shared with the attendees by giving them the quiz link and code. They can be obtained by pressing the Start Test button and selecting Group Mode.",
+          "boxLink": "Start Now"
+        }
+      }
+    },
+    "secondDepartment": {
+      "secondDepartmentMenu": {
+        "firstLink": "Quiz mode",
+        "secondLink": "Connect to quiz",
+        "lastLink": "Start compitition"
+      },
+      "secondDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "There are two modes for passing any quiz:",
+          "firstBoxLink": "Individually: a user can pass a quiz alone, and obtain results immediately",
+          "secondBoxLink": "Collective: :ultiple users can connect to the same quiz in the same time, the number can be up to 250 users."
+        },
+        "secondBox": {
+          "boxTitle": "When choosing the collective mode",
+          "firstBoxLink": "The device will turn into a quiz controller.",
+          "secondBoxLink": "A link and a code for the quiz will appear on the screen that can be shared with the attendees to contact the quiz through their smart phone or any smart device.",
+          "lastBoxLink": "The control screen shows the number of users connected to the quiz and their names."
+        },
+        "thirdBox": {
+          "boxTitle": "The competition begins with the start of the quiz where each participant receives the first question with the answers on his / her device.",
+          "firstBoxLink": "The person who is fastest in the correct answer gets higher points.",
+          "secondBoxLink": "The person with the wrong answer does not get any point.",
+          "lastBoxLink": "After all the participants answer the question, a table will appear on the control screen with the test statistics.",
+          "boxLink": "Join A Quiz"
+        }
+      }
+    }
+  },
+  "footer": {
+    "footerLinks": {
+      "firstLink": "Home",
+      "secondLink": "All Quizes",
+      "thirdLink": "About Us",
+      "forthLink": "Features",
+      "fifthLink": "How It Works",
+      "lastLink": "Contact Us"
+    },
+    "register": {
+      "registerTitle": "Subscribe to the newsletter",
+      "EmailInputText": "Email",
+      "registerBtn": "Subscribe"
+    },
+    "footerLogoText": "The first Arab platform to create interactive quizzes through playing.",
+    "copyRight": "eQuization - 2021"
+  },
+  "errorNameText": "Please enter",
+  "minLengthError": "Must Be At Least",
+  "emailRulesError": "Must Be Valid",
+  "usernameText": "It should be without commas",
+  "characters": "Characters",
+  "errorAlertText": "Error",
+  "passwordErrorText": "Please Enter The Password",
+  "matchPassword": "Passwords Must Match",
+  "passwordLength": "Password must be at least 8 characters",
+  "loginPage": {
+    "loginPageTitle": "Sign in",
+    "formContentTitle": "Sign in",
+    "emailInputText": "E-mail",
+    "passwordInputText": "password",
+    "buttonText": "Sign in",
+    "forgetPasswordText": "forget password ?",
+    "formDividerText": "Don't have an account?",
+    "formDividerLink": "Register a new account"
+  },
+  "confirmEmailPage": {
+    "pageTitle": "verify your e-mail",
+    "alertText": "Account successfully created",
+    "alertDescriptionText": "We have sent more information to you via your e-mail. Please check your inbox",
+    "alertButtonText": "Resend verification mail"
+  },
+  "contactSucceededPage": {
+    "pageTitle": "Contact us",
+    "alertText": "Your message was sent successfully",
+    "alertDescriptionText": "We have received your message, our specialized team will reply to you as soon as possible",
+    "alertButtonText": "Go to the home page",
+    "formContentTitle": "Connect with us"
+  },
+  "contactUsPage": {
+    "nameInputText": "name",
+    "subjectInputText": "Subject",
+    "messageInputText": "Message",
+    "buttonText": "Send",
+    "formContentDescription": "Connect with us by sending a message, and the specialized team will get back to you as soon as possible"
+  },
+  "createAccountPage": {
+    "pageTitle": "Register an account",
+    "inputText": "username",
+    "confirmPasswordText": "confirm password",
+    "checkBoxText": "I agree to the terms and conditions and the usage policy",
+    "buttonText": "Register",
+    "formDividerText": "Already have an account?",
+    "formDividerLink": "Sign in",
+    "formContentTitle": "Register a new account",
+    "formContentDescription": "Register a new account now and enjoy the platform's features and services"
+  },
+  "emailConfirmedPage": {
+    "pageTitle": "verify your e-mail",
+    "alertText": "Your email has been confirmed successfully",
+    "alertDescriptionText": "Congratulations, you have successfully verified your e-mail. You can now sign in to your account",
+    "alertButtonText": "Go to sign in"
+  },
+  "setPasswordPage": {
+    "buttonText": "Reset password"
+  },
+  "passwordSettedPage": {
+    "pageTitle": "Set Password",
+    "alertText": "The Password has Been Reset",
+    "alertDescriptionText": "The password has been reset, you can now sign in with the new password",
+    "alertButtonText": "Go to sign in",
+    "formDividerText": "Already have an account?",
+    "formDividerLink": "sign in",
+    "formContentTitle": "Set a new password"
+  },
+  "resetPasswordPage": {
+    "titleDescription": "Enter your email address to receive instructions on how to reset your password",
+    "buttonText": "send"
+  },
+  "resetPasswordSucceededPage": {
+    "pageTitle": "Password Recovery",
+    "alertText": "The information has been sent successfully",
+    "alertDescriptionText": "We have sent more information to you via E-mail, please check your mailbox",
+    "alertButtonText": "Resend",
+    "formDividerText": "Already have an account?",
+    "formDividerLink": "sign in",
+    "formContentTitle": "Reset password"
+  },
+  "quizesExplorePage": {
+    "pageTitle": "Quizes",
+    "labelText": "Search for a quiz",
+    "buttonText": "Search",
+    "categoriesTitle": "Categories:",
+    "categoriesLink": "View Categories",
+    "selectBox": {
+      "firstSelect": "Highest rated",
+      "secondSelect": "Most favorite",
+      "thirdSelect": "Most used"
+    }
+  },
+  "quizesCategories": {
+    "pageTitle": "Categories",
+    "quiz": "quiz"
+  },
+  "quizesCatPage": {
+    "pageTitle": "Categories: Chemistry"
+  },
+  "categoriesNames": {
+    "allCategories": "All",
+    "publicInfoCategory": "General Information",
+    "languagesCategory": "Foreign languages",
+    "educationCategory": "Education",
+    "scienceCategory": "Science",
+    "historyCategory": "History",
+    "physicsCategory": "Physics",
+    "artsCategory": "Arts",
+    "chemistryCategory": "Chemistry",
+    "mathematicsCategory": "Maths",
+    "sportCategory": "Sport",
+    "informationCategory": "Informational"
+  },
+  "quizPage": {
+    "pageTitle": "Quizes",
+    "backLink": "Back",
+    "startBtn": "Start Quiz",
+    "showMore": "Show More",
+    "addToFavorite": "Add to favorites",
+    "shareQuiz": "Share Quiz",
+    "deleteQuiz": "Delete Quiz",
+    "shareMsg": "Test your knowledge in this quiz!",
+    "descriptionTitle": "Quiz Description",
+    "quizCategoriesTitle": "Categories :",
+    "playerName": "Mohamed Aleskandrany",
+    "dateText": "24-4-2021",
+    "questionInfoTitle": "Questions Number",
+    "playersInfoTitle": "Players Number",
+    "quizDetails": {
+      "title": "Try a demo title quiz"
+    }
+  },
+  "myQuizPage": {
+    "deleteBtn": "Delete"
+  },
+  "dialog": {
+    "dialogTitle": "Choose quiz mode",
+    "individualPlayer": "individual",
+    "multiPlayers": "multi"
+  },
+  "deleteDialog": {
+    "title": "Delete Quiz",
+    "question": "Do you want to delete this quiz?",
+    "agree": "Ok",
+    "notAgree": "Cancel"
+  },
+  "singOutDialog": {
+    "title": "Sign Out",
+    "question": "Do you want to sign out ?"
+  },
+  "AccountPage": {
+    "pageTitle": "My Account",
+    "welcomeText": "Welcome, Mohamed Aleskandrany",
+    "AccountHeader": {
+      "headerText": "My Account",
+      "backText": "Back"
+    },
+    "AccountCard": {
+      "AccountName": "Mohamed Aleskandrany",
+      "AccountSettings": "Account Settings"
+    },
+    "sideMenuLinks": {
+      "first": "My Account",
+      "second": "My Quizzes",
+      "third": "Create Quiz",
+      "forth": "Account Settings",
+      "last": "Sign Out"
+    },
+    "AccountInfoCards": {
+      "firstCard": {
+        "cardTitle": "test your knowledge",
+        "cardDescription": "Start the competition now and join the tests in the classification you love",
+        "cardLinkText": "Review the quizes"
+      },
+      "secondCard": {
+        "cardTitle": "Share your knowledge",
+        "cardDescription": "Start now by creating a quiz and sharing your experiences in your favorite major",
+        "cardLinkText": "Create a quiz"
+      }
+    }
+  },
+  "myQuizzesPage": {
+    "AccountHeader": {
+      "headerText": "my Quizzes"
+    },
+    "emptyData": {
+      "descriptionText": "No quizzes were created",
+      "linkText": "Create Quiz"
+    }
+  },
+  "addQuizPage": {
+    "pageTitle": "Craete Quiz",
+    "quizTitle": "Quiz Title",
+    "categoriesLabel": "Categories",
+    "categories": {},
+    "categoriesError": "Classifications must be selected",
+    "breifExplanation": "Breif Explanation",
+    "breifExplanationError": "Breif Explanation",
+    "detailedExplanation": "Detailed Explanation",
+    "chooseImg": "Choose an image (optional)",
+    "quizLang": "Quiz Language",
+    "privacyLabel": "Privacy:",
+    "publicRadio": "Public",
+    "privateRadio": "Private",
+    "selectErrorText": "The quiz language must be chosen",
+    "subBtn": "Create Quiz"
+  },
+  "profilePage": {
+    "pageTitle": "Account Settings",
+    "backText": "Delete Account",
+    "currentPassword": "current password",
+    "newPassword": "new password",
+    "confirmNewPassword": "confirm new password",
+    "subBtn": "Update",
+    "deleteDialogText": "Do you want to delete this account ?"
+  },
+  "editQuizPage": {
+    "pageTitle": "Edit Quiz",
+    "privacyLabel": "Privacy"
+  },
+  "questionPage": {
+    "title": "Questions",
+    "addQuestion": "Add Question",
+    "questionTimeTitle": "Question Time: ",
+    "answersNumberTitle": "Answers Number: ",
+    "headerText": "Quiz Questions: ",
+    "second": "Second",
+    "subBtn": "Add Question",
+    "showQuestions": "Show Questions",
+    "emptyData": {
+      "descriptionText": "No Questions Were Added"
+    },
+    "deleteDialog": {
+      "title": "Delete Question",
+      "question": "Do You Want To Delete This Queston?"
+    },
+    "copyDialog": {
+      "title": "Copy Question",
+      "close": "Close"
+    },
+    "moveDialog": {
+      "title": "Move Question"
+    },
+    "icons": {
+      "edit": "Edit Question",
+      "delete": "Delete Question",
+      "copy": "Copy Question",
+      "move": "Move Question"
+    }
+  },
+  "addQuestionPage": {
+    "title": "Add questions",
+    "headerText": "Add Question",
+    "questionTextLabel": "Question text",
+    "questionTimeLabel": "Time to ask",
+    "questionTypes": {
+      "oneAnswer": "One answer",
+      "multiAnswers": "Multiple answers",
+      "trueFalse": "True or false",
+      "noAnswer": "Without a correct answer"
+    },
+    "answersType": {
+      "text": "Text",
+      "image": "Image"
+    },
+    "questionTypeLabel": "Question type",
+    "answerTypeLabel": "Type of answer",
+    "sourceLabel": "Source",
+    "addExplanation": "Add an explanation",
+    "answersTitle": "Answers",
+    "answer": "Answer",
+    "questionMark": "Question Mark"
+  },
+  "editQuestoonPage": {
+    "title": "Edit Question"
+  },
+  "settingsPage": {
+    "title": "Options",
+    "headerText": "Quiz Settings",
+    "labels": {
+      "first": "Questions timer",
+      "second": "Automatic calculation of question points",
+      "third": "Automatic transmission to the next question",
+      "forth": "Shuffle questions",
+      "last": "Shuffle answers"
+    }
+  },
+  "chooseImg": "Choose Img",
+  "ready": {
+    "title": "Ready"
+  },
+  "question": {
+    "question": "Question",
+    "from": "from",
+    "sendAnswersBtn": "Send answers"
+  },
+  "settings": {
+    "playersNumbers": "Players number",
+    "goToLink": "Go to the following link: ",
+    "enterNumber": "Enter this number: "
+  },
+  "finalResults": {
+    "title": "the final results",
+    "download": "Download",
+    "share": "Share",
+    "endQuiz": "Finish the quiz",
+    "correctAnswer": "The correct answer: ",
+    "showExplanation": "Show explanation",
+    "question": "Question",
+    "trueFalse": "True or False",
+    "duration": "Duration",
+    "results": "Results",
+    "questionResult": "The question result",
+    "finalResult": "final result",
+    "shareResults": "share results",
+    "questionExplanation": "Explain the question",
+    "noExplanation": "There is no explanation for this question"
+  },
+  "play": {
+    "title": "Player",
+    "nameInput": "Hi, please enter the number",
+    "numberInput": "Enter your name to join",
+    "nameLabel": "Nick name",
+    "numLabel": "Number",
+    "loginBtn": "Entry",
+    "joinBtn": "Join"
+  },
+  "host": {
+    "options": {
+      "title": "Quiz control panel"
+    }
+  },
+  "beReady": {
+    "title": "be ready",
+    "excellent": "Excellent! You are now connected to the quiz",
+    "wait": "The quiz will start shortly",
+    "playersNumber": "Number of Players: "
+  },
+  "resultTables": {
+    "scoreBoard": {
+      "title": "Scoreboard",
+      "headers": {
+        "name": "name",
+        "currentResult": "Result of current question",
+        "finalResult": "Final result",
+        "currentOrder": "Current order: ",
+        "btn": "Next question"
+      }
+    }
+  },
+  "useCases": {
+    "title": "Use Cases",
+    "firstFeature": {
+      "featureTitle": "Universities and schools",
+      "featureText": "Any teacher at the university or in the school can create tests in various majors within a few minutes and share them with students, either before or after the start of the lecture."
+    },
+    "secondFeature": {
+      "featureTitle": "Online Academies",
+      "featureText": "Online tutoring academies can use interactive tests to create an atmosphere of interaction and entertainment among attendees, keep them focused and motivate them to complete the lessons."
+    },
+    "thirdFeature": {
+      "featureTitle": "Training Centers",
+      "featureText": "Interactive tests are an important tool that can be used in training centers, whether scientific or professional, to ensure that the attendees understand the ideas presented during the training sessions."
+    },
+    "forthFeature": {
+      "featureTitle": "Events and meetings",
+      "featureText": "In most meetings, most of the attendees cannot concentrate and follow up on the meeting for more than 20 minutes. Using interactive quizzes and questionnaires during meetings, attendees can be attracted and their smart devices are used in relation to meeting topics."
+    },
+    "fifthFeature": {
+      "featureTitle": "Companies and institutions",
+      "featureText": "Companies and institutions in general can increase communication between their employees and create an atmosphere of entertainment between them by using humorous interactive tests and exercises that are created by one of the managers or employees."
+    },
+    "lastFeature": {
+      "featureTitle": "Friends and families",
+      "featureText": "Any group of friends or family members can use the pre-existing tests on the platform or create new tests that suit them to eliminate boredom, especially in recent times with the spread of the Corona virus and the increase in sitting times at home."
+    }
+  },
+  "aboutPage": {
+    "title": "About Platform",
+    "firstHeader": "It is a global educational platform that wants to empower everyone, including children, students and staff, to unleash their full educational potential.",
+    "secondHeader": "Our learning platform makes it easy for any individual or company to create, share, and pass educational exams that lead to interactive participation. The exams can be taken anywhere, personally or virtually, using any device with an Internet connection.",
+    "thirdHeader": "Our mission is to make the learning process easy, fun, and fun.",
+    "forthHeader": "Our vision is to create a highly interactive system with users, including learners and teachers, in order to build a better and more effective educational system.",
+    "lastHeader": "The platform was established by a company specialized in educational systems and at a very high rate, “Educatech Company”. The platform was built by a group of multidisciplinary scientific and technical expertise at the highest levels and experiences to reach the highest quality standards in managing educational quizzes."
+  },
+  "howItWorksPage": {
+    "title": "How it works?",
+    "introduction": "The platform is characterized by the presence of easy-to-use interfaces for all users, even non-specialists, the work of the platform is divided into two parts: a section related to controlling the creation, modification and sharing of quizzes, and the interactive section concerned with passing the quizzes.",
+    "quizControlHeader": "Quiz control section",
+    "steps": {
+      "createAccount": "Create an account",
+      "createQuiz": "Create quiz",
+      "shareQuiz": "Share quiz"
+    },
+    "createAcoountTitle": "Create an account on the platform",
+    "createAcoountParagraph": "To create any test, you must first register on the platform. As for passing the tests without saving the results, you do not need to register.",
+    "CreateQuizTitle": "Create a quiz",
+    "createQuizparagraph": "Creating quizzes takes only a few minutes, the test can be public (displayed on the platform) that any user of the platform can access and pass, or private that only users with the test link can access and pass.",
+    "createQuizparagraph2": "After the quiz is created, the quiz questions and answers must be created.",
+    "createQuizparagraph3": "The question is either text or image, and the answers can be images or text.",
+    "questionTypesparagraph": "There are different types of questions:",
+    "questionsTypes": {
+      "first": "One answer",
+      "second": "Multiple answers",
+      "third": "Survey question",
+      "forth": "True or Flase"
+    },
+    "shareQuizTitle": "Share quiz",
+    "shareQuizpargraph": "Public or private quizzes can be shared with the attendees by giving them the quiz link with the access code that can be obtained by clicking on the (Start Quiz) button.",
+    "activitySectionHeader": "Interactive section",
+    "activitySectionIntro": "In this section the quizzes are taken either individually or collectively.",
+    "patterns": {
+      "single": {
+        "name": "Individually",
+        "title": "Single mode",
+        "paragraph": "The user chooses the quiz settings and then passes the quiz and gets the final result upon completion of the quiz."
+      },
+      "multi": {
+        "name": "collective",
+        "title": "Group mode",
+        "paragraph": "In this mode there is a screen to control the quiz and a screen to answer the quiz questions.",
+        "paragraph2": "When the teacher chooses the group mode, his device will automatically turn into a quiz control screen.",
+        "paragraph3": "The teacher or lecturer shares the quiz link with the access code to it with the attendees.",
+        "paragraph4": "The attendees open the link from their smart devices, enter the access code, choose a nickname, and then connect to the quiz.",
+        "paragraph5": "The names of all quiz callers appear on the quiz control screen.",
+        "paragraph6": "After all the participants in the quiz are connected, the lecturer starts the quiz, then the attendees receive the first question with the answers on their devices with a question timer.",
+        "paragraph7": "The quickest person to choose the correct answer gets higher points for the question.",
+        "paragraph8": "The control screen shows the number of answers with the results of the current question and the total results of all participants.",
+        "paragraph9": "The teacher moves to the next question via the control screen, and the participants receive the second question with the answers..and so on until the completion of all the quiz questions.",
+        "paragraph10": "At the end of the quiz, the final results are shown on the control screen in descending order for all participants, and the teacher can download the results as an Excel file and save the results."
+      }
+    }
+  },
+  "featuresPage": {
+    "title": "Platform Features",
+    "f1": "Create interactive tests in various fields in a short time that does not exceed minutes, as our platform provides a set of tools that enable both learners and teachers to interact with each other.",
+    "f2": "Create interactive tests in various fields in a short time that does not exceed minutes, as our platform provides a set of tools that enable both learners and teachers to interact with each other.",
+    "f3": "The ability to share tests on social media.",
+    "f4": "The possibility of obtaining results and analyzes immediately upon completion of the selection.",
+    "f5": "The possibility of building intelligence tests and scientific tests remotely.",
+    "f6": "Providing choices in four different languages: English, French, Turkish, and most importantly, in Arabic.",
+    "f7": "Building interactive questions during the teaching session, to ensure the extent to which the learners are familiar with a particular topic.",
+    "f8": "The possibility of analyzing students' data, their improvement and their tendencies during different periods of time in order to come up with the best results that suit each of the learners separately.",
+    "f9": "The possibility of developing group questions or tests based on the team's performance in an integrated manner and comparing the results of the competing teams.",
+    "f10": "Provide the opportunity for learners to share and write questions and share them with their friends within the class in order to create an atmosphere of meaningful interaction.",
+    "f11": "The ability to perform the test through any electronic device, regardless of its size, capacity and type."
+  }
+}

@@ -1,0 +1,594 @@
+{
+  "playNavbar": {
+    "exitText": "çıkış"
+  },
+  "errorPage": {
+    "pageTitle": "bir hata oluştu",
+    "link": "Ana sayfaya git",
+    "pageNotFound": "404 Bulunamadı"
+  },
+  "menu": {
+    "menuLinks": {
+      "firstLink": "Ev",
+      "secondLink": "Tüm Sınavlar",
+      "thirdLink": "Bir hesap oluştur",
+      "forthLink": "oturum aç",
+      "fifthLink": "Platform Hakkında",
+      "sixthLink": "Platform özellikleri",
+      "seventhLink": "Nasıl çalışır",
+      "useCases": "Kullanım durumları",
+      "lastLink": "Bizimle iletişime geçin"
+    }
+  },
+  "homePageTitle": "Anasayfa",
+  "homeSection": {
+    "introText": "Equization, izleyicilerin ilgisini çekmek için etkileşimli sınavların oluşturulmasına yönelik sınav platformudur.",
+    "homeBtns": {
+      "firstBtn": "İlk testınızı oluşturun",
+      "secondBtn": "Bir teste katılın"
+    }
+  },
+  "numbersSection": {
+    "firstCardTitle": "Sınav numarası",
+    "secondCardTitle": "Sorular numarası",
+    "lastCardTitle": "Oyuncu sayısı"
+  },
+  "featuresSection": {
+    "featureSectionTitle": "Neden EQUIZATION?",
+    "featureTitleText": "Equization platformu, katılımcılar arasındaki rekabet ruhunu ateşleyerek geleneksel sınıflarda izlenen sıkıcı öğretim yöntemlerinde bir değişiklik yaratmak için teknolojik devrimden yararlanmayı amaçlamaktadır. Platform, birkaç dakika içinde etkileşimli sınavlar oluşturmak ve herhangi bir sınıfı veya salonu bir yarışma alanına dönüştürmek için kullanılabilir.",
+    "firstFeature": {
+      "featureTitle": "Etkileşimli sınavlar",
+      "featureText": "Ddakikalar içinde etkileşimli sınavlar oluşturabileceğiniz basit arayüzlere sahiptir."
+    },
+    "secondFeature": {
+      "featureTitle": "Rekabet ortamı",
+      "featureText": "Herhangi bir sınıf veya toplantı, katılımcıların rekabet edebileceği rekabetçi bir arenaya dönüştürülebilir."
+    },
+    "thirdFeature": {
+      "featureTitle": "Eğlenceli eğitim",
+      "featureText": "Öğrenciler için interaktif testler yapma konusunda eğitime eğlence ve eğlence katmayı hedefliyor."
+    },
+    "forthFeature": {
+      "featureTitle": "Testleri paylaş",
+      "featureText": "Testler tüm sosyal medya platformlarında arkadaşlarınız veya aile üyelerinizle paylaşılabilir."
+    },
+    "fifthFeature": {
+      "featureTitle": "Anında sonuçlar",
+      "featureText": "Testler tek tek veya gruplar halinde alınabilir ve anında sonuçlar alınabilir, excel dosyası olarak indirilebilir."
+    },
+    "lastFeature": {
+      "featureTitle": "Uzaktan sınavlar",
+      "featureText": "Katılımcıların coğrafi konumuna bakılmaksızın testlere katılmak mümkündür."
+    }
+  },
+  "quizesSection": {
+    "quizesSectionTitle": "Öne Çıkan Sınavlar",
+    "question": "soru",
+    "player": "oyuncu",
+    "showQuizes": "testlere göz atın"
+  },
+  "howSection": {
+    "howTitle": "Nasıl çalışıyor",
+    "partsMenu": {
+      "firstPart": "Test oluşturma bölümü",
+      "secondPart": "Etkileşimli bölüm"
+    },
+    "firstDepartment": {
+      "firstDepartmentMenu": {
+        "firstLink": "Hesap oluştur",
+        "secondLink": "Test Oluştur",
+        "lastLink": "Testi Paylaş"
+      },
+      "firstDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "Herhangi bir sınav oluşturmak için, kullanıcının önce platformda bir hesap oluşturması gerekir.",
+          "boxLink": "Hesap oluştur"
+        },
+        "secondBox": {
+          "boxTitle": "Her sınav şu şekilde olabilir:",
+          "firstBoxLink": "Tüm platform kullanıcıları için herkese açık veya yalnızca onu oluşturan kullanıcıya özel.",
+          "secondBoxLink": "Her okul aşaması için uygundur (ilkokul - hazırlık - orta - üniversite - uzman).",
+          "lastBoxLink": "Bir veya daha fazla kategoriye aittir (fizik - kimya - spor - sanat - genel bilgiler ... vb.).",
+          "boxLink": "Test Oluştur"
+        },
+        "thirdBox": {
+          "boxTitle": "Sınav oluşturma tamamlandıktan sonra, sınav bağlantısı ve kodu verilerek katılımcılarla paylaşılabilir. Testi Başlat düğmesine basılarak ve Grup Modu seçilerek elde edilebilirler.",
+          "boxLink": "Şimdi başla"
+        }
+      }
+    },
+    "secondDepartment": {
+      "secondDepartmentMenu": {
+        "firstLink": "Quiz modu",
+        "secondLink": "Quize bağlan",
+        "lastLink": "Yarışmayı başlat"
+      },
+      "secondDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "Herhangi bir testi geçmek için iki mod vardır:",
+          "firstBoxLink": "Bireysel olarak: Bir kullanıcı bir testi tek başına geçebilir ve sonuçları hemen alabilir",
+          "secondBoxLink": "Toplu: çoklu kullanıcılar aynı teste aynı anda bağlanabilir, sayı 250 kullanıcıya kadar çıkabilir."
+        },
+        "secondBox": {
+          "boxTitle": "Toplu modu seçerken",
+          "firstBoxLink": "cihaz bir sınav denetleyicisine dönüşecektir.            ",
+          "secondBoxLink": "Ekranda, akıllı telefonlarından veya herhangi bir akıllı cihazdan sınavla iletişime geçmeleri için katılımcılarla paylaşılabilecek bir bağlantı ve kod görünecektir.",
+          "lastBoxLink": "Kontrol ekranı, sınava bağlı kullanıcıların sayısını gösterir. test ve isimleri."
+        },
+        "thirdBox": {
+          "boxTitle": "Yarışma, her katılımcının cihazındaki cevaplarla birlikte ilk soruyu aldığı sınavın başlangıcıyla başlar.",
+          "firstBoxLink": "Doğru cevapta en hızlı olan kişi daha yüksek puan alır.",
+          "secondBoxLink": "Yanlış cevabı veren kişi hiçbir anlam ifade etmez.",
+          "lastBoxLink": "Tüm katılımcılar soruyu cevapladıktan sonra, kontrol ekranında test istatistiklerinin bulunduğu bir tablo belirecektir.",
+          "boxLink": "Sonraki"
+        }
+      }
+    }
+  },
+  "footer": {
+    "footerLinks": {
+      "firstLink": "Anasayfa",
+      "secondLink": "Tüm Sınavlar",
+      "thirdLink": "Hakkımızda",
+      "forthLink": "Özellikleri",
+      "fifthLink": "Nasıl çalışır",
+      "lastLink": "Bizimle iletişime geçin"
+    },
+    "register": {
+      "registerTitle": "Bültene abone olun",
+      "EmailInputText": "E-posta adresi",
+      "registerBtn": "Abone ol"
+    },
+    "footerLogoText": "Oynayarak interaktif sınavlar oluşturan ilk Arap platformu.",
+    "copyRight": "eQuization - 2021"
+  },
+  "errorNameText": "Girin lütfen",
+  "minLengthError": "En azından olmalı",
+  "emailRulesError": "Geçerli olmalı",
+  "usernameText": "Virgül içermemelidir",
+  "characters": "Karakterler",
+  "errorAlertText": "Hata",
+  "passwordErrorText": "Lütfen şifreyi giriniz",
+  "matchPassword": "Parolalar aynı olmalıdır",
+  "passwordLength": "Parola en az 8 karakter uzunluğunda olmalıdır",
+  "loginPage": {
+    "loginPageTitle": "Oturum aç",
+    "formContentTitle": "Oturum aç",
+    "emailInputText": "E-posta",
+    "passwordInputText": "şifre",
+    "buttonText": "Oturum aç",
+    "forgetPasswordText": "Parolanızı mı unuttunuz ?",
+    "formDividerText": "Hesabın yok mu?",
+    "formDividerLink": "Yeni bir hesap oluştur"
+  },
+  "confirmEmailPage": {
+    "pageTitle": "Eposta adresinizi doğrulayın",
+    "alertText": "Hesap başarıyla oluşturuldu",
+    "alertDescriptionText": "Size e-postanızla daha fazla bilgi gönderdik.Lütfen gelen kutunuzu kontrol edin",
+    "alertButtonText": "Doğrulama postasını yeniden gönder"
+  },
+  "contactSucceededPage": {
+    "pageTitle": "bizi ara",
+    "alertText": "Mesajınız başarıyla gönderildi",
+    "alertDescriptionText": "Mesajınızı aldık, uzman ekibimiz en kısa sürede size cevap verecektir.",
+    "alertButtonText": "Ana sayfaya git",
+    "formContentTitle": "Bizimle iletişime geçin"
+  },
+  "contactUsPage": {
+    "nameInputText": "İsim",
+    "subjectInputText": "Konu",
+    "messageInputText": "mesaj",
+    "buttonText": "Göndermek",
+    "formContentDescription": "Mesaj göndererek bize ulaşın ve uzman ekip en kısa sürede size cevap verecektir."
+  },
+  "createAccountPage": {
+    "pageTitle": "Bir hesap oluştur",
+    "inputText": "Kullanıcı adı",
+    "confirmPasswordText": "Şifreyi Onayla",
+    "checkBoxText": "Hüküm ve koşulları ve kullanım politikasını kabul ediyorum",
+    "buttonText": "Kayıt",
+    "formDividerText": "Zaten hesabınız var mı?",
+    "formDividerLink": "oturum aç",
+    "formContentTitle": "Yeni bir hesap oluştur",
+    "formContentDescription": "Yeni bir hesap için şimdi kaydolun ve platformun özelliklerinden ve hizmetlerinden yararlanın."
+  },
+  "emailConfirmedPage": {
+    "pageTitle": "Eposta adresinizi doğrulayın",
+    "alertText": "E-postanız başarıyla onaylandı",
+    "alertDescriptionText": "Tebrikler, e-posta başarıyla onaylandı. Artık hesabınıza giriş yapabilirsiniz",
+    "alertButtonText": "Giriş yapmak için git"
+  },
+  "setPasswordPage": {
+    "buttonText": "Parola sıfırlama"
+  },
+  "passwordSettedPage": {
+    "pageTitle": "Şifreyi belirle",
+    "alertText": "Parola sıfırlandı",
+    "alertDescriptionText": "Şifre sıfırlandı, artık yeni şifre ile giriş yapabilirsiniz",
+    "alertButtonText": "Giriş yapmak için git",
+    "formDividerText": "Zaten hesabınız var mı?",
+    "formDividerLink": "oturum aç",
+    "formContentTitle": "Yeni bir şifre belirleyin"
+  },
+  "resetPasswordPage": {
+    "titleDescription": "Şifrenizi nasıl sıfırlayacağınıza ilişkin talimatları almak için e-posta adresinizi girin",
+    "buttonText": "Göndermek"
+  },
+  "resetPasswordSucceededPage": {
+    "pageTitle": "Parola Yenile",
+    "alertText": "Bilgiler başarıyla gönderildi",
+    "alertDescriptionText": "Size daha fazla bilgi gönderdik, lütfen gelen kutunuzu kontrol edin",
+    "alertButtonText": "geri göndermek",
+    "formDividerText": "Zaten hesabınız var mı?",
+    "formDividerLink": "oturum aç",
+    "formContentTitle": "Parola sıfırlama"
+  },
+  "quizesExplorePage": {
+    "pageTitle": "Sınavlar",
+    "labelText": "Test arayın",
+    "buttonText": "Araştırma",
+    "categoriesTitle": "Kategoriler:",
+    "categoriesLink": "Sınıflandırmalar",
+    "selectBox": {
+      "firstSelect": "yüksek dereceli",
+      "secondSelect": "En çok sevilen",
+      "thirdSelect": "En çok kullanılan"
+    }
+  },
+  "quizesCategories": {
+    "pageTitle": "Kategoriler",
+    "quiz": "sınav"
+  },
+  "quizesCatPage": {
+    "pageTitle": "Kategoriler: Kimya"
+  },
+  "categoriesNames": {
+    "allCategories": "Herşey",
+    "publicInfoCategory": "Genel Bilgiler",
+    "languagesCategory": "Yabancı Diller",
+    "educationCategory": "Eğitim",
+    "scienceCategory": "Fen Bilimleri",
+    "historyCategory": "Tarih",
+    "physicsCategory": "fizik",
+    "artsCategory": "Sanat",
+    "chemistryCategory": "kimya",
+    "mathematicsCategory": "Matematik",
+    "sportCategory": "spor",
+    "informationCategory": "Bilgilendirici"
+  },
+  "quizPage": {
+    "pageTitle": "Sınavlar",
+    "backLink": "Geri",
+    "startBtn": "Testi Başlat",
+    "showMore": "Daha Fazla Göster",
+    "addToFavorite": "Favorilere ekle",
+    "shareQuiz": "Testi Paylaş",
+    "deleteQuiz": "Testi Sil",
+    "shareMsg": "Bu testte bilginizi test edin!",
+    "descriptionTitle": "Testin açıklaması",
+    "quizCategoriesTitle": "Kategoriler:",
+    "playerName": "Mohamed Aleskandrany",
+    "dateText": "24-4-2021",
+    "questionInfoTitle": "Sorular Numarası",
+    "playersInfoTitle": "Oyuncu Sayısı",
+    "quizDetails": {
+      "title": "Bir demo başlık testi deneyin"
+    }
+  },
+  "myQuizPage": {
+    "deleteBtn": "Sil"
+  },
+  "dialog": {
+    "dialogTitle": "Test modunu seçin",
+    "individualPlayer": "Bireysel olarak",
+    "multiPlayers": "toplu"
+  },
+  "deleteDialog": {
+    "title": "İptal etmek",
+    "question": "Bu testi silmek istiyor musunuz?",
+    "agree": "Tamam mı",
+    "notAgree": "İptal etmek"
+  },
+  "singOutDialog": {
+    "title": "oturumu Kapat",
+    "question": "Çıkış yapmak istiyor musun ?"
+  },
+  "AccountPage": {
+    "pageTitle": "Hesap sayfası",
+    "welcomeText": "Hoş geldiniz, Mohamed Aleskandrany",
+    "AccountHeader": {
+      "headerText": "Hesabım",
+      "backText": "Geri"
+    },
+    "AccountCard": {
+      "AccountName": "Mohamed Aleskandrany",
+      "AccountSettings": "Hesap ayarları"
+    },
+    "sideMenuLinks": {
+      "first": "Hesabım",
+      "second": "Testlerim",
+      "third": "Sınav Oluştur",
+      "forth": "Hesap ayarları",
+      "last": "Oturumu Kapat"
+    },
+    "AccountInfoCards": {
+      "firstCard": {
+        "cardTitle": "bilgini test et",
+        "cardDescription": "Yarışmaya şimdi başlayın ve sevdiğiniz sınıflandırmadaki testlere katılın",
+        "cardLinkText": "Sınavları gözden geçirin"
+      },
+      "secondCard": {
+        "cardTitle": "Bilginizi paylaşın",
+        "cardDescription": "Şimdi bir sınav oluşturarak ve en sevdiğiniz ana daldaki deneyimlerinizi paylaşarak başlayın",
+        "cardLinkText": "Sınav oluşturun"
+      }
+    }
+  },
+  "myQuizzesPage": {
+    "AccountHeader": {
+      "headerText": "Testlerim"
+    },
+    "emptyData": {
+      "descriptionText": "sınav oluşturulmadı",
+      "linkText": "Bir sınav oluşturun"
+    }
+  },
+  "addQuizPage": {
+    "pageTitle": "Sınav Oluştur",
+    "quizTitle": "sınav başlığı",
+    "categoriesLabel": "Kategoriler",
+    "categories": {},
+    "categoriesError": "Sınıflandırmalar seçilmelidir",
+    "breifExplanation": "Kısa açıklama",
+    "breifExplanationError": "Kısa açıklama",
+    "detailedExplanation": "Detaylı açıklama",
+    "chooseImg": "Bir resim seçin (isteğe bağlı)",
+    "quizLang": "Sınav Dili",
+    "privacyLabel": "Gizlilik:",
+    "publicRadio": "halka açık",
+    "privateRadio": "Özel",
+    "selectErrorText": "Sınav dili seçilmelidir",
+    "subBtn": "Sınav Oluştur"
+  },
+  "profilePage": {
+    "pageTitle": "Hesap ayarları",
+    "backText": "Hesabı sil",
+    "currentPassword": "Şimdiki Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmNewPassword": "yeni şifreyi onayla",
+    "subBtn": "Güncelleme",
+    "deleteDialogText": "Bu hesabı silmek istiyormusunuz ?"
+  },
+  "editQuizPage": {
+    "pageTitle": "Testi Düzenle",
+    "privacyLabel": "Gizlilik"
+  },
+  "questionPage": {
+    "title": "Sorular",
+    "addQuestion": "Soru Ekle",
+    "questionTimeTitle": "Soru Zamanı: ",
+    "answersNumberTitle": "Cevap Sayısı: ",
+    "headerText": "Sınav Soruları: ",
+    "second": "İkinci",
+    "subBtn": "Soru Ekle",
+    "showQuestions": "Soruları Göster",
+    "emptyData": {
+      "descriptionText": "Soru Eklenmedi"
+    },
+    "deleteDialog": {
+      "title": "Soruyu Sil",
+      "question": "Bu Soruyu Silmek İstiyor musunuz?"
+    },
+    "copyDialog": {
+      "title": "Soruyu Kopyala",
+      "close": "kapat"
+    },
+    "moveDialog": {
+      "title": "Soruyu Taşı"
+    },
+    "icons": {
+      "edit": "Soruyu Düzenle",
+      "delete": "Soruyu Sil",
+      "copy": "Soruyu Kopyala",
+      "move": "Soruyu Taşı"
+    }
+  },
+  "addQuestionPage": {
+    "title": "Soru ekleyin",
+    "headerText": "Soru Ekle",
+    "questionTextLabel": "Soru metni",
+    "questionTimeLabel": "Sorma zamanı",
+    "questionTypes": {
+      "oneAnswer": "Bir cevap",
+      "multiAnswers": "Birden çok cevap",
+      "trueFalse": "Doğru ya da yanlış",
+      "noAnswer": "Doğru cevap olmadan"
+    },
+    "answersType": {
+      "text": "Görüntüler",
+      "image": "Metin"
+    },
+    "questionTypeLabel": "Soru tipi",
+    "answerTypeLabel": "Cevap türü",
+    "sourceLabel": "Kaynak",
+    "addExplanation": "Bir açıklama ekleyin",
+    "answersTitle": "Yanıtlar",
+    "answer": "Cevap",
+    "questionMark": "Soru işareti"
+  },
+  "editQuestoonPage": {
+    "title": "Soruyu Düzenle"
+  },
+  "chooseImg": "Resim Seçin",
+  "settingsPage": {
+    "title": "Seçenekler",
+    "headerText": "Testi Başlat",
+    "labels": {
+      "first": "Sorular zamanlayıcı",
+      "second": "Soru noktalarının otomatik hesaplanması",
+      "third": "Bir sonraki soruya aktarım otomatik",
+      "forth": "Soruları karıştır",
+      "last": "Yanıtları karıştır"
+    }
+  },
+  "ready": {
+    "title": "hazır"
+  },
+  "question": {
+    "question": "Soru",
+    "from": "de",
+    "sendAnswersBtn": "Cevapları gönder"
+  },
+  "settings": {
+    "playersNumbers": "Oyuncu sayısı",
+    "goToLink": "Bağlantıya git: ",
+    "enterNumber": "Bu numarayı girin: "
+  },
+  "finalResults": {
+    "title": "nihai sonuçlar",
+    "download": "İndir",
+    "share": "Paylaş",
+    "endQuiz": "Testi bitir",
+    "correctAnswer": "Doğru cevap: ",
+    "showExplanation": "Ek açıklamayı göster",
+    "question": "Soru",
+    "trueFalse": "Doğru ya da yanlış",
+    "duration": "Süresi",
+    "results": "Sonuçlar",
+    "questionResult": "Soru sonucu",
+    "finalResult": "son sonuç",
+    "shareResults": "sonuçları paylaş",
+    "questionExplanation": "Soruyu açıklayın",
+    "noExplanation": "Bu soru için bir açıklama yok"
+  },
+  "play": {
+    "title": "Oyuncu",
+    "nameInput": "Merhaba, lütfen numarayı giriniz",
+    "numberInput": "Katılmak için isminizi girin",
+    "nameLabel": "Takma ad",
+    "numLabel": "Numara",
+    "loginBtn": "Giriş",
+    "joinBtn": "Yeniden katıl"
+  },
+  "host": {
+    "options": {
+      "title": "Test kontrol paneli"
+    }
+  },
+  "beReady": {
+    "title": "hazır ol",
+    "excellent": "Mükemmel! Artık sınava bağlandınız",
+    "wait": "Sınav kısa süre içinde başlayacak",
+    "playersNumber": "Oyuncu sayısı: "
+  },
+  "resultTables": {
+    "scoreBoard": {
+      "title": "Puan Tablosu",
+      "headers": {
+        "name": "isim",
+        "currentResult": "Mevcut sorunun sonucu",
+        "finalResult": "Son sonuç",
+        "currentOrder": "Şuan ki sipariş: ",
+        "btn": "Sonraki soru"
+      }
+    }
+  },
+  "useCases": {
+    "title": "Kullanım durumları",
+    "firstFeature": {
+      "featureTitle": "Üniversiteler ve okullar",
+      "featureText": "Üniversitedeki veya okuldaki herhangi bir öğretmen, birkaç dakika içinde çeşitli ana dallarda testler oluşturabilir ve bunları dersin başlamasından önce veya sonra öğrencilerle paylaşabilir."
+    },
+    "secondFeature": {
+      "featureTitle": "Çevrimiçi Akademiler",
+      "featureText": "Çevrimiçi eğitim akademileri, katılımcılar arasında bir etkileşim ve eğlence atmosferi yaratmak, odaklarını korumak ve dersleri tamamlamaları için onları motive etmek için etkileşimli testleri kullanabilir."
+    },
+    "thirdFeature": {
+      "featureTitle": "Eğitim Merkezleri",
+      "featureText": "Etkileşimli testler, katılımcıların eğitim oturumları sırasında sunulan fikirleri anlamalarını sağlamak için bilimsel veya profesyonel eğitim merkezlerinde kullanılabilecek önemli bir araçtır."
+    },
+    "forthFeature": {
+      "featureTitle": "Etkinlikler ve toplantılar",
+      "featureText": "Çoğu toplantıda, katılımcıların çoğu toplantıya 20 dakikadan fazla konsantre olamıyor ve toplantıyı takip edemiyor.Toplantılar sırasında etkileşimli sınavlar ve anketler kullanılarak katılımcılar çekilebilir ve akıllı cihazları toplantı konularıyla ilgili olarak kullanılır."
+    },
+    "fifthFeature": {
+      "featureTitle": "Şirketler ve kurumlar",
+      "featureText": "Genel olarak şirketler ve kurumlar, yöneticilerinden veya çalışanlarından biri tarafından oluşturulan mizahi interaktif test ve alıştırmaları kullanarak çalışanları arasındaki iletişimi artırabilir ve aralarında bir eğlence ortamı yaratabilir."
+    },
+    "lastFeature": {
+      "featureTitle": "Arkadaşlar ve aileler",
+      "featureText": "Herhangi bir arkadaş grubu veya aile üyesi, özellikle Corona virüsünün yayılması ve oturma sürelerinin artmasıyla birlikte son zamanlarda can sıkıntısını gidermek için platformda önceden var olan testleri kullanabilir veya kendilerine uygun yeni testler oluşturabilir. evde."
+    }
+  },
+  "aboutPage": {
+    "title": "Platform hakkında",
+    "firstHeader": "Çocuklar, öğrenciler ve personel de dahil olmak üzere herkesi tam eğitim potansiyellerini ortaya çıkarmak için güçlendirmek isteyen küresel bir eğitim platformudur.",
+    "secondHeader": "Öğrenme platformumuz, herhangi bir bireyin veya şirketin etkileşimli katılım sağlayan eğitim sınavları oluşturmasını, paylaşmasını ve geçmesini kolaylaştırır. Sınavlar, internet bağlantısı olan herhangi bir cihaz kullanılarak kişisel veya sanal olarak herhangi bir yere girilebilir.",
+    "thirdHeader": "Misyonumuz, öğrenme sürecini kolay, eğlenceli ve eğlenceli hale getirmektir.",
+    "forthHeader": "Vizyonumuz, daha iyi ve daha etkili bir eğitim sistemi oluşturmak için öğrenciler ve öğretmenler dahil olmak üzere kullanıcılarla oldukça etkileşimli bir sistem oluşturmaktır.",
+    "lastHeader": "Platform, eğitim sistemlerinde uzmanlaşmış bir şirket tarafından ve çok yüksek oranda “Educatech Company” tarafından kurulmuştur."
+  },
+  "howItWorksPage": {
+    "title": "Nasıl çalışır?",
+    "introduction": "Platform, uzman olmayanlar dahil tüm kullanıcılar için kullanımı kolay arayüzlerin varlığı ile karakterize edilir, platformun çalışması iki bölüme ayrılmıştır: kısa sınavların oluşturulması, değiştirilmesi ve paylaşılması ile ilgili bir bölüm ve sınavları geçmekle ilgili interaktif bölüm.",
+    "quizControlHeader": "Sınav kontrol bölümü",
+    "steps": {
+      "createAccount": "Hesap oluştur",
+      "createQuiz": "Test oluştur",
+      "shareQuiz": "Testi paylaş"
+    },
+    "createAcoountTitle": "Platformda bir hesap oluşturun",
+    "createAcoountParagraph": "Herhangi bir test oluşturmak için önce platforma kayıt olmalısınız. Sonuçları kaydetmeden testleri geçmek için kayıt olmanıza gerek yoktur.",
+    "CreateQuizTitle": "Bir test oluşturun",
+    "createQuizparagraph": "Kısa sınavlar oluşturmak yalnızca birkaç dakika sürer, test, platformun herhangi bir kullanıcısının erişip geçebileceği herkese açık (platformda görüntülenebilir) veya yalnızca test bağlantısına sahip kullanıcıların erişip geçebileceği özel olabilir.",
+    "createQuizparagraph2": "Quiz oluşturulduktan sonra quiz soruları ve cevapları oluşturulmalıdır.",
+    "createQuizparagraph3": "Soru metin veya resimdir ve cevaplar resim veya metin olabilir.",
+    "questionTypesparagraph": "Farklı soru türleri vardır:",
+    "questionsTypes": {
+      "first": "bir cevap",
+      "second": "Birden çok yanıt",
+      "third": "Anket sorusu",
+      "forth": "Doğru ya da yanlış"
+    },
+    "shareQuizTitle": "Testi paylaş",
+    "shareQuizpargraph": "Genel veya özel quizler, (Quiz Başlat) butonuna tıklanarak erişim kodu ile quiz bağlantısı verilerek katılımcılarla paylaşılabilir.",
+    "activitySectionHeader": "Etkileşimli bölüm",
+    "activitySectionIntro": "Bu bölümde kısa sınavlar bireysel veya toplu olarak alınır.",
+    "patterns": {
+      "single": {
+        "name": "Bireysel olarak",
+        "title": "Tek mod",
+        "paragraph": "Kullanıcı sınav ayarlarını seçer ve ardından sınavı geçer ve sınavın tamamlanmasının ardından nihai sonucu alır."
+      },
+      "multi": {
+        "name": "toplu",
+        "title": "Grup modu",
+        "paragraph": "Bu modda quizi kontrol etmek için bir ekran ve quiz sorularını cevaplamak için bir ekran bulunmaktadır.",
+        "paragraph2": "Öğretmen grup modunu seçtiğinde, cihazı otomatik olarak bir sınav kontrol ekranına dönüşecektir.",
+        "paragraph3": "Öğretmen veya öğretim üyesi, erişim koduyla birlikte quiz bağlantısını katılımcılarla paylaşır.",
+        "paragraph4": "Katılımcılar akıllı cihazlarından bağlantıyı açar, erişim kodunu girer, bir takma ad seçer ve ardından teste bağlanır.",
+        "paragraph5": "Tüm sınav arayanların adları sınav kontrol ekranında görünür.",
+        "paragraph6": "Quizdeki tüm katılımcılar bağlandıktan sonra, öğretim görevlisi quizi başlatır, ardından katılımcılara soru zamanlayıcı ile cevapları olan ilk soruyu cihazlarında alırlar.",
+        "paragraph7": "Doğru cevabı en hızlı seçen kişi, soru için daha yüksek puan alır.",
+        "paragraph8": "Kontrol ekranı, mevcut sorunun sonuçlarıyla birlikte cevap sayısını ve tüm katılımcıların toplam sonuçlarını gösterir.",
+        "paragraph9": "Öğretmen, kontrol ekranı aracılığıyla bir sonraki soruya geçer ve katılımcılar, cevaplarıyla birlikte ikinci soruyu alır..ve bu, tüm sınav sorularının tamamlanmasına kadar devam eder.",
+        "paragraph10": "Quiz sonunda, nihai sonuçlar tüm katılımcılar için azalan sırayla kontrol ekranında gösterilir ve öğretmen sonuçları bir Excel dosyası olarak indirebilir ve sonuçları kaydedebilir."
+      }
+    }
+  },
+  "featuresPage": {
+    "title": "Platform Özellikleri",
+    "f1": "Platformumuz hem öğrencilerin hem de öğretmenlerin birbirleriyle etkileşime girmesini sağlayan bir dizi araç sağladığından, dakikaları aşmayan kısa bir sürede çeşitli alanlarda etkileşimli testler oluşturun.",
+    "f2": "Rekabetçi Atmosfer Öğretmenler herhangi bir tartışmayı veya herhangi bir dersi tartışma ve rekabet konusuna dönüştürebilir, böylece fikirlere çok fazla odaklanabilir.",
+    "f3": "Testleri sosyal medyada paylaşabilme.",
+    "f4": "Seçim tamamlandıktan hemen sonra sonuç ve analiz alma imkanı.",
+    "f5": "Uzaktan zeka testleri ve bilimsel testler oluşturma imkanı.",
+    "f6": "Dört farklı dilde seçenekler sunar: İngilizce, Fransızca, Türkçe ve en önemlisi Arapça.",
+    "f7": "Öğrencilerin belirli bir konuya ne ölçüde aşina olduğundan emin olmak için öğretim oturumu sırasında etkileşimli sorular oluşturmak.",
+    "f8": "Her bir öğrenciye ayrı ayrı uyan en iyi sonuçları elde etmek için öğrencilerin verilerini, gelişimlerini ve farklı zaman dilimlerindeki eğilimlerini analiz etme imkanı.",
+    "f9": "Takımın performansına dayalı grup soruları veya testleri entegre bir şekilde geliştirme ve rakip takımların sonuçlarını karşılaştırma imkanı.",
+    "f10": "Anlamlı bir etkileşim ortamı yaratmak için öğrencilerin sorularını paylaşma, yazma ve sınıf içinde arkadaşlarıyla paylaşma fırsatı sağlayın.",
+    "f11": "Boyutu, kapasitesi ve türü ne olursa olsun herhangi bir elektronik cihaz üzerinden testi yapabilme."
+  }
+  
+}

@@ -1,0 +1,593 @@
+{
+  "playNavbar": {
+    "exitText": "Sortir"
+  },
+  "errorPage": {
+    "pageTitle": "Une erreur s'est produite",
+    "link": "Aller à la page d'accueil",
+    "pageNotFound": "404 Non trouvé"
+  },
+  "menu": {
+    "menuLinks": {
+      "firstLink": "Accueil",
+      "secondLink": "Tous les questionnaires",
+      "thirdLink": "Créer un compte",
+      "forthLink": "s'identifier",
+      "fifthLink": "À propos",
+      "sixthLink": "Fonctionnalités",
+      "seventhLink": "Comment ça fonctionne",
+      "useCases": "Cas d'utilisation",
+      "lastLink": "Nous contacter"
+    }
+  },
+  "homePageTitle": "Principale",
+  "homeSection": {
+    "introText": "Equization est une plateforme de création de quiz interactifs pour un public engageant.",
+    "homeBtns": {
+      "firstBtn": "Créez votre premier quiz",
+      "secondBtn": "Participez à un quiz"
+    }
+  },
+  "numbersSection": {
+    "firstCardTitle": "Numéro de quiz",
+    "secondCardTitle": "Numéro des questions",
+    "lastCardTitle": "Nombre de joueurs"
+  },
+  "featuresSection": {
+    "featureSectionTitle": "POURQUOI L'ÉQUISATION?",
+    "featureTitleText": "La plateforme vise à profiter de la révolution technologique pour faire évoluer les méthodes d'enseignement ennuyeuses suivies dans les salles de classe traditionnelles en enflammant l'esprit de compétition parmi les participants. La plate-forme peut être utilisée pour créer des quiz interactifs en quelques minutes et transformer n'importe quelle salle de classe ou salle en une arène de compétition.",
+    "firstFeature": {
+      "featureTitle": "Quiz interactifs",
+      "featureText": "La plate-forme dispose d'interfaces simples grâce auxquelles vous pouvez créer des quiz interactifs en quelques minutes."
+    },
+    "secondFeature": {
+      "featureTitle": "Ambiance compétitive",
+      "featureText": "Toute classe ou réunion peut être transformée en une arène compétitive dans laquelle les participants peuvent concourir."
+    },
+    "thirdFeature": {
+      "featureTitle": "Une éducation divertissante",
+      "featureText": "La plate-forme vise à ajouter du divertissement à l'éducation en organisant des quiz interactifs pour les étudiants."
+    },
+    "forthFeature": {
+      "featureTitle": "Partager des quiz",
+      "featureText": "Les quiz peuvent être partagés avec des amis ou des membres de la famille sur toutes les plateformes de médias sociaux."
+    },
+    "fifthFeature": {
+      "featureTitle": "Résultats instantanés",
+      "featureText": "Les quiz peuvent être pris individuellement ou en groupes, et des résultats immédiats peuvent être obtenus, qui peuvent être téléchargés sous forme de fichier Excel."
+    },
+    "lastFeature": {
+      "featureTitle": "Quiz à distance",
+      "featureText": "Il est possible de rejoindre les quiz quelle que soit la situation géographique des participants."
+    }
+  },
+  "quizesSection": {
+    "quizesSectionTitle": "Tests en vedette",
+    "question": "question",
+    "player": "joueur",
+    "showQuizes": "parcourir les quiz"
+  },
+  "howSection": {
+    "howTitle": "Comment ça fonctionne ?",
+    "partsMenu": {
+      "firstPart": "Section de création de quiz",
+      "secondPart": "Section interactive"
+    },
+    "firstDepartment": {
+      "firstDepartmentMenu": {
+        "firstLink": "Créer un compte",
+        "secondLink": "Créer un quiz",
+        "lastLink": "Partager le quiz"
+      },
+      "firstDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "Pour créer un quiz, l'utilisateur doit d'abord créer un compte sur la plateforme.",
+          "boxLink": "Créer un compte"
+        },
+        "secondBox": {
+          "boxTitle": "Chaque quiz peut être:",
+          "firstBoxLink": "Publique pour tous les utilisateurs de la plateforme ou privée uniquement pour l'utilisateur qui l'a créée.",
+          "secondBoxLink": "Convient à tout niveau scolaire (élémentaire - préparatoire - secondaire - universitaire - spécialiste).",
+          "lastBoxLink": "Appartient à une ou plusieurs catégories (physique - chimie - sport - art - informations générales ... etc.).",
+          "boxLink": "Créer un quiz"
+        },
+        "thirdBox": {
+          "boxTitle": "Une fois la création du quiz terminée, le quiz peut être partagé avec les participants en leur donnant le lien et le code du quiz. Ils peuvent être obtenus en appuyant sur le bouton Démarrer le test et en sélectionnant le mode groupe.",
+          "boxLink": "Commençons"
+        }
+      }
+    },
+    "secondDepartment": {
+      "secondDepartmentMenu": {
+        "firstLink": "Mode Quiz",
+        "secondLink": "Connectez-vous au quiz",
+        "lastLink": "Lancer la compétition"
+      },
+      "secondDepartmentBoxes": {
+        "firstBox": {
+          "boxTitle": "Il existe deux modes pour passer tout quiz:",
+          "firstBoxLink": "Individuellement: un utilisateur peut passer un quiz seul et obtenir des résultats immédiatement",
+          "secondBoxLink": "Collectif:: plusieurs utilisateurs peuvent se connecter au même quiz en même temps, le nombre peut être jusqu'à 250 utilisateurs."
+        },
+        "secondBox": {
+          "boxTitle": "Lors du choix du mode collectif",
+          "firstBoxLink": "L'appareil se transforme en contrôleur de quiz.",
+          "secondBoxLink": "Un lien et un code pour le quiz apparaîtront sur l'écran et pourront être partagés avec les participants pour contacter le quiz via leur téléphone intelligent ou tout autre appareil intelligent.",
+          "lastBoxLink": "L'écran de contrôle affiche le nombre d'utilisateurs connectés au quiz et leurs noms."
+        },
+        "thirdBox": {
+          "boxTitle": "Le concours commence avec le début du quiz où chaque participant reçoit la première question avec les réponses sur son appareil.",
+          "firstBoxLink": "La personne qui est la plus rapide dans la bonne réponse obtient des points plus élevés.",
+          "secondBoxLink": "La personne avec la mauvaise réponse n'obtient aucun point.",
+          "lastBoxLink": "Une fois que tous les participants ont répondu à la question, un tableau apparaîtra sur l'écran de contrôle avec les statistiques du test.",
+          "boxLink": "Rejoignez le quiz"
+        }
+      }
+    }
+  },
+  "footer": {
+    "footerLinks": {
+      "firstLink": "Accueil",
+      "secondLink": "Tous les questionnaires",
+      "thirdLink": "À propos de nous",
+      "forthLink": "Fonctionnalités",
+      "fifthLink": "Comment ça fonctionne",
+      "lastLink": "Nous contacter"
+    },
+    "register": {
+      "registerTitle": "Abonnez-vous à la newsletter",
+      "EmailInputText": "E-mail",
+      "registerBtn": "S'abonner"
+    },
+    "footerLogoText": "La première plateforme arabe pour créer des quiz interactifs en jouant.",
+    "copyRight": "eQuization - 2021"
+  },
+  "errorNameText": "Entrez s'il vous plait",
+  "minLengthError": "Doit être au moins",
+  "emailRulesError": "Doit être valide",
+  "usernameText": "Il devrait être sans virgules",
+  "characters": "Personnages",
+  "errorAlertText": "Erreur",
+  "passwordErrorText": "S'il vous plaît entrer le mot de passe",
+  "matchPassword": "Les mots de passe doivent être identiques",
+  "passwordLength": "Le mot de passe doit contenir au moins 8 caractères",
+  "loginPage": {
+    "loginPageTitle": "s'identifier",
+    "formContentTitle": "Connexion",
+    "emailInputText": "E-mail",
+    "passwordInputText": "le mot de passe",
+    "buttonText": "Connexion",
+    "forgetPasswordText": "Mot de passe oublié ?",
+    "formDividerText": "Vous n'avez pas de compte?",
+    "formDividerLink": "Enregistrer un nouveau compte"
+  },
+  "confirmEmailPage": {
+    "pageTitle": "Vérifiez votre e-mail",
+    "alertText": "Compte créé avec succès",
+    "alertDescriptionText": "Nous vous avons envoyé plus d'informations via votre e-mail. Veuillez vérifier votre boîte de réception",
+    "alertButtonText": "Renvoyer le courrier de vérification"
+  },
+  "contactSucceededPage": {
+    "pageTitle": "appelez nous",
+    "alertText": "Votre message a bien été envoyé",
+    "alertDescriptionText": "Nous avons bien reçu votre message, notre équipe spécialisée vous répondra dans les plus brefs délais",
+    "alertButtonText": "Aller à la page d'accueil",
+    "formContentTitle": "Connecte-toi avec nous"
+  },
+  "contactUsPage": {
+    "nameInputText": "Nom",
+    "subjectInputText": "Sujette",
+    "messageInputText": "Un message",
+    "buttonText": "Envoyer",
+    "formContentDescription": "Connectez-vous avec nous en envoyant un message, et l'équipe spécialisée vous répondra dans les plus brefs délais"
+  },
+  "createAccountPage": {
+    "pageTitle": "Créer un compte",
+    "inputText": "Nom d'utilisateur",
+    "confirmPasswordText": "Confirmez le mot de passe",
+    "checkBoxText": "J'accepte les termes et conditions et la politique d'utilisation",
+    "buttonText": "Inscription",
+    "formDividerText": "Vous avez déjà un compte?",
+    "formDividerLink": "s'identifier",
+    "formContentTitle": "Enregistrer un nouveau compte",
+    "formContentDescription": "Créez un nouveau compte maintenant et profitez des fonctionnalités et services de la plateforme"
+  },
+  "emailConfirmedPage": {
+    "pageTitle": "Vérifiez votre e-mail",
+    "alertText": "Votre email a été confirmé avec succès",
+    "alertDescriptionText": "Félicitations, vous avez vérifié votre e-mail avec succès. Vous pouvez maintenant vous connecter à votre compte",
+    "alertButtonText": "Allez vous connecter"
+  },
+  "setPasswordPage": {
+    "buttonText": "Réinitialiser le mot de passe"
+  },
+  "passwordSettedPage": {
+    "pageTitle": "Définir le mot de passe",
+    "alertText": "Le mot de passe a été réinitialisé",
+    "alertDescriptionText": "Le mot de passe a été réinitialisé, vous pouvez maintenant vous connecter avec le nouveau mot de passe",
+    "alertButtonText": "Allez vous connecter",
+    "formDividerText": "Vous avez déjà un compte?",
+    "formDividerLink": "s'identifier",
+    "formContentTitle": "Définissez un nouveau mot de passe"
+  },
+  "resetPasswordPage": {
+    "titleDescription": "Saisissez votre adresse e-mail pour recevoir des instructions sur la réinitialisation de votre mot de passe",
+    "buttonText": "envoyer"
+  },
+  "resetPasswordSucceededPage": {
+    "pageTitle": "Récupération de mot de passe",
+    "alertText": "Les informations ont été envoyées avec succès",
+    "alertDescriptionText": "Nous vous avons envoyé plus d'informations par e-mail, veuillez vérifier votre boîte aux lettres",
+    "alertButtonText": "Renvoyer",
+    "formDividerText": "Vous avez déjà un compte?",
+    "formDividerLink": "s'identifier",
+    "formContentTitle": "Réinitialiser le mot de passe"
+  },
+  "quizesExplorePage": {
+    "pageTitle": "Quiz",
+    "labelText": "Rechercher un test",
+    "buttonText": "Rechercher",
+    "categoriesTitle": "Catégories:",
+    "categoriesLink": "Voir les catégories",
+    "selectBox": {
+      "firstSelect": "mieux notés",
+      "secondSelect": "Plus favori",
+      "thirdSelect": "Plus utilisé"
+    }
+  },
+  "quizesCategories": {
+    "pageTitle": "Catégories",
+    "quiz": "quiz"
+  },
+  "quizesCatPage": {
+    "pageTitle": "Catégories: Chimie"
+  },
+  "categoriesNames": {
+    "allCategories": "Tout",
+    "publicInfoCategory": "Informations générales",
+    "languagesCategory": "Langues étrangères",
+    "educationCategory": "Éducation",
+    "scienceCategory": "La science",
+    "historyCategory": "Histoire",
+    "physicsCategory": "La physique",
+    "artsCategory": "Les arts",
+    "chemistryCategory": "Chimie",
+    "mathematicsCategory": "Mathématiques",
+    "sportCategory": "Sport",
+    "informationCategory": "Informative"
+  },
+  "quizPage": {
+    "pageTitle": "Quiz",
+    "backLink": "Dos",
+    "startBtn": "Démarrer le quiz",
+    "showMore": "Afficher plus",
+    "addToFavorite": "Ajouter aux Favoris",
+    "shareQuiz": "Partager le quiz",
+    "deleteQuiz": "Supprimer le quiz",
+    "shareMsg": "Testez vos connaissances dans ce quiz!",
+    "descriptionTitle": "Description du test",
+    "quizCategoriesTitle": "Catégories:",
+    "playerName": "Mohamed Aleskandrany",
+    "dateText": "24-4-2021",
+    "questionInfoTitle": "Numéro des questions",
+    "playersInfoTitle": "Nombre de joueurs",
+    "quizDetails": {
+      "title": "Essayez un test de titre de démonstration"
+    }
+  },
+  "myQuizPage": {
+    "deleteBtn": "Effacer"
+  },
+  "dialog": {
+    "dialogTitle": "Choisissez le mode de quiz",
+    "individualPlayer": "individuel",
+    "multiPlayers": "collectif"
+  },
+  "deleteDialog": {
+    "title": "Supprimer le quiz",
+    "question": "Voulez-vous supprimer ce quiz?",
+    "agree": "D'accord",
+    "notAgree": "Annuler"
+  },
+  "singOutDialog": {
+    "title": "Se déconnecter",
+    "question": "Voulez-vous vous déconnecter ?"
+  },
+  "AccountPage": {
+    "pageTitle": "Page de compte",
+    "welcomeText": "Bienvenue, Mohamed Aleskandrany",
+    "AccountHeader": {
+      "headerText": "Mon compte",
+      "backText": "Dos"
+    },
+    "AccountCard": {
+      "AccountName": "Mohamed Aleskandrany",
+      "AccountSettings": "Paramètres du compte"
+    },
+    "sideMenuLinks": {
+      "first": "Mon compte",
+      "second": "Mes questionnaires",
+      "third": "Créer un quiz",
+      "forth": "Paramètres du compte",
+      "last": "Se déconnecter"
+    },
+    "AccountInfoCards": {
+      "firstCard": {
+        "cardTitle": "Testez vos connaissances",
+        "cardDescription": "Commencez le concours maintenant et rejoignez les tests dans le classement que vous aimez",
+        "cardLinkText": "Passez en revue les quiz"
+      },
+      "secondCard": {
+        "cardTitle": "Partagez vos connaissances",
+        "cardDescription": "Commencez dès maintenant en créant un quiz et en partageant vos expériences dans votre majeure préférée",
+        "cardLinkText": "Créer un quiz"
+      }
+    }
+  },
+  "myQuizzesPage": {
+    "AccountHeader": {
+      "headerText": "mes Quiz"
+    },
+    "emptyData": {
+      "descriptionText": "Aucun quiz n'a été créé",
+      "linkText": "Créer un quiz"
+    }
+  },
+  "addQuizPage": {
+    "pageTitle": "Créer un quiz",
+    "quizTitle": "Titre du quiz",
+    "categoriesLabel": "Catégories",
+    "categories": {},
+    "categoriesError": "Les classifications doivent être sélectionnées",
+    "breifExplanation": "Brève explication",
+    "breifExplanationError": "Brève explication",
+    "detailedExplanation": "Explication détaillée",
+    "chooseImg": "Choisissez une image (facultatif)",
+    "quizLang": "Langue du quiz",
+    "privacyLabel": "Intimité:",
+    "publicRadio": "Public",
+    "privateRadio": "Privé",
+    "selectErrorText": "La langue du quiz doit être choisie",
+    "subBtn": "Créer un quiz"
+  },
+  "profilePage": {
+    "pageTitle": "Paramètres du compte",
+    "backText": "Supprimer le compte",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "nouveau mot de passe",
+    "confirmNewPassword": "confirmer le nouveau mot de passe",
+    "subBtn": "Mettre à jour",
+    "deleteDialogText": "Voulez-vous supprimer ce compte ?"
+  },
+  "editQuizPage": {
+    "pageTitle": "Modifier le quiz",
+    "privacyLabel": "Intimité"
+  },
+  "questionPage": {
+    "title": "Des questions",
+    "addQuestion": "Ajouter une question",
+    "questionTimeTitle": "Heure des questions: ",
+    "answersNumberTitle": "Numéro de réponses: ",
+    "headerText": "Questions de quiz: ",
+    "second": "Second",
+    "subBtn": "Ajouter une question",
+    "showQuestions": "Afficher les questions",
+    "emptyData": {
+      "descriptionText": "Aucune question n'a été ajoutée"
+    },
+    "deleteDialog": {
+      "title": "Supprimer la question",
+      "question": "Voulez-vous supprimer cette question?"
+    },
+    "copyDialog": {
+      "title": "Copier la question",
+      "close": "Fermer"
+    },
+    "moveDialog": {
+      "title": "Déplacer la question"
+    },
+    "icons": {
+      "edit": "Modifier la question",
+      "delete": "Supprimer la question",
+      "copy": "Copier la question",
+      "move": "Déplacer la question"
+    }
+  },
+  "addQuestionPage": {
+    "title": "Ajouter des questions",
+    "headerText": "Ajouter une question",
+    "questionTextLabel": "Texte de la question",
+    "questionTimeLabel": "Il est temps de demander",
+    "questionTypes": {
+      "oneAnswer": "Une réponse",
+      "multiAnswers": "Réponses multiples",
+      "trueFalse": "Vrai ou faux",
+      "noAnswer": "Sans réponse correcte"
+    },
+    "answersType": {
+      "text": "Images",
+      "image": "Texte"
+    },
+    "questionTypeLabel": "Type de question",
+    "answerTypeLabel": "Type de réponse",
+    "sourceLabel": "La source",
+    "addExplanation": "Ajouter une explication",
+    "answersTitle": "Réponses",
+    "answer": "La réponse",
+    "questionMark": "Point d'interrogation"
+  },
+  "editQuestoonPage": {
+    "title": "Modifier la question"
+  },
+  "settingsPage": {
+    "title": "Options",
+    "headerText": "Paramètres du quiz",
+    "labels": {
+      "first": "Minuterie de questions",
+      "second": "Calcul automatique des points d'interrogation",
+      "third": "Transmission automatique à la question suivante",
+      "forth": "Mélanger les questions",
+      "last": "Mélanger les réponses"
+    }
+  },
+  "chooseImg": "Choisissez Img",
+  "ready": {
+    "title": "Prêt"
+  },
+  "question": {
+    "question": "Question",
+    "from": "de",
+    "sendAnswersBtn": "Envoyez des réponses"
+  },
+  "settings": {
+    "playersNumbers": "Nombre de joueurs",
+    "goToLink": "Aller au lien: ",
+    "enterNumber": "Entrez ce numéro: "
+  },
+  "finalResults": {
+    "title": "les résultats finaux",
+    "download": "Télécharger",
+    "share": "Partager",
+    "endQuiz": "Terminez le quiz",
+    "correctAnswer": "La bonne réponse: ",
+    "showExplanation": "Afficher l'annotation",
+    "question": "Question",
+    "trueFalse": "Vrai ou Faux",
+    "duration": "Durée",
+    "results": "Résultats",
+    "questionResult": "Le résultat de la question",
+    "finalResult": "résultat final",
+    "shareResults": "partager les résultats",
+    "questionExplanation": "Expliquez la question",
+    "noExplanation": "Il n'y a pas d'explication à cette question"
+  },
+  "play": {
+    "title": "Le joueur",
+    "nameInput": "Bonjour, veuillez entrer le numéro",
+    "numberInput": "Entrez votre nom pour rejoindre",
+    "nameLabel": "Surnom",
+    "numLabel": "Nombre",
+    "loginBtn": "Entrée",
+    "joinBtn": "Rejoindre"
+  },
+  "host": {
+    "options": {
+      "title": "Panneau de contrôle de test"
+    }
+  },
+  "beReady": {
+    "title": "être prêt",
+    "excellent": "Excellent! Vous êtes maintenant connecté au quiz",
+    "wait": "Le quiz commencera sous peu",
+    "playersNumber": "Nombre de joueurs: "
+  },
+  "resultTables": {
+    "scoreBoard": {
+      "title": "Tableau de bord",
+      "headers": {
+        "name": "Nom",
+        "currentResult": "résultat de la question actuelle",
+        "finalResult": "Résultat final",
+        "currentOrder": "Ordre actuel: ",
+        "btn": "Question suivante"
+      }
+    }
+  },
+  "useCases": {
+    "title": "Cas d'utilisation",
+    "firstFeature": {
+      "featureTitle": "Universités et écoles",
+      "featureText": "Tout enseignant de l'université ou de l'école peut créer des tests dans diverses disciplines majeures en quelques minutes et les partager avec les étudiants, avant ou après le début de la conférence."
+    },
+    "secondFeature": {
+      "featureTitle": "Académies en ligne",
+      "featureText": "les académies de tutorat en ligne peuvent utiliser des tests interactifs pour créer une atmosphère d'interaction et de divertissement parmi les participants, les garder concentrés et les motiver à terminer les leçons."
+    },
+    "thirdFeature": {
+      "featureTitle": "Centres de formation",
+      "featureText": "es tests interactifs sont un outil important qui peut être utilisé dans les centres de formation, qu'ils soient scientifiques ou professionnels, pour s'assurer que les participants comprennent les idées présentées lors des sessions de formation."
+    },
+    "forthFeature": {
+      "featureTitle": "Événements et réunions",
+      "featureText": "dans la plupart des réunions, la plupart des participants ne peuvent pas se concentrer et assurer le suivi de la réunion pendant plus de 20 minutes. En utilisant des quiz et des questionnaires interactifs pendant les réunions, les participants peuvent être attirés et leurs appareils intelligents sont utilisés en relation avec les sujets de réunion."
+    },
+    "fifthFeature": {
+      "featureTitle": "Entreprises et institutions",
+      "featureText": "Les entreprises et les institutions en général peuvent augmenter la communication entre leurs employés et créer une atmosphère de divertissement entre eux en utilisant des tests et des exercices interactifs humoristiques créés par l'un des gestionnaires ou employés."
+    },
+    "lastFeature": {
+      "featureTitle": "Amis et familles",
+      "featureText": "tout groupe d'amis ou de membres de la famille peut utiliser les tests préexistants sur la plateforme ou créer de nouveaux tests qui leur conviennent pour éliminer l'ennui, en particulier ces derniers temps avec la propagation du virus Corona et l'augmentation du temps de séance à la maison."
+    }
+  },
+  "aboutPage": {
+    "title": "À propos de la plateforme",
+    "firstHeader": "Il s'agit d'une plate-forme éducative mondiale qui veut permettre à tout le monde, y compris les enfants, les étudiants et le personnel, de libérer tout leur potentiel éducatif.",
+    "secondHeader": "Notre plate-forme d'apprentissage permet à tout individu ou entreprise de créer, partager et réussir des examens pédagogiques qui mènent à une participation interactive. Les examens peuvent être passés n'importe où, personnellement ou virtuellement, en utilisant n'importe quel appareil avec une connexion Internet.",
+    "thirdHeader": "Notre mission est de rendre le processus d'apprentissage facile, amusant et amusant.",
+    "forthHeader": "Notre vision est de créer un système hautement interactif avec les utilisateurs, y compris les apprenants et les enseignants, afin de construire un système éducatif meilleur et plus efficace.",
+    "lastHeader": "La plateforme a été mise en place par une société spécialisée dans les systèmes éducatifs et à un rythme très élevé, «Educatech Company»."
+  },
+  "howItWorksPage": {
+    "title": "Comment ça fonctionne?",
+    "introduction": "La plateforme se caractérise par la présence d'interfaces simples d'utilisation pour tous les utilisateurs, même les non-spécialistes, le travail de la plateforme est divisé en deux parties : une partie liée au contrôle de la création, de la modification et du partage des tests, et la section interactive consacrée à la réussite des tests.",
+    "quizControlHeader": "Section de contrôle du quiz",
+    "steps": {
+      "createAccount": "Créer un compte",
+      "createQuiz": "Créer un quiz",
+      "shareQuiz": "Partager le quiz"
+    },
+    "createAcoountTitle": "Créer un compte sur la plateforme",
+    "createAcoountParagraph": "Pour créer un test, vous devez d'abord vous inscrire sur la plateforme. Quant à passer les tests sans enregistrer les résultats, vous n'avez pas besoin de vous inscrire.",
+    "CreateQuizTitle": "Créer un quizz",
+    "createQuizparagraph": "La création de quiz ne prend que quelques minutes, le test peut être public (affiché sur la plateforme) auquel tout utilisateur de la plateforme peut accéder et passer, ou privé auquel seuls les utilisateurs avec le lien de test peuvent accéder et passer.",
+    "createQuizparagraph2": "Une fois le quiz créé, les questions et réponses du quiz doivent être créées.",
+    "createQuizparagraph3": "La question est soit du texte, soit une image, et les réponses peuvent être des images ou du texte.",
+    "questionTypesparagraph": "Il existe différents types de questions :",
+    "questionsTypes": {
+      "first": "Une réponse",
+      "second": "Réponses multiples",
+      "third": "Question du sondage",
+      "forth": "Vrai ou faux"
+    },
+    "shareQuizTitle": "Partager le quiz",
+    "shareQuizpargraph": "Des quiz publics ou privés peuvent être partagés avec les participants en leur donnant le lien du quiz avec le code d'accès qui peut être obtenu en cliquant sur le bouton (Démarrer le quiz).",
+    "activitySectionHeader": "Section interactive",
+    "activitySectionIntro": "Dans cette section, les quiz sont pris individuellement ou collectivement.",
+    "patterns": {
+      "single": {
+        "name": "Individuellement",
+        "title": "Mode unique",
+        "paragraph": "L'utilisateur choisit les paramètres du quiz, puis réussit le quiz et obtient le résultat final à la fin du quiz."
+      },
+      "multi": {
+        "name": "collective",
+        "title": "Mode groupe",
+        "paragraph": "Dans ce mode, il y a un écran pour contrôler le quiz et un écran pour répondre aux questions du quiz.",
+        "paragraph2": "Lorsque l'enseignant choisit le mode groupe, son appareil se transforme automatiquement en écran de contrôle de quiz.",
+        "paragraph3": "L'enseignant ou le conférencier partage le lien du quiz avec le code d'accès avec les participants.",
+        "paragraph4": "Les participants ouvrent le lien depuis leurs appareils intelligents, entrent le code d'accès, choisissent un surnom, puis se connectent au quiz.",
+        "paragraph5": "Les noms de tous les appelants du quiz apparaissent sur l'écran de contrôle du quiz.",
+        "paragraph6": "Une fois que tous les participants au quiz sont connectés, le conférencier commence le quiz, puis les participants reçoivent la première question avec les réponses sur leurs appareils avec une minuterie de questions.",
+        "paragraph7": "La personne la plus rapide à choisir la bonne réponse obtient des points plus élevés pour la question.",
+        "paragraph8": "L'écran de contrôle affiche le nombre de réponses avec les résultats de la question en cours et le total des résultats de tous les participants.",
+        "paragraph9": "L'enseignant passe à la question suivante via l'écran de contrôle, et les participants reçoivent la deuxième question avec les réponses... et ainsi de suite jusqu'à la fin de toutes les questions du quiz.",
+        "paragraph10": "À la fin du quiz, les résultats finaux sont affichés sur l'écran de contrôle par ordre décroissant pour tous les participants, et l'enseignant peut télécharger les résultats sous forme de fichier Excel et enregistrer les résultats."
+      }
+    }
+  },
+  "featuresPage": {
+    "title": "Fonctionnalités de la plate-forme",
+    "f1": "Créez des tests interactifs dans divers domaines en un temps record qui n'excède pas quelques minutes, car notre plate-forme fournit un ensemble d'outils qui permettent aux apprenants et aux enseignants d'interagir les uns avec les autres.",
+    "f2": "Atmosphère compétitive Les enseignants peuvent transformer n'importe quelle discussion ou n'importe quelle leçon en un sujet de discussion et de compétition, concentrant ainsi très fortement les idées.",
+    "f3": "La possibilité de partager des tests sur les réseaux sociaux.",
+    "f4": "La possibilité d'obtenir des résultats et des analyses dès la fin de la sélection.",
+    "f5": "La possibilité de construire des tests d'intelligence et des tests scientifiques à distance.",
+    "f6": "Offrir des choix dans quatre langues différentes : anglais, français, turc et, surtout, en arabe.",
+    "f7": "Construire des questions interactives pendant la session d'enseignement, pour s'assurer dans quelle mesure les apprenants sont familiarisés avec un sujet particulier.",
+    "f8": "La possibilité d'analyser les données des étudiants, leur progression et leurs tendances au cours de différentes périodes de temps afin de proposer les meilleurs résultats qui conviennent à chacun des apprenants séparément.",
+    "f9": "La possibilité de développer des questions de groupe ou des tests basés sur les performances de l'équipe de manière intégrée et de comparer les résultats des équipes en compétition.",
+    "f10": "Donnez aux apprenants l'occasion de partager et d'écrire des questions et de les partager avec leurs amis au sein de la classe afin de créer une atmosphère d'interaction significative.",
+    "f11": "La possibilité d'effectuer le test via n'importe quel appareil électronique, quels que soient sa taille, sa capacité et son type."
+  }
+}
