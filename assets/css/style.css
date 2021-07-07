@@ -1014,7 +1014,7 @@ p.form-description {
   }
 
   .logo {
-    width: 55% !important;
+    width: 45% !important;
   }
 
   .langs {
@@ -1124,7 +1124,7 @@ p.form-description {
   }
 
   .logo {
-    width: 35% !important;
+    width: 23% !important;
   }
 
   .langs {
@@ -1157,7 +1157,7 @@ p.form-description {
   .logo {
     position: relative;
     left: 25%;
-    width: 45% !important;
+    width: 30% !important;
   }
 }
 
@@ -1170,8 +1170,8 @@ p.form-description {
 
 @media only screen and (min-width: 992px) and (max-width: 1200px) {
   .logo {
-    width: 25% !important;
-    right: 36% !important;
+    width: 20% !important;
+    right: 40% !important;
   }
 
   .langs {
@@ -1190,6 +1190,7 @@ p.form-description {
 @media only screen and (min-width: 1200px) and (max-width: 1500px) {
   .logo {
     width: 15% !important;
+    right: 43%;
   }
 }
 
