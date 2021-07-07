@@ -73,9 +73,21 @@ i {
   font-size: 20px;
 }
 
+.logo {
+    width: 14% !important;
+}
+
+@media only screen and (max-width: 1500px) {
+  .logo {
+    width: 17% !important;
+  }
+}
+
 @media only screen and (max-width: 992px) {
   .logo {
-    position: static !important;
+    position: relative !important;
+    width: 23% !important;
+    right: 6% !important;
   }
 
   .langs {
@@ -99,7 +111,13 @@ i {
     display: none;
   }
 }
-
+@media only screen and (max-width: 750px) {
+  .logo {
+    position: relative !important;
+    width: 40% !important;
+    right: 6% !important;
+  }
+}
 @media only screen and (max-width: 600px) {
   .exit {
     display: flex;
@@ -112,7 +130,8 @@ i {
   }
 
   .logo {
-    width: 50% !important;
+    width: 55% !important;
+    right: 0% !important;
   }
 
   .logo img{
