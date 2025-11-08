@@ -105,6 +105,9 @@ export default {
   plugins: [
     { src: "plugins/vue-wow.js", ssr: false },
     { src: "~/plugins/TiptapVuetify", ssr: false },
+    { src: "~/plugins/axios.js" },
+    { src: "~/plugins/api.js" },
+    { src: "~/plugins/socket.client.js", mode: 'client' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -157,7 +160,32 @@ export default {
   },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    credentials: true,
+    headers: {
+      common: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }
+  },
+
+  // Public runtime config
+  publicRuntimeConfig: {
+    axios: {
+      browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1'
+    },
+    apiURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    socketURL: process.env.SOCKET_URL || 'http://localhost:5000'
+  },
+
+  // Private runtime config
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1'
+    }
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
