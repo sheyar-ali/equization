@@ -1,215 +1,222 @@
+/**
+ * seed.js – Database seeder for eQuization
+ * Run: node config/seed.js
+ */
+
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const Category = require('../models/Category.model');
+const dotenv   = require('dotenv');
+const path     = require('path');
 
-// Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected for seeding'))
-.catch((err) => {
-  console.error('❌ MongoDB connection error:', err);
-  process.exit(1);
-});
+const Category    = require('../models/Category.model');
+const User        = require('../models/User.model');
+const Quiz        = require('../models/Quiz.model');
+const Question    = require('../models/Question.model');
 
-// Initial categories data
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/equization';
+
+// ── Category data ─────────────────────────────────────────────────────────────
 const categories = [
-  {
-    name: {
-      ar: 'معلومات عامة',
-      en: 'General Knowledge',
-      fr: 'Culture Générale',
-      tr: 'Genel Bilgi'
-    },
-    slug: 'general-knowledge',
-    description: {
-      ar: 'أسئلة عامة في مختلف المجالات',
-      en: 'General questions in various fields',
-      fr: 'Questions générales dans divers domaines',
-      tr: 'Çeşitli alanlarda genel sorular'
-    },
-    icon: 'mdi-brain',
-    color: '#FF6B6B'
-  },
-  {
-    name: {
-      ar: 'علوم',
-      en: 'Science',
-      fr: 'Sciences',
-      tr: 'Bilim'
-    },
-    slug: 'science',
-    description: {
-      ar: 'أسئلة في مجالات العلوم المختلفة',
-      en: 'Questions in various science fields',
-      fr: 'Questions dans divers domaines scientifiques',
-      tr: 'Çeşitli bilim alanlarında sorular'
-    },
-    icon: 'mdi-flask',
-    color: '#4ECDC4'
-  },
-  {
-    name: {
-      ar: 'رياضيات',
-      en: 'Mathematics',
-      fr: 'Mathématiques',
-      tr: 'Matematik'
-    },
-    slug: 'mathematics',
-    description: {
-      ar: 'أسئلة رياضية ومسائل حسابية',
-      en: 'Math questions and calculations',
-      fr: 'Questions mathématiques et calculs',
-      tr: 'Matematik soruları ve hesaplamalar'
-    },
-    icon: 'mdi-calculator',
-    color: '#95E1D3'
-  },
-  {
-    name: {
-      ar: 'تاريخ',
-      en: 'History',
-      fr: 'Histoire',
-      tr: 'Tarih'
-    },
-    slug: 'history',
-    description: {
-      ar: 'أسئلة عن الأحداث التاريخية',
-      en: 'Questions about historical events',
-      fr: 'Questions sur les événements historiques',
-      tr: 'Tarihi olaylar hakkında sorular'
-    },
-    icon: 'mdi-book-open-variant',
-    color: '#F38181'
-  },
-  {
-    name: {
-      ar: 'جغرافيا',
-      en: 'Geography',
-      fr: 'Géographie',
-      tr: 'Coğrafya'
-    },
-    slug: 'geography',
-    description: {
-      ar: 'أسئلة عن البلدان والمدن والتضاريس',
-      en: 'Questions about countries, cities, and terrain',
-      fr: 'Questions sur les pays, les villes et le terrain',
-      tr: 'Ülkeler, şehirler ve arazi hakkında sorular'
-    },
-    icon: 'mdi-earth',
-    color: '#AA96DA'
-  },
-  {
-    name: {
-      ar: 'لغات',
-      en: 'Languages',
-      fr: 'Langues',
-      tr: 'Diller'
-    },
-    slug: 'languages',
-    description: {
-      ar: 'أسئلة لغوية ونحوية',
-      en: 'Language and grammar questions',
-      fr: 'Questions de langue et de grammaire',
-      tr: 'Dil ve dilbilgisi soruları'
-    },
-    icon: 'mdi-translate',
-    color: '#FCBAD3'
-  },
-  {
-    name: {
-      ar: 'رياضة',
-      en: 'Sports',
-      fr: 'Sports',
-      tr: 'Spor'
-    },
-    slug: 'sports',
-    description: {
-      ar: 'أسئلة عن الرياضات المختلفة',
-      en: 'Questions about various sports',
-      fr: 'Questions sur divers sports',
-      tr: 'Çeşitli sporlar hakkında sorular'
-    },
-    icon: 'mdi-soccer',
-    color: '#A8D8EA'
-  },
-  {
-    name: {
-      ar: 'فن وثقافة',
-      en: 'Art & Culture',
-      fr: 'Art et Culture',
-      tr: 'Sanat ve Kültür'
-    },
-    slug: 'art-culture',
-    description: {
-      ar: 'أسئلة عن الفنون والثقافة',
-      en: 'Questions about arts and culture',
-      fr: 'Questions sur les arts et la culture',
-      tr: 'Sanat ve kültür hakkında sorular'
-    },
-    icon: 'mdi-palette',
-    color: '#FFFFD2'
-  },
-  {
-    name: {
-      ar: 'تكنولوجيا',
-      en: 'Technology',
-      fr: 'Technologie',
-      tr: 'Teknoloji'
-    },
-    slug: 'technology',
-    description: {
-      ar: 'أسئلة عن التقنية والبرمجة',
-      en: 'Questions about technology and programming',
-      fr: 'Questions sur la technologie et la programmation',
-      tr: 'Teknoloji ve programlama hakkında sorular'
-    },
-    icon: 'mdi-laptop',
-    color: '#363999'
-  },
-  {
-    name: {
-      ar: 'صحة',
-      en: 'Health',
-      fr: 'Santé',
-      tr: 'Sağlık'
-    },
-    slug: 'health',
-    description: {
-      ar: 'أسئلة عن الصحة والطب',
-      en: 'Questions about health and medicine',
-      fr: 'Questions sur la santé et la médecine',
-      tr: 'Sağlık ve tıp hakkında sorular'
-    },
-    icon: 'mdi-heart-pulse',
-    color: '#FF5E94'
-  }
+  { slug: 'general-info',    icon: 'mdi-earth',         color: '#4CAF50',
+    name: { ar: 'معلومات عامة',   en: 'General Knowledge', fr: 'Culture Générale', tr: 'Genel Bilgi' },
+    description: { ar: 'أسئلة عامة متنوعة', en: 'Diverse general questions' } },
+
+  { slug: 'science',         icon: 'mdi-flask',         color: '#2196F3',
+    name: { ar: 'علوم',           en: 'Science',           fr: 'Sciences',         tr: 'Bilim' },
+    description: { ar: 'أسئلة في مجال العلوم', en: 'Science questions' } },
+
+  { slug: 'mathematics',     icon: 'mdi-calculator',    color: '#9C27B0',
+    name: { ar: 'رياضيات',        en: 'Mathematics',       fr: 'Mathématiques',    tr: 'Matematik' },
+    description: { ar: 'أسئلة رياضيات', en: 'Math questions' } },
+
+  { slug: 'history',         icon: 'mdi-book-open',     color: '#FF9800',
+    name: { ar: 'تاريخ',          en: 'History',           fr: 'Histoire',         tr: 'Tarih' },
+    description: { ar: 'أسئلة تاريخية', en: 'Historical questions' } },
+
+  { slug: 'languages',       icon: 'mdi-translate',     color: '#00BCD4',
+    name: { ar: 'لغات أجنبية',    en: 'Foreign Languages', fr: 'Langues',          tr: 'Diller' },
+    description: { ar: 'أسئلة في اللغات', en: 'Language questions' } },
+
+  { slug: 'physics',         icon: 'mdi-atom',          color: '#F44336',
+    name: { ar: 'فيزياء',         en: 'Physics',           fr: 'Physique',         tr: 'Fizik' },
+    description: { ar: 'أسئلة فيزيائية', en: 'Physics questions' } },
+
+  { slug: 'chemistry',       icon: 'mdi-test-tube',     color: '#8BC34A',
+    name: { ar: 'كيمياء',         en: 'Chemistry',         fr: 'Chimie',           tr: 'Kimya' },
+    description: { ar: 'أسئلة كيميائية', en: 'Chemistry questions' } },
+
+  { slug: 'education',       icon: 'mdi-school',        color: '#3F51B5',
+    name: { ar: 'تعليم',          en: 'Education',         fr: 'Éducation',        tr: 'Eğitim' },
+    description: { ar: 'أسئلة تعليمية', en: 'Educational questions' } },
+
+  { slug: 'arts',            icon: 'mdi-palette',       color: '#FF5722',
+    name: { ar: 'فنون',           en: 'Arts',              fr: 'Arts',             tr: 'Sanat' },
+    description: { ar: 'أسئلة فنية', en: 'Arts questions' } },
+
+  { slug: 'sports',          icon: 'mdi-soccer',        color: '#009688',
+    name: { ar: 'رياضة',          en: 'Sports',            fr: 'Sports',           tr: 'Spor' },
+    description: { ar: 'أسئلة رياضية', en: 'Sports questions' } },
+
+  { slug: 'technology',      icon: 'mdi-laptop',        color: '#607D8B',
+    name: { ar: 'تكنولوجيا',      en: 'Technology',        fr: 'Technologie',      tr: 'Teknoloji' },
+    description: { ar: 'أسئلة تكنولوجيا', en: 'Tech questions' } }
 ];
 
-// Seed function
-const seedDatabase = async () => {
-  try {
-    // Clear existing categories
-    await Category.deleteMany({});
-    console.log('🗑️  Cleared existing categories');
+// ── Sample quiz & questions ───────────────────────────────────────────────────
+async function seedDatabase() {
+  await mongoose.connect(MONGO_URI);
+  console.log('✅ Connected to MongoDB');
 
-    // Insert categories
-    await Category.insertMany(categories);
-    console.log('✅ Categories seeded successfully');
+  // Clear existing data
+  await Promise.all([
+    Category.deleteMany({}),
+    User.deleteMany({}),
+    Quiz.deleteMany({}),
+    Question.deleteMany({})
+  ]);
+  console.log('🗑️  Cleared existing data');
 
-    console.log('\n📊 Seeding Summary:');
-    console.log(`   - Categories: ${categories.length}`);
+  // Insert categories
+  const insertedCats = await Category.insertMany(categories);
+  console.log(`✅ ${insertedCats.length} categories inserted`);
 
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Seeding error:', error);
-    process.exit(1);
-  }
-};
+  // Create admin user
+  const admin = await User.create({
+    username:   'admin',
+    email:      'admin@equization.com',
+    password:   'Admin@123456',
+    firstName:  'Admin',
+    lastName:   'eQuization',
+    role:       'admin',
+    isVerified: true
+  });
+  console.log(`✅ Admin user created (admin@equization.com / Admin@123456)`);
 
-// Run seed
-seedDatabase();
+  // Create demo user
+  const demo = await User.create({
+    username:   'demo_user',
+    email:      'demo@equization.com',
+    password:   'Demo@123456',
+    firstName:  'Demo',
+    lastName:   'User',
+    isVerified: true
+  });
+
+  // Create sample quiz
+  const generalCat = insertedCats.find(c => c.slug === 'general-info');
+  const scienceCat = insertedCats.find(c => c.slug === 'science');
+
+  const quiz = await Quiz.create({
+    title:       'اختبار المعلومات العامة',
+    description: 'اختبار شامل في المعلومات العامة والعلوم',
+    categories:  [generalCat._id, scienceCat._id],
+    creator:     demo._id,
+    difficulty:  'easy',
+    language:    'ar',
+    isPublic:    true,
+    timeLimit:   30
+  });
+
+  // Create sample questions
+  const questionsData = [
+    {
+      quiz:         quiz._id,
+      questionText: 'ما هي عاصمة المملكة العربية السعودية؟',
+      questionType: 'multiple-choice',
+      answers: [
+        { text: 'الرياض',  isCorrect: true  },
+        { text: 'جدة',     isCorrect: false },
+        { text: 'مكة',     isCorrect: false },
+        { text: 'المدينة', isCorrect: false }
+      ],
+      points:    100,
+      timeLimit: 30,
+      order:     0
+    },
+    {
+      quiz:         quiz._id,
+      questionText: 'كم عدد أيام السنة الكبيسة؟',
+      questionType: 'multiple-choice',
+      answers: [
+        { text: '365', isCorrect: false },
+        { text: '366', isCorrect: true  },
+        { text: '364', isCorrect: false },
+        { text: '367', isCorrect: false }
+      ],
+      points:    100,
+      timeLimit: 20,
+      order:     1
+    },
+    {
+      quiz:         quiz._id,
+      questionText: 'الشمس نجم.',
+      questionType: 'true-false',
+      answers: [
+        { text: 'صحيح',   isCorrect: true  },
+        { text: 'خاطئ',   isCorrect: false }
+      ],
+      points:    100,
+      timeLimit: 15,
+      order:     2
+    },
+    {
+      quiz:         quiz._id,
+      questionText: 'أيٌّ من التالي دول عربية؟',
+      questionType: 'checkbox',
+      answers: [
+        { text: 'مصر',    isCorrect: true  },
+        { text: 'ألمانيا',isCorrect: false },
+        { text: 'الأردن', isCorrect: true  },
+        { text: 'البرازيل', isCorrect: false }
+      ],
+      points:    150,
+      timeLimit: 30,
+      order:     3
+    },
+    {
+      quiz:         quiz._id,
+      questionText: 'ما هو أكبر كوكب في المجموعة الشمسية؟',
+      questionType: 'multiple-choice',
+      answers: [
+        { text: 'المشتري', isCorrect: true  },
+        { text: 'زحل',     isCorrect: false },
+        { text: 'الأرض',   isCorrect: false },
+        { text: 'أورانوس', isCorrect: false }
+      ],
+      points:    100,
+      timeLimit: 25,
+      order:     4
+    }
+  ];
+
+  const insertedQuestions = await Question.insertMany(questionsData);
+  quiz.questions = insertedQuestions.map(q => q._id);
+  await quiz.save();
+
+  // Update stats
+  await User.findByIdAndUpdate(demo._id, {
+    $push: { quizzes: quiz._id },
+    $inc:  { 'statistics.quizzesCreated': 1 }
+  });
+  await Category.updateMany(
+    { _id: { $in: [generalCat._id, scienceCat._id] } },
+    { $inc: { quizCount: 1 } }
+  );
+
+  console.log(`✅ Sample quiz created with ${insertedQuestions.length} questions`);
+  console.log(`\n🎉 Database seeded successfully!\n`);
+  console.log('──────────────────────────────────────');
+  console.log('Login Credentials:');
+  console.log('  Admin: admin@equization.com / Admin@123456');
+  console.log('  Demo:  demo@equization.com  / Demo@123456');
+  console.log('──────────────────────────────────────');
+
+  await mongoose.disconnect();
+  process.exit(0);
+}
+
+seedDatabase().catch(err => {
+  console.error('❌ Seeding failed:', err.message);
+  process.exit(1);
+});

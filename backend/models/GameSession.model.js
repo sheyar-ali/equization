@@ -1,48 +1,28 @@
 const mongoose = require('mongoose');
 
+// ── Per-player answer record ─────────────────────────────────────────────────
+const PlayerAnswerSchema = new mongoose.Schema({
+  question:        { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
+  selectedAnswers: [{ type: mongoose.Schema.Types.ObjectId }],
+  isCorrect:       Boolean,
+  timeSpent:       Number,   // milliseconds
+  points:          { type: Number, default: 0 },
+  answeredAt:      { type: Date, default: Date.now }
+}, { _id: false });
+
+// ── Player record inside a game session ─────────────────────────────────────
 const PlayerSchema = new mongoose.Schema({
-  socketId: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  score: {
-    type: Number,
-    default: 0
-  },
-  answers: [{
-    question: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Question'
-    },
-    selectedAnswers: [{
-      type: mongoose.Schema.Types.ObjectId
-    }],
-    isCorrect: Boolean,
-    timeSpent: Number, // in milliseconds
-    points: Number,
-    answeredAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  joinedAt: {
-    type: Date,
-    default: Date.now
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  }
+  socketId: { type: String },
+  name:     { type: String, required: true, trim: true },
+  user:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  score:    { type: Number, default: 0 },
+  answers:  { type: [PlayerAnswerSchema], default: [] },
+  joinedAt: { type: Date, default: Date.now },
+  isActive: { type: Boolean, default: true },
+  rank:     { type: Number, default: 0 }
 }, { _id: true });
 
+// ── Game session ─────────────────────────────────────────────────────────────
 const GameSessionSchema = new mongoose.Schema({
   quiz: {
     type: mongoose.Schema.Types.ObjectId,
@@ -56,70 +36,52 @@ const GameSessionSchema = new mongoose.Schema({
   },
   sessionCode: {
     type: String,
-    required: true,
     unique: true,
-    uppercase: true
+    uppercase: true,
+    default: () => {
+      let code = '';
+      for (let i = 0; i < 6; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
+      return code;
+    }
   },
-  players: [PlayerSchema],
-  currentQuestionIndex: {
-    type: Number,
-    default: 0
-  },
+  players:              { type: [PlayerSchema], default: [] },
+  currentQuestionIndex: { type: Number, default: -1 },
+  questionStartedAt:    { type: Date },
   status: {
     type: String,
     enum: ['waiting', 'in-progress', 'question-active', 'showing-results', 'completed'],
     default: 'waiting'
   },
-  startedAt: {
-    type: Date
-  },
-  completedAt: {
-    type: Date
-  },
+  startedAt:   { type: Date },
+  completedAt: { type: Date },
   settings: {
-    maxPlayers: {
-      type: Number,
-      default: 250
-    },
-    allowLateJoin: {
-      type: Boolean,
-      default: false
-    }
+    maxPlayers:    { type: Number, default: 250 },
+    allowLateJoin: { type: Boolean, default: false }
   }
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
-// Generate unique session code
-GameSessionSchema.methods.generateSessionCode = function() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+// ── Auto-generate session code ───────────────────────────────────────────────
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function generateCode(len = 6) {
   let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
+  for (let i = 0; i < len; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
   return code;
-};
+}
 
-// Pre-save middleware to generate session code
-GameSessionSchema.pre('save', async function(next) {
+GameSessionSchema.pre('save', async function (next) {
   if (!this.sessionCode) {
     let code;
-    let codeExists = true;
-    
-    while (codeExists) {
-      code = this.generateSessionCode();
-      const session = await this.constructor.findOne({ sessionCode: code });
-      if (!session) {
-        codeExists = false;
-      }
+    let exists = true;
+    while (exists) {
+      code   = generateCode(6);
+      exists = !!(await this.constructor.findOne({ sessionCode: code }));
     }
-    
     this.sessionCode = code;
   }
   next();
 });
-
-// Clean up old sessions (older than 24 hours)
 GameSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+GameSessionSchema.index({ sessionCode: 1 });
+GameSessionSchema.index({ host: 1, status: 1 });
 
 module.exports = mongoose.model('GameSession', GameSessionSchema);

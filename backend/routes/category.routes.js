@@ -1,24 +1,22 @@
 const express = require('express');
+const router  = express.Router();
+
 const {
-  getAllCategories,
-  getCategoryByIdentifier,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  getPopularCategories
+  getAllCategories, getPopularCategories, getCategoryByIdentifier,
+  createCategory, updateCategory, deleteCategory
 } = require('../controllers/category.controller');
+
 const { protect, authorize } = require('../middleware/auth.middleware');
 
-const router = express.Router();
+router.get ('/popular',        getPopularCategories);
+router.get ('/:identifier',    getCategoryByIdentifier);
 
-// Public routes
-router.get('/', getAllCategories);
-router.get('/popular', getPopularCategories);
-router.get('/:identifier', getCategoryByIdentifier);
+router.route('/')
+  .get(getAllCategories)
+  .post(protect, authorize('admin'), createCategory);
 
-// Admin only routes
-router.post('/', protect, authorize('admin'), createCategory);
-router.put('/:id', protect, authorize('admin'), updateCategory);
-router.delete('/:id', protect, authorize('admin'), deleteCategory);
+router.route('/:id')
+  .put(protect,    authorize('admin'), updateCategory)
+  .delete(protect, authorize('admin'), deleteCategory);
 
 module.exports = router;

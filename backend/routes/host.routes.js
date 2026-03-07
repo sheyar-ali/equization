@@ -1,24 +1,18 @@
 const express = require('express');
+const router  = express.Router();
+
 const {
-  createGameSession,
-  getSessionDetails,
-  getHostSessions,
-  getSessionStatistics,
-  endGameSession,
-  deleteSession
+  createGameSession, getSessionDetails, getHostSessions,
+  getSessionStatistics, endGameSession, deleteSession
 } = require('../controllers/host.controller');
-const { protect, optionalAuth } = require('../middleware/auth.middleware');
 
-const router = express.Router();
+const { protect } = require('../middleware/auth.middleware');
 
-// Protected routes
-router.post('/create-session', protect, createGameSession);
-router.get('/my-sessions', protect, getHostSessions);
-router.get('/session/:sessionCode/stats', protect, getSessionStatistics);
-router.post('/session/:sessionCode/end', protect, endGameSession);
-router.delete('/session/:sessionCode', protect, deleteSession);
-
-// Public/Optional auth routes
-router.get('/session/:sessionCode', optionalAuth, getSessionDetails);
+router.post('/',                            protect, createGameSession);  // create session (REST)
+router.get ('/my-sessions',                 protect, getHostSessions);
+router.get ('/session/:sessionCode',        getSessionDetails);
+router.get ('/session/:sessionCode/stats',  protect, getSessionStatistics);
+router.post('/session/:sessionCode/end',    protect, endGameSession);
+router.delete('/session/:sessionCode',      protect, deleteSession);
 
 module.exports = router;

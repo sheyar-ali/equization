@@ -1,26 +1,19 @@
 const express = require('express');
+const router  = express.Router();
+
 const {
-  getUserProfile,
-  updateAvatar,
-  getUserStatistics,
-  getUserQuizzes,
-  searchUsers,
-  getTopCreators,
-  deleteAccount
+  getUserProfile, getUserQuizzes, searchUsers,
+  getTopCreators, updateAvatar, getMyStatistics, deleteAccount
 } = require('../controllers/user.controller');
-const { protect, optionalAuth } = require('../middleware/auth.middleware');
 
-const router = express.Router();
+const { protect } = require('../middleware/auth.middleware');
 
-// Public routes
-router.get('/search', searchUsers);
-router.get('/top-creators', getTopCreators);
-router.get('/:id', getUserProfile);
-router.get('/:id/quizzes', optionalAuth, getUserQuizzes);
-
-// Protected routes
-router.put('/avatar', protect, updateAvatar);
-router.get('/me/statistics', protect, getUserStatistics);
-router.delete('/account', protect, deleteAccount);
+router.get ('/top-creators',    getTopCreators);
+router.get ('/search',          searchUsers);
+router.get ('/me/statistics',   protect, getMyStatistics);
+router.put ('/avatar',          protect, updateAvatar);
+router.delete('/account',       protect, deleteAccount);
+router.get ('/:id',             getUserProfile);
+router.get ('/:id/quizzes',     getUserQuizzes);
 
 module.exports = router;

@@ -91,7 +91,12 @@ exports.getAllQuizzes = async (req, res, next) => {
     }
 
     if (search) {
-      query.$text = { $search: search };
+      // Regex search to support Arabic and all languages
+      query.$or = [
+        { title:       { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags:        { $regex: search, $options: 'i' } }
+      ];
     }
 
     if (category) {

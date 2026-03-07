@@ -1,247 +1,161 @@
 const Question = require('../models/Question.model');
-const Quiz = require('../models/Quiz.model');
+const Quiz     = require('../models/Quiz.model');
 const { successResponse, errorResponse } = require('../utils/response.util');
 
-// @desc    Create new question
-// @route   POST /api/v1/questions
-// @access  Private
+// ── Create question ───────────────────────────────────────────────────────────
+// POST /api/v1/questions
 exports.createQuestion = async (req, res, next) => {
   try {
-    const {
-      quiz,
-      questionText,
-      questionImage,
-      questionType,
-      answers,
-      points,
-      timeLimit,
-      explanation,
-      difficulty,
-      order
-    } = req.body;
+    const { quizId, questionText, questionImage, questionType,
+            answers, points, timeLimit, explanation, source, difficulty, order } = req.body;
 
-    // Verify quiz exists and user is creator
-    const quizDoc = await Quiz.findById(quiz);
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) return errorResponse(res, 404, 'Quiz not found');
 
-    if (!quizDoc) {
-      return errorResponse(res, 404, 'Quiz not found');
-    }
+    if (quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
+      return errorResponse(res, 403, 'Not authorized to add questions to this quiz');
 
-    if (quizDoc.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to add questions to this quiz');
-    }
-
-    // Create question
     const question = await Question.create({
-      quiz,
-      questionText,
-      questionImage,
-      questionType,
-      answers,
-      points: points || quizDoc.pointsPerQuestion,
-      timeLimit: timeLimit || quizDoc.timeLimit,
-      explanation,
-      difficulty,
-      order: order !== undefined ? order : quizDoc.questions.length
+      quiz: quizId, questionText, questionImage, questionType,
+      answers, points, timeLimit, explanation, source, difficulty,
+      order: order ?? quiz.questions.length
     });
 
-    // Add question to quiz
-    quizDoc.questions.push(question._id);
-    await quizDoc.save();
+    quiz.questions.push(question._id);
+    await quiz.save();
 
-    successResponse(res, 201, 'Question created successfully', { question });
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 201, 'Question created successfully', { question });
+  } catch (err) { next(err); }
 };
 
-// @desc    Get all questions for a quiz
-// @route   GET /api/v1/questions/quiz/:quizId
-// @access  Public (if quiz is public) / Private (if quiz is private)
+// ── Get all questions for a quiz ──────────────────────────────────────────────
+// GET /api/v1/questions/quiz/:quizId
 exports.getQuizQuestions = async (req, res, next) => {
   try {
     const quiz = await Quiz.findById(req.params.quizId);
+    if (!quiz) return errorResponse(res, 404, 'Quiz not found');
 
-    if (!quiz) {
-      return errorResponse(res, 404, 'Quiz not found');
-    }
-
-    // Check permissions
-    if (!quiz.isPublic && (!req.user || quiz.creator.toString() !== req.user.id)) {
-      return errorResponse(res, 403, 'You do not have permission to view these questions');
-    }
+    if (!quiz.isPublic && (!req.user || quiz.creator.toString() !== req.user.id))
+      return errorResponse(res, 403, 'Access denied');
 
     const questions = await Question.find({ quiz: req.params.quizId })
       .sort({ order: 1 });
 
     // If not the creator, hide correct answers
+    let result = questions;
     if (!req.user || quiz.creator.toString() !== req.user.id) {
-      questions.forEach(question => {
-        question.answers.forEach(answer => {
-          answer.isCorrect = undefined;
-        });
+      result = questions.map(q => {
+        const obj = q.toObject();
+        obj.answers = obj.answers.map(a => ({ _id: a._id, text: a.text, image: a.image }));
+        return obj;
       });
     }
 
-    successResponse(res, 200, 'Questions retrieved successfully', { questions });
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 200, 'Questions retrieved successfully', { questions: result });
+  } catch (err) { next(err); }
 };
 
-// @desc    Get single question by ID
-// @route   GET /api/v1/questions/:id
-// @access  Private
-exports.getQuestionById = async (req, res, next) => {
+// ── Get single question ───────────────────────────────────────────────────────
+// GET /api/v1/questions/:id
+exports.getQuestion = async (req, res, next) => {
   try {
-    const question = await Question.findById(req.params.id).populate('quiz');
+    const question = await Question.findById(req.params.id).populate('quiz', 'creator isPublic');
+    if (!question) return errorResponse(res, 404, 'Question not found');
 
-    if (!question) {
-      return errorResponse(res, 404, 'Question not found');
-    }
+    const quiz = question.quiz;
+    if (!quiz.isPublic && (!req.user || quiz.creator.toString() !== req.user.id))
+      return errorResponse(res, 403, 'Access denied');
 
-    // Check if user is quiz creator
-    if (question.quiz.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to view this question');
-    }
-
-    successResponse(res, 200, 'Question retrieved successfully', { question });
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 200, 'Question retrieved', { question });
+  } catch (err) { next(err); }
 };
 
-// @desc    Update question
-// @route   PUT /api/v1/questions/:id
-// @access  Private
+// ── Update question ───────────────────────────────────────────────────────────
+// PUT /api/v1/questions/:id
 exports.updateQuestion = async (req, res, next) => {
   try {
-    let question = await Question.findById(req.params.id).populate('quiz');
+    let question = await Question.findById(req.params.id).populate('quiz', 'creator');
+    if (!question) return errorResponse(res, 404, 'Question not found');
 
-    if (!question) {
-      return errorResponse(res, 404, 'Question not found');
-    }
+    if (question.quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
+      return errorResponse(res, 403, 'Not authorized');
 
-    // Check ownership
-    if (question.quiz.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to update this question');
-    }
-
-    // Update question
-    question = await Question.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
-
-    successResponse(res, 200, 'Question updated successfully', { question });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Delete question
-// @route   DELETE /api/v1/questions/:id
-// @access  Private
-exports.deleteQuestion = async (req, res, next) => {
-  try {
-    const question = await Question.findById(req.params.id).populate('quiz');
-
-    if (!question) {
-      return errorResponse(res, 404, 'Question not found');
-    }
-
-    // Check ownership
-    if (question.quiz.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to delete this question');
-    }
-
-    // Remove question from quiz
-    await Quiz.findByIdAndUpdate(question.quiz._id, {
-      $pull: { questions: question._id }
+    question = await Question.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, runValidators: true
     });
 
-    // Delete question
-    await question.deleteOne();
-
-    successResponse(res, 200, 'Question deleted successfully');
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 200, 'Question updated successfully', { question });
+  } catch (err) { next(err); }
 };
 
-// @desc    Bulk create questions
-// @route   POST /api/v1/questions/bulk
-// @access  Private
+// ── Delete question ───────────────────────────────────────────────────────────
+// DELETE /api/v1/questions/:id
+exports.deleteQuestion = async (req, res, next) => {
+  try {
+    const question = await Question.findById(req.params.id).populate('quiz', 'creator');
+    if (!question) return errorResponse(res, 404, 'Question not found');
+
+    if (question.quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
+      return errorResponse(res, 403, 'Not authorized');
+
+    const quiz = await Quiz.findById(question.quiz._id);
+    quiz.questions = quiz.questions.filter(q => q.toString() !== question._id.toString());
+    await quiz.save();
+
+    await question.deleteOne();
+    return successResponse(res, 200, 'Question deleted successfully');
+  } catch (err) { next(err); }
+};
+
+// ── Bulk create questions ─────────────────────────────────────────────────────
+// POST /api/v1/questions/bulk
 exports.bulkCreateQuestions = async (req, res, next) => {
   try {
     const { quizId, questions } = req.body;
 
-    // Verify quiz exists and user is creator
     const quiz = await Quiz.findById(quizId);
+    if (!quiz) return errorResponse(res, 404, 'Quiz not found');
 
-    if (!quiz) {
-      return errorResponse(res, 404, 'Quiz not found');
-    }
+    if (quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
+      return errorResponse(res, 403, 'Not authorized');
 
-    if (quiz.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to add questions to this quiz');
-    }
-
-    // Create questions with proper order
-    const questionsToCreate = questions.map((q, index) => ({
-      ...q,
-      quiz: quizId,
-      order: q.order !== undefined ? q.order : quiz.questions.length + index,
-      points: q.points || quiz.pointsPerQuestion,
-      timeLimit: q.timeLimit || quiz.timeLimit
+    const startOrder = quiz.questions.length;
+    const questionsData = questions.map((q, i) => ({
+      ...q, quiz: quizId, order: q.order ?? (startOrder + i)
     }));
 
-    const createdQuestions = await Question.insertMany(questionsToCreate);
-
-    // Add questions to quiz
+    const createdQuestions = await Question.insertMany(questionsData);
     quiz.questions.push(...createdQuestions.map(q => q._id));
     await quiz.save();
 
-    successResponse(res, 201, 'Questions created successfully', {
+    return successResponse(res, 201, 'Questions created successfully', {
       questions: createdQuestions,
       count: createdQuestions.length
     });
-  } catch (error) {
-    next(error);
-  }
+  } catch (err) { next(err); }
 };
 
-// @desc    Reorder questions
-// @route   PUT /api/v1/questions/reorder
-// @access  Private
+// ── Reorder questions ─────────────────────────────────────────────────────────
+// PUT /api/v1/questions/reorder
 exports.reorderQuestions = async (req, res, next) => {
   try {
-    const { quizId, questionOrders } = req.body;
+    const { quizId, orderedIds } = req.body;
 
-    // Verify quiz and ownership
     const quiz = await Quiz.findById(quizId);
+    if (!quiz) return errorResponse(res, 404, 'Quiz not found');
 
-    if (!quiz) {
-      return errorResponse(res, 404, 'Quiz not found');
-    }
+    if (quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
+      return errorResponse(res, 403, 'Not authorized');
 
-    if (quiz.creator.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to reorder questions');
-    }
-
-    // Update question orders
-    const updatePromises = questionOrders.map(({ questionId, order }) =>
-      Question.findByIdAndUpdate(questionId, { order })
+    const updates = orderedIds.map((id, index) =>
+      Question.findByIdAndUpdate(id, { order: index })
     );
+    await Promise.all(updates);
 
-    await Promise.all(updatePromises);
+    // Update quiz questions order
+    quiz.questions = orderedIds;
+    await quiz.save();
 
-    successResponse(res, 200, 'Questions reordered successfully');
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 200, 'Questions reordered successfully');
+  } catch (err) { next(err); }
 };
