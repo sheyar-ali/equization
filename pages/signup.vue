@@ -1,45 +1,53 @@
 <!-- Start Of The Signup Page -->
 <template>
   <section>
-    <!-- PageTitle Component -->
     <PageTitle :titleText="$t('createAccountPage.pageTitle')" />
     <section class="contact-us d-flex align-center form-section mx-auto">
       <v-container>
-        <v-row
-          class="align-center justify-space-between flex-sm-column-reverse flex-md-row"
-        >
+        <v-row class="align-center justify-space-between flex-sm-column-reverse flex-md-row">
           <v-col cols="12" md="6" class="form-container wow fadeIn">
-            <!-- Invalid Data Alert -->
-            <v-alert type="error">
-              {{ $t("errorAlertText") }}
+
+            <!-- Error Alert -->
+            <v-alert v-if="errorMsg" type="error" dismissible @input="errorMsg = ''">
+              {{ errorMsg }}
             </v-alert>
+
+            <!-- Success Alert -->
+            <v-alert v-if="successMsg" type="success">
+              {{ successMsg }}
+            </v-alert>
+
             <!-- Signup Form -->
-            <v-form class="forms" v-model="valid">
+            <v-form class="forms" ref="form" v-model="valid" @submit.prevent="handleSignup">
+
               <!-- Username Input -->
               <v-text-field
                 outlined
+                v-model="username"
                 :label="$t('createAccountPage.inputText')"
                 :rules="[
-                  required($t('createAccountPage.inputText')),
-                  minLength($t('createAccountPage.inputText'), 8),
-                  nameRules($t('createAccountPage.inputText')),
+                  v => !!v || $t('errorNameText') + ' ' + $t('createAccountPage.inputText'),
+                  v => (v && v.length >= 3) || $t('createAccountPage.inputText') + ' ' + $t('minLengthError') + ' 3 ' + $t('characters'),
+                  v => /^\S+$/.test(v) || $t('createAccountPage.inputText') + ' ' + $t('emailRulesError'),
                 ]"
                 required
                 prepend-inner-icon="mdi-account"
               ></v-text-field>
+
               <!-- Email Input -->
               <v-text-field
                 outlined
                 type="email"
+                v-model="email"
                 :label="$t('loginPage.emailInputText')"
                 :rules="[
-                  required($t('loginPage.emailInputText')),
-                  minLength($t('loginPage.emailInputText'), 8),
-                  emailRules($t('loginPage.emailInputText')),
+                  v => !!v || $t('errorNameText') + ' ' + $t('loginPage.emailInputText'),
+                  v => /.@+./.test(v) || $t('loginPage.emailInputText') + ' ' + $t('emailRulesError'),
                 ]"
                 required
                 prepend-inner-icon="mdi-email"
               ></v-text-field>
+
               <!-- Password Input -->
               <v-text-field
                 outlined
@@ -47,46 +55,54 @@
                 :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="show1 ? 'text' : 'password'"
                 :rules="[
-                  required($t('loginPage.passwordInputText')),
-                  minLength($t('loginPage.passwordInputText'), 8),
+                  v => !!v || $t('errorNameText') + ' ' + $t('loginPage.passwordInputText'),
+                  v => (v && v.length >= 8) || $t('loginPage.passwordInputText') + ' ' + $t('minLengthError') + ' 8 ' + $t('characters'),
                 ]"
                 :label="$t('loginPage.passwordInputText')"
                 required
                 prepend-inner-icon="mdi-lock"
                 @click:append="show1 = !show1"
-              >
-              </v-text-field>
+              ></v-text-field>
+
               <!-- Confirm Password Input -->
               <v-text-field
                 v-model="passwordConfirmation"
                 :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
                 outlined
                 :type="show2 ? 'text' : 'password'"
-                :rules="passwordRules"
+                :rules="[
+                  v => !!v || $t('passwordErrorText'),
+                  v => v === password || $t('matchPassword'),
+                ]"
                 :label="$t('createAccountPage.confirmPasswordText')"
                 required
                 prepend-inner-icon="mdi-lock"
                 @click:append="show2 = !show2"
-              >
-              </v-text-field>
-              <!-- CheckBox -->
+              ></v-text-field>
+
+              <!-- Checkbox -->
               <v-checkbox
                 class="check-btn"
                 v-model="checkbox"
-                :rules="[(v) => !!v]"
+                :rules="[v => !!v || '']"
                 :label="$t('createAccountPage.checkBoxText')"
                 required
               ></v-checkbox>
+
               <!-- Submit Button -->
               <v-btn
                 class="white--text d-block mx-auto title"
                 width="30%"
                 height="auto"
-                :disabled="!valid"
+                color="primary"
+                type="submit"
+                :disabled="!valid || loading"
+                :loading="loading"
+                @click="handleSignup"
               >
                 {{ $t("createAccountPage.buttonText") }}
               </v-btn>
-              <!-- FormDivider Component -->
+
               <FormDivider
                 :DividerText="$t('createAccountPage.formDividerText')"
                 :DividerLink="localePath('/signin')"
@@ -94,8 +110,9 @@
               />
             </v-form>
           </v-col>
+
           <v-divider vertical></v-divider>
-          <!-- FormContent Component -->
+
           <FormContent
             :formTitle="$t('createAccountPage.formContentTitle')"
             :formDescription="$t('createAccountPage.formContentDescription')"
@@ -109,65 +126,68 @@
 </template>
 
 <script>
-import PageTitle from "@/components/Shared-Components/PageTitle";
+import PageTitle   from "@/components/Shared-Components/PageTitle";
 import FormDivider from "@/components/Shared-Components/FormDivider";
 import FormContent from "@/components/Shared-Components/FormContent";
+
 export default {
   name: "Create-Account",
   layout: "form",
+  components: { PageTitle, FormDivider, FormContent },
+
   head() {
-    return {
-      title: this.$t("createAccountPage.pageTitle"),
-    };
+    return { title: this.$t("createAccountPage.pageTitle") };
   },
+
   data() {
     return {
-      valid: false,
-      show1: false,
-      show2: false,
-      checkbox: false,
-      password: "",
+      valid:                false,
+      loading:              false,
+      show1:                false,
+      show2:                false,
+      username:             "",
+      email:                "",
+      password:             "",
       passwordConfirmation: "",
-      // Password Validation
-      passwordRules: [
-        // Check if password in input
-        (password) => !!password || this.$t("passwordErrorText"),
-        // Make sure name is less than 10 char
-        (password) => password.length >= 8 || this.$t("passwordLength"),
-        (passwordConfirmation) =>
-          passwordConfirmation === this.password || this.$t("matchPassword"),
-      ],
-      // Required Validation
-      required(errorName) {
-        return (v) =>
-          (v && v.length > 0) || `${this.$t("errorNameText")} ${errorName}`;
-      },
-      // MinLength Validation
-      minLength(errorName, minNum) {
-        return (v) =>
-          (v && v.length >= minNum) ||
-          `${errorName} ${this.$t("minLengthError")} ${minNum} ${this.$t(
-            "characters"
-          )}`;
-      },
-      // Name Valodation That Check if the Name Is Valid (Don’t Contains Spaces)
-      nameRules(errorName) {
-        return (v) =>
-          /. +./.test(v) == false ||
-          `${errorName} ${this.$t("emailRulesError")}`;
-      },
-      // Email Valodation That Check if the Email Is Valid Containes (@g)
-      emailRules(errorName) {
-        return (v) =>
-          /.@+./.test(v) || `${errorName} ${this.$t("emailRulesError")}`;
-      },
+      checkbox:             false,
+      errorMsg:             "",
+      successMsg:           "",
     };
   },
-  props: ["titleText", "formTitle", "formDescription", "imgSrc", "imgAlt"],
-  components: {
-    PageTitle,
-    FormDivider,
-    FormContent,
+
+  methods: {
+    async handleSignup() {
+      if (!this.$refs.form.validate()) return;
+
+      this.loading  = true;
+      this.errorMsg = "";
+
+      try {
+        const res = await this.$axios.post("/auth/register", {
+          username: this.username,
+          email:    this.email,
+          password: this.password,
+        });
+
+        if (res.data && res.data.success) {
+          this.successMsg =
+            "تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.";
+          // تحويل لصفحة تسجيل الدخول بعد ثانيتين
+          setTimeout(() => {
+            this.$router.push(this.localePath("/signin"));
+          }, 2000);
+        }
+      } catch (err) {
+        const msg = err.response?.data?.message;
+        if (msg && msg.includes("duplicate") || msg && msg.includes("already")) {
+          this.errorMsg = "هذا البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل";
+        } else {
+          this.errorMsg = msg || "حدث خطأ أثناء إنشاء الحساب، حاول مرة أخرى";
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 };
 </script>

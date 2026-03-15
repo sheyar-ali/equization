@@ -80,14 +80,22 @@ exports.getAllQuizzes = async (req, res, next) => {
       language,
       sortBy = 'createdAt',
       order = 'desc',
-      isPublic = true
+      isPublic
     } = req.query;
 
     // Build query
     const query = { isActive: true };
 
-    if (isPublic !== 'all') {
-      query.isPublic = isPublic === 'true';
+    // إذا لم يُحدَّد isPublic أو كان 'all' نعرض الكل
+    // إذا كان 'false' نعرض الخاص فقط، وإلا نعرض العام فقط
+    if (isPublic === 'false') {
+      query.isPublic = false;
+    } else if (isPublic && isPublic !== 'all') {
+      query.isPublic = true;
+    }
+    // default (no param): show all public quizzes
+    if (!isPublic) {
+      query.isPublic = true;
     }
 
     if (search) {
