@@ -1,38 +1,27 @@
 export default function ({ $axios, redirect }) {
-  // Set base URL from environment variable
-  $axios.setBaseURL(process.env.API_BASE_URL || 'http://localhost:5000/api/v1')
+  // لا نحتاج setBaseURL - @nuxtjs/axios يقرأ browserBaseURL من nuxt.config.js تلقائياً
 
-  // Request interceptor - add auth token from localStorage
+  // إضافة التوكن لكل طلب
   $axios.onRequest(config => {
     try {
-      const token = typeof localStorage !== 'undefined'
-        ? localStorage.getItem('token')
-        : null
+      const token = localStorage.getItem('token')
       if (token) {
         config.headers.common['Authorization'] = `Bearer ${token}`
       }
-    } catch (e) {
-      // localStorage not available (SSR), skip
-    }
+    } catch (e) {}
     return config
   })
 
-  // Response interceptor - handle errors
+  // معالجة الأخطاء
   $axios.onError(error => {
     const code = parseInt(error.response && error.response.status)
-
     if (code === 401) {
       try {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
       } catch (e) {}
-      redirect('/auth/login')
+      redirect('/signin')
     }
-
-    if (code === 500) {
-      console.error('Server error:', error.response?.data)
-    }
-
     return Promise.reject(error)
   })
 }

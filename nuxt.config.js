@@ -167,10 +167,17 @@ export default {
     },
   },
 
+  // تعريف متغيرات البيئة المتاحة للـ client
+  env: {
+    API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:5000',
+  },
+
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
-    credentials: true,
+    browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    credentials: false,
     headers: {
       common: {
         'Accept': 'application/json',

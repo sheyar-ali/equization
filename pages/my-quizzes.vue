@@ -3,41 +3,50 @@
     <section class="account-section d-flex align-center justify-center mx-auto">
       <v-container fluid>
         <v-row>
-          <!-- Side Menu -->
           <SideMenu activeLink="myQuizzes" />
-          <!-- Account Quizes Content -->
           <v-col cols="12" md="10" lg="9" class="account-section-container">
             <div class="account-section-content h-100">
-              <!-- AccountHeader Component -->
               <AccountHeader
-                :headerText="headerContent.headerText"
-                :backLink="headerContent.backLink"
-                :backText="headerContent.backText"
-                :isActive="headerContent.isActive"
+                :headerText="$t('myQuizzesPage.AccountHeader.headerText')"
+                backLink="/"
+                :backText="$t('AccountPage.AccountHeader.backText')"
+                :isActive="false"
               />
-              <v-row class="quizzes" v-if="quizs.length > 0">
-                <!-- Quizes Component -->
+
+              <!-- Loading -->
+              <div v-if="loading" class="d-flex justify-center py-10">
+                <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+              </div>
+
+              <!-- Quizzes from API -->
+              <v-row class="quizzes" v-else-if="quizs.length > 0">
                 <QuizComponent
-                  v-for="quiz in quizs"
-                  :key="quiz.id"
-                  :questLink="quiz.questLink"
-                  :questNumbers="quiz.questNumbers"
-                  :playersNumbers="quiz.playersNumbers"
-                  :quizTitle="quiz.quizTitle"
-                  :categories="quiz.categories"
-                  :wowDelay="quizsDelay[quiz.id - 1].wowDelay"
+                  v-for="(quiz, idx) in quizs"
+                  :key="quiz._id"
+                  :questLink="`/quizes/my-quiz?id=${quiz._id}`"
+                  :questNumbers="quiz.questions ? quiz.questions.length : 0"
+                  :playersNumbers="quiz.statistics ? quiz.statistics.totalPlayers : 0"
+                  :quizTitle="quiz.title"
+                  :categories="formatCategories(quiz.categories)"
+                  :wowDelay="`${idx * 0.1}s`"
                 />
               </v-row>
+
+              <!-- Empty -->
               <v-row v-else>
-                <!-- EmptyData Component -->
                 <EmptyData
-                  :descriptionText="emptyData.descriptionText"
-                  :linkPath="emptyData.linkPath"
-                  :linkText="emptyData.linkText"
+                  :descriptionText="$t('emptyData.noQuizzes') || 'لم تقم بإنشاء أي اختبارات بعد'"
+                  linkPath="/quizes/add"
+                  :linkText="$t('emptyData.createQuiz') || 'إنشاء اختبار جديد'"
                 />
               </v-row>
-              <!-- Pagination Component -->
-              <Pagination :pagesLength="3" v-if="quizs.length > 0" />
+
+              <!-- Pagination -->
+              <div v-if="quizs.length > 0 && totalPages > 1" class="d-flex justify-center mt-4">
+                <v-btn icon :disabled="page === 1" @click="changePage(page-1)"><v-icon>mdi-chevron-right</v-icon></v-btn>
+                <v-btn v-for="p in totalPages" :key="p" icon small :color="p===page?'primary':''" @click="changePage(p)" class="mx-1">{{ p }}</v-btn>
+                <v-btn icon :disabled="page === totalPages" @click="changePage(page+1)"><v-icon>mdi-chevron-left</v-icon></v-btn>
+              </div>
             </div>
           </v-col>
         </v-row>
@@ -47,219 +56,44 @@
 </template>
 
 <script>
-import SideMenu from "@/components/AccountComponents/SideMenu";
+import SideMenu      from "@/components/AccountComponents/SideMenu";
 import AccountHeader from "@/components/AccountComponents/AccountHeader";
 import QuizComponent from "@/components/Shared-Components/QuizComponent";
-import EmptyData from "@/components/AccountComponents/EmptyData";
-import Pagination from "@/components/Shared-Components/Pagniation";
+import EmptyData     from "@/components/AccountComponents/EmptyData";
+
 export default {
   layout: "account",
-  head() {
-    return {
-      title: this.$t("myQuizzesPage.AccountHeader.headerText"),
-    };
-  },
+  middleware: ['auth'],
+  head() { return { title: this.$t("myQuizzesPage.AccountHeader.headerText") }; },
   data() {
-    return {
-      // Data Of The QuizComponent
-      quizsDelay: [
-        {
-          id: 1,
-          wowClass: "wow slideInRight",
-          wowDelay: "0s",
-        },
-        {
-          id: 2,
-          wowClass: "wow zoomIn",
-          wowDelay: "0.1s",
-        },
-        {
-          id: 3,
-          wowClass: "wow zoomIn",
-          wowDelay: ".2s",
-        },
-        {
-          id: 4,
-          wowClass: "wow slideInLeft",
-          wowDelay: ".3s",
-        },
-        {
-          id: 5,
-          wowClass: "wow slideInRight",
-          wowDelay: ".4s",
-        },
-        {
-          id: 6,
-          wowClass: "wow zoomIn",
-          wowDelay: ".5s",
-        },
-      ],
-    };
+    return { loading: true, quizs: [], page: 1, totalPages: 1 };
   },
-  computed: {
-    // Header Content
-    headerContent() {
-      return {
-        headerText: this.$t("myQuizzesPage.AccountHeader.headerText"),
-        backLink: "/",
-        backText: this.$t("AccountPage.AccountHeader.backText"),
-        isActive: false,
-      };
+  async mounted() { await this.fetchMyQuizzes(); },
+  methods: {
+    async fetchMyQuizzes() {
+      try {
+        this.loading = true;
+        const res = await this.$axios.get('/quizzes/user/my-quizzes', {
+          params: { page: this.page, limit: 12 },
+        });
+        this.quizs      = res.data?.data || [];
+        this.totalPages = res.data?.pagination?.pages || 1;
+      } catch (e) {
+        console.error('Error:', e.message);
+        this.quizs = [];
+      } finally {
+        this.loading = false;
+      }
     },
-    // The Data Of The Quizzes
-    quizs() {
-      return [
-        {
-          id: 1,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار الأول",
-          categories: [
-            {
-              categoryName: "معلومات عامة",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "كيمياء",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "علوم",
-              categoryLink: "/",
-            },
-          ],
-        },
-        {
-          id: 2,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار الثانى",
-          categories: [
-            {
-              categoryName: "علوم",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "معلومات عامة",
-              categoryLink: "/",
-            },
-          ],
-        },
-        {
-          id: 3,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار الثالث",
-          categories: [
-            {
-              categoryName: "تاريخ",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "رياضيات",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "فيزياء",
-              categoryLink: "/",
-            },
-          ],
-        },
-        {
-          id: 4,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار الرابع",
-          categories: [
-            {
-              categoryName: "تعليم",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "رياضيات",
-              categoryLink: "/",
-            },
-          ],
-        },
-        {
-          id: 5,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار الخامس",
-          categories: [
-            {
-              categoryName: "تاريخ",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "لغات أجنبية",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "فيزياء",
-              categoryLink: "/",
-            },
-          ],
-        },
-        {
-          id: 6,
-          questLink: "/quizes/my-quiz",
-          questNumbers: "25",
-          playersNumbers: "55",
-          quizTitle: "عنوان الاختبار السادس",
-          categories: [
-            {
-              categoryName: "علوم",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "رياضيات",
-              categoryLink: "/",
-            },
-            {
-              categoryName: "كمياء",
-              categoryLink: "/",
-            },
-          ],
-        },
-      ];
-    },
-    // Data Of The Empty Data Component
-    emptyData() {
-      return {
-        descriptionText: this.$t("myQuizzesPage.emptyData.descriptionText"),
-        linkPath: "/",
-        linkText: this.$t("myQuizzesPage.emptyData.linkText"),
-      };
+    changePage(p) { this.page = p; this.fetchMyQuizzes(); },
+    formatCategories(cats) {
+      if (!cats || !cats.length) return [];
+      return cats.map(c => ({
+        categoryName: typeof c.name === 'object' ? (c.name.ar || c.name.en || '') : (c.name || ''),
+        categoryLink: `/quizes-cat?cat=${c.slug || c._id}`,
+      }));
     },
   },
-  components: {
-    SideMenu,
-    AccountHeader,
-    QuizComponent,
-    EmptyData,
-    Pagination,
-  },
+  components: { SideMenu, AccountHeader, QuizComponent, EmptyData },
 };
 </script>
-
-<style scoped>
-.account-section-content {
-  padding-bottom: 20px !important;
-}
-
-.quizzes {
-  margin: 0 -12px !important;
-}
-
-@media only screen and (min-width: 1200px) {
-  .quizzes {
-    padding: 0 60px !important;
-  }
-}
-</style>
