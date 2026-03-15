@@ -133,13 +133,10 @@ export default {
         if (res.data && res.data.success) {
           const { token, user } = res.data.data;
 
-          // حفظ التوكن والمستخدم
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
+          // حفظ في Vuex + localStorage معاً
+          this.$store.dispatch('login', { token, user });
 
           this.successMsg = "تم تسجيل الدخول بنجاح! جاري التحويل...";
-
-          // التوجيه بعد ثانية
           setTimeout(() => {
             this.$router.push(this.localePath("/account"));
           }, 800);

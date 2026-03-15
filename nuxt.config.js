@@ -115,6 +115,7 @@ export default {
     { src: "~/plugins/TiptapVuetify", ssr: false },
     { src: "~/plugins/axios.js" },
     { src: "~/plugins/api.js" },
+    { src: "~/plugins/auth.client.js", mode: 'client' },
     { src: "~/plugins/socket.client.js", mode: 'client' },
   ],
 

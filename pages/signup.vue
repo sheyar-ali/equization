@@ -170,9 +170,7 @@ export default {
         });
 
         if (res.data && res.data.success) {
-          this.successMsg =
-            "تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.";
-          // تحويل لصفحة تسجيل الدخول بعد ثانيتين
+          this.successMsg = "تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.";
           setTimeout(() => {
             this.$router.push(this.localePath("/signin"));
           }, 2000);

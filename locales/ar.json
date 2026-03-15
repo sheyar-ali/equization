@@ -295,7 +295,7 @@
   },
   "AccountPage": {
     "pageTitle": "حسابي",
-    "welcomeText": "مرحباً, محمد الإسكندراني",
+    "welcomeText": "مرحباً,",
     "AccountHeader": {
       "headerText": "حسابي",
       "backText": "العودة"
