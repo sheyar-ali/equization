@@ -127,6 +127,19 @@
                     >
                       {{ $t("addQuestionPage.addExplanation") }}
                     </v-btn>
+                    <!-- question text -->
+                    <v-text-field
+                      outlined
+                      type="text"
+                      v-model="questionText"
+                      :label="$t('addQuestionPage.questionTextLabel')"
+                      :rules="[
+                        required($t('addQuestionPage.questionTextLabel')),
+                        minLength($t('addQuestionPage.questionTextLabel'), 8),
+                      ]"
+                      prepend-inner-icon="mdi-format-text"
+                      class="mt-3"
+                    ></v-text-field>
                     <v-dialog max-width="700" v-model="expDialog">
                       <v-card>
                         <Editor v-model="explanation" />
@@ -146,19 +159,29 @@
                   </v-col>
                   <TextAnswers
                     :questionType="questionType"
-                    :answersData="[]"
+                    :answersData="textAnswersData"
                     v-if="answerType == $t('addQuestionPage.answersType.text')"
+                    @update="textAnswersData = $event"
                   />
                   <ImageAnswers
                     :questionType="questionType"
-                    :answersData="[]"
+                    :answersData="imageAnswersData"
                     v-if="answerType == $t('addQuestionPage.answersType.image')"
+                    @update="imageAnswersData = $event"
                   />
+
+                  <!-- Error / Success alerts -->
+                  <v-alert v-if="successMsg" type="success" class="mx-4 mt-4">{{ successMsg }}</v-alert>
+                  <v-alert v-if="errorMsg"   type="error"   class="mx-4 mt-4">{{ errorMsg }}</v-alert>
+
                   <v-row class="w-100 d-flex justify-center sub-btn-content">
                     <v-btn
                       class="white--text d-block title sub-btn"
                       height="auto"
                       :disabled="!valid"
+                      :loading="saving"
+                      color="primary"
+                      @click="submitQuestion"
                     >
                       {{ $t("addQuestionPage.title") }}
                     </v-btn>
@@ -189,12 +212,16 @@ export default {
   data() {
     return {
       valid: false,
-      show1: false,
+      saving: false,
       file: null,
       imageUrl: null,
       explanation: null,
       expDialog: false,
-      textAnswers: "",
+      questionText: '',
+      textAnswersData: [],
+      imageAnswersData: [],
+      successMsg: '',
+      errorMsg: '',
       questionType: this.$t("addQuestionPage.questionTypes.oneAnswer"),
       answerType: this.$t("addQuestionPage.answersType.text"),
       questionTypes: [
@@ -228,9 +255,11 @@ export default {
   computed: {
     // Header Content
     headerContent() {
+      const quizId = this.$route.query.quizId
+        || (process.client ? sessionStorage.getItem('currentQuizId') : null);
       return {
         headerText: this.$t("addQuestionPage.headerText"),
-        backLink: "/quizes/my-quiz",
+        backLink: quizId ? `/quizes/questions?quizId=${quizId}` : '/my-quizzes',
         backText: this.$t("AccountPage.AccountHeader.backText"),
         isActive: true,
       };
@@ -239,16 +268,65 @@ export default {
   methods: {
     onFileChange() {
       if (this.file) {
-        let reader = new FileReader();
-        reader.onload = () => {
-          this.imageUrl = reader.result;
-        };
+        const reader = new FileReader();
+        reader.onload = () => { this.imageUrl = reader.result; };
         reader.readAsDataURL(this.file);
       }
     },
     clear() {
       this.file = null;
-      this.imageUrl = "";
+      this.imageUrl = '';
+    },
+    buildAnswers() {
+      const rawAnswers = this.answerType === this.$t('addQuestionPage.answersType.text')
+        ? this.textAnswersData
+        : this.imageAnswersData;
+      if (!rawAnswers || rawAnswers.length === 0) {
+        // Build default true/false answers
+        return [
+          { text: 'صحيح', isCorrect: true,  points: 100 },
+          { text: 'خطأ',  isCorrect: false, points: 0   },
+        ];
+      }
+      return rawAnswers.map(a => ({
+        text:      a.ansText || a.text || '',
+        imageUrl:  a.imageUrl || '',
+        isCorrect: a.isCorrect || false,
+        points:    a.points !== undefined ? a.points : (a.isCorrect ? 100 : 0),
+      }));
+    },
+    async submitQuestion() {
+      this.saving = true;
+      this.successMsg = '';
+      this.errorMsg = '';
+      try {
+        const quizId = this.$route.query.quizId
+          || (process.client ? sessionStorage.getItem('currentQuizId') : null);
+        if (!quizId) throw new Error('معرّف الاختبار غير موجود');
+        const answers = this.buildAnswers();
+        const payload = {
+          quizId,
+          questionText: this.questionText,
+          type:        this.questionType === this.$t('addQuestionPage.questionTypes.multiAnswers') ? 'multiple' : 'single',
+          timeLimit:   30,
+          answers,
+          explanation: this.explanation || '',
+          imageUrl:    this.imageUrl || '',
+        };
+        await this.$axios.post('/questions', payload);
+        this.successMsg = 'تمت إضافة السؤال بنجاح!';
+        // Reset form
+        this.questionText = '';
+        this.imageUrl     = null;
+        this.explanation  = null;
+        this.textAnswersData  = [];
+        this.imageAnswersData = [];
+      } catch (e) {
+        this.errorMsg = e.response?.data?.message || 'فشل في حفظ السؤال';
+        console.error('Create question error:', e);
+      } finally {
+        this.saving = false;
+      }
     },
   },
   components: {

@@ -1,48 +1,42 @@
+<!-- Host Question Page - Show question to host, receive player answers in real time -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>
       <div class="play-page-container">
         <QuestionHostHeader
-          :timer="seconds"
-          :QuestionOrder="QuestionOrder"
-          :Questions="Questions"
-          :answers="answersNum"
-          :players="playersNum"
+          :timer="timer"
+          :QuestionOrder="questionIndex + 1"
+          :Questions="totalQuestions"
+          :answers="answeredCount"
+          :players="playersCount"
         />
 
-        <div
-          class="question-container d-flex align-center justify-space-between flex-column"
-        >
-          <div
-            class="play-question-details w-100 d-flex align-center justify-center flex-column"
-          >
-            <!-- Question Text -->
-            <h1 class="question text-center text-white w-100">
-              {{ questionText }}
-            </h1>
-
-            <!-- Timer -->
-            <v-progress-linear height="10" v-model="value"></v-progress-linear>
+        <div class="question-container d-flex align-center justify-space-between flex-column">
+          <div class="play-question-details w-100 d-flex align-center justify-center flex-column">
+            <h1 class="question text-center text-white w-100">{{ questionText }}</h1>
+            <v-progress-linear height="10" v-model="timerValue" color="#ff5e94" rounded></v-progress-linear>
           </div>
 
-          <!-- Question Image -->
-          <div
-            v-if="QuestionImgSrc"
-            class="question-img d-flex align-center justify-center mx-auto overflow-hidden"
-          >
-            <img :src="`${QuestionImgSrc}`" alt="question-img" />
+          <div v-if="questionImage" class="question-img d-flex align-center justify-center mx-auto overflow-hidden">
+            <img :src="questionImage" alt="question-img" />
           </div>
 
-          <!-- Answers -->
-          <CheckBoxAnswers
-            :answersData="answers"
-            :enabled="true"
-            v-if="
-              answersType ==
-              this.$t('addQuestionPage.questionTypes.multiAnswers')
-            "
-          />
-          <QuestionAnswers :answersData="answers" :enabled="true" v-else />
+          <QuestionAnswers :answersData="answers" :enabled="false" />
+        </div>
+
+        <!-- Show Results Button -->
+        <div class="d-flex justify-center mt-4">
+          <v-btn
+            color="#ff5e94"
+            dark
+            large
+            class="title"
+            :disabled="!sessionCode"
+            @click="showResults"
+          >
+            <v-icon class="mx-2">mdi-chart-bar</v-icon>
+            {{ $t('resultTables.scoreBoard.headers.btn') || 'عرض النتائج' }}
+          </v-btn>
         </div>
       </div>
     </v-container>
@@ -51,159 +45,111 @@
 
 <script>
 import QuestionHostHeader from "@/components/PlayComponents/QuestionHostHeader";
-import QuestionAnswers from "@/components/PlayComponents/QuestionAnswers";
-import CheckBoxAnswers from "@/components/PlayComponents/CheckBoxAnswers";
+import QuestionAnswers    from "@/components/PlayComponents/QuestionAnswers";
+
 export default {
   layout: "play",
-  head() {
-    return {
-      title: this.$t("question.question"),
-    };
-  },
+  head() { return { title: this.$t("question.question") }; },
+
   data() {
     return {
-      answersNum: 4, // total number of submited answers
-      playersNum: 5, // total players
-      answersType: this.$t("addQuestionPage.questionTypes.oneAnswer"), // type of answers
-      answers: [
-        {
-          ansText: "صحيح",
-          imageUrl: "",
-          isCorrect: true,
-          points: 100,
-        },
-        {
-          ansText: "خطأ",
-          imageUrl: "",
-          isCorrect: false,
-          points: 0,
-        },
-      ],
-      seconds: 30, // question timer
-      value: 100,
-      questionText:
-        "المسجد الأقصى أحد أكبر مساجد العالم وأحد المساجد الثلاثة التي يشد المسلمون الرحال إليها، وهو أيضًا أول القبلتين في الإسلام. يقع داخل البلدة القديمة بالقدس في فلسطين.",
-      QuestionOrder: 1, // current question order
-      Questions: 10, // total questions
-      QuestionImgSrc:
-        "http://ammannet.net/sites/default/files/styles/news_landing/public/2020-09/%D8%A7%D9%84%D9%85%D8%B3%D8%AC%D8%AF%20%D8%A7%D9%84%D8%A7%D9%82%D8%B5%D9%89.jpg",
+      sessionCode:    '',
+      questionIndex:  0,
+      totalQuestions: 0,
+      questionText:   '',
+      questionImage:  '',
+      answers:        [],
+      timer:          30,
+      timerValue:     100,
+      answeredCount:  0,
+      playersCount:   0,
+      interval:       null,
     };
   },
+
   mounted() {
+    if (!process.client) return;
+
+    this.sessionCode = sessionStorage.getItem('sessionCode') || '';
+    const gameState  = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+
+    this.questionIndex   = gameState.questionIndex   || 0;
+    this.totalQuestions  = gameState.totalQuestions  || 0;
+    this.questionText    = gameState.questionText    || '';
+    this.questionImage   = gameState.questionImage   || '';
+    this.timer           = gameState.timer           || 30;
+    this.playersCount    = gameState.playersCount    || 0;
+
+    // Format answers for display (host sees correct answers highlighted)
+    const raw = gameState.answers || [];
+    this.answers = raw.map(a => ({
+      ansText:  a.text || '',
+      imageUrl: a.image || '',
+      isCorrect: a.isCorrect || false,
+      points:    a.isCorrect ? 100 : 0,
+    }));
+
+    // Timer countdown
     this.interval = setInterval(() => {
-      if (this.value !== 0) {
-        this.value -= 0.2;
+      if (this.timerValue > 0) {
+        this.timerValue -= 100 / (this.timer * 5);
+      } else {
+        clearInterval(this.interval);
       }
-    }, 200 / (100 / this.seconds));
+    }, 200);
+
+    // Listen for player answers
+    const socket = this.$socket?.getSocket?.();
+    if (socket) {
+      socket.on('player:answered', (data) => {
+        this.answeredCount = data.answeredCount || 0;
+        this.playersCount  = data.totalPlayers  || this.playersCount;
+      });
+    }
   },
-  components: {
-    QuestionHostHeader,
-    QuestionAnswers,
-    CheckBoxAnswers,
+
+  beforeDestroy() {
+    if (this.interval) clearInterval(this.interval);
+    const socket = this.$socket?.getSocket?.();
+    if (socket) socket.off('player:answered');
   },
+
+  methods: {
+    async showResults() {
+      if (!this.sessionCode) return;
+      try {
+        this.$socket?.showResults({ sessionCode: this.sessionCode, questionIndex: this.questionIndex }, (res) => {
+          if (res?.success) {
+            // Store leaderboard
+            const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+            gameState.leaderboard = res.leaderboard || [];
+            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+            this.$router.push(this.localePath('/host/scoreboard'));
+          }
+        });
+      } catch (e) {
+        console.error('Show results error:', e);
+      }
+    },
+  },
+
+  components: { QuestionHostHeader, QuestionAnswers },
 };
 </script>
 
 <style scoped>
-.play-page-container {
-  height: calc(100vh - 80px);
-  margin-bottom: 0px !important;
-  padding: 8px 15px 15px;
-}
-
-.question-container {
-  height: calc(100vh - 160px);
-  margin: 10px 0;
-  padding: 0 70px;
-}
-
-.question-container h1 {
-  margin-bottom: 5px;
-  padding: 15px;
-  line-height: 34px;
-  background-color: #38389a;
-  border-radius: 10px;
-  font-size: 20px;
-  max-height: 119px;
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  -webkit-line-clamp: 3;
-}
-
-.v-progress-linear {
-  color: #ff5e94 !important;
-  border-radius: 5px;
-}
-
-h2.count-down {
-  font-size: 85px !important;
-}
-
-.question-img {
-  max-width: 90% !important;
-  margin: 10px 0 0;
-  flex-grow: 1;
-}
-
-.question-img img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.question-answers {
-  margin-top: 15px !important;
-}
-
+.play-page-container { height: calc(100vh - 80px); margin-bottom: 0; padding: 8px 15px 15px; }
+.question-container { height: calc(100vh - 200px); margin: 10px 0; padding: 0 70px; }
+.question-container h1 { margin-bottom: 5px; padding: 15px; line-height: 34px; background-color: #38389a; border-radius: 10px; font-size: 20px; max-height: 119px; display: -webkit-box !important; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 3; }
+.question-img { max-width: 90%; margin: 10px 0 0; flex-grow: 1; }
+.question-img img { max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 10px; }
 @media only screen and (max-width: 992px) {
-  .play-page-container {
-    height: unset !important;
-    min-height: calc(100vh - 85px) !important;
-  }
-
-  .question-container {
-    padding: 0 !important;
-    height: unset !important;
-    min-height: calc(100vh - 185px) !important;
-  }
-
-  .question-img img {
-    max-width: 80%;
-  }
+  .play-page-container { height: unset; min-height: calc(100vh - 85px); }
+  .question-container { padding: 0; height: unset; min-height: calc(100vh - 230px); }
 }
-
 @media only screen and (max-width: 600px) {
-  .play-page-container {
-    border: none !important;
-    box-shadow: none !important;
-    height: unset !important;
-    min-height: calc(92vh - 50px) !important;
-  }
-
-  .question-container {
-    height: unset !important;
-    min-height: calc(92vh - 100px) !important;
-  }
-
-  .question-container h1 {
-    line-height: 27px;
-    font-size: 17px;
-    max-height: 96px;
-  }
-
-  .question-img img {
-    max-width: 80%;
-    max-height: 200px;
-  }
-}
-
-@media only screen and (min-width: 960px) and (max-width: 1200px) {
-  .question-container {
-    padding: 0 15px !important;
-  }
+  .play-page-container { border: none; box-shadow: none; height: unset; min-height: calc(92vh - 50px); }
+  .question-container { height: unset; min-height: calc(92vh - 120px); }
+  .question-container h1 { font-size: 17px; max-height: 96px; }
 }
 </style>

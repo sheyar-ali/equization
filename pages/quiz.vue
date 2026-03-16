@@ -265,7 +265,7 @@ export default {
       try {
         this.loading = true;
         const res = await this.$axios.get(`/quizzes/${id}`);
-        this.quiz  = res.data?.data;
+        this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
         this.error = e.response?.data?.message || 'حدث خطأ في تحميل الاختبار';
       } finally {
@@ -276,7 +276,7 @@ export default {
       try {
         this.loading = true;
         const res = await this.$axios.get(`/quizzes/code/${code}`);
-        this.quiz  = res.data?.data;
+        this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
         this.error = 'كود الاختبار غير صحيح';
       } finally {

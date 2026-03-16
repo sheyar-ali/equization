@@ -1,9 +1,11 @@
 /**
- * seed.js - سكريبت لزرع بيانات تجريبية شاملة في قاعدة البيانات
+ * seed.js – Complete seed data for eQuization
+ * Run: node config/seed.js
  */
-require('dotenv').config();
+
 const mongoose = require('mongoose');
-const bcrypt   = require('bcryptjs');
+const dotenv   = require('dotenv');
+dotenv.config();
 
 const User        = require('../models/User.model');
 const Category    = require('../models/Category.model');
@@ -11,597 +13,673 @@ const Quiz        = require('../models/Quiz.model');
 const Question    = require('../models/Question.model');
 const PlayHistory = require('../models/PlayHistory.model');
 
-// ── 1. تعريف البيانات ────────────────────────────────────────────────────────
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/equization';
 
+// ─── CATEGORIES ──────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { name: { ar: 'معلومات عامة', en: 'General Knowledge' }, slug: 'general-knowledge', icon: 'mdi-earth', color: '#363999', description: { ar: 'اختبارات معلومات عامة متنوعة', en: 'General knowledge quizzes' } },
-  { name: { ar: 'تاريخ',       en: 'History'           }, slug: 'history',           icon: 'mdi-book-open-variant', color: '#8B4513', description: { ar: 'اختبارات تاريخية', en: 'History quizzes' } },
-  { name: { ar: 'علوم',        en: 'Science'           }, slug: 'science',           icon: 'mdi-flask',             color: '#2E8B57', description: { ar: 'اختبارات علمية', en: 'Science quizzes' } },
-  { name: { ar: 'رياضيات',     en: 'Mathematics'       }, slug: 'mathematics',       icon: 'mdi-calculator',        color: '#4B0082', description: { ar: 'اختبارات رياضية', en: 'Math quizzes' } },
-  { name: { ar: 'جغرافيا',     en: 'Geography'         }, slug: 'geography',         icon: 'mdi-map-marker',        color: '#006400', description: { ar: 'اختبارات جغرافية', en: 'Geography quizzes' } },
-  { name: { ar: 'لغة عربية',   en: 'Arabic Language'   }, slug: 'arabic-language',   icon: 'mdi-translate',         color: '#8B0000', description: { ar: 'اختبارات لغة عربية', en: 'Arabic language quizzes' } },
-  { name: { ar: 'لغات أجنبية', en: 'Foreign Languages' }, slug: 'foreign-languages', icon: 'mdi-web',               color: '#00008B', description: { ar: 'اختبارات اللغات الأجنبية', en: 'Foreign language quizzes' } },
-  { name: { ar: 'كيمياء',      en: 'Chemistry'         }, slug: 'chemistry',         icon: 'mdi-atom',              color: '#FF4500', description: { ar: 'اختبارات كيمياء', en: 'Chemistry quizzes' } },
-  { name: { ar: 'فيزياء',      en: 'Physics'           }, slug: 'physics',           icon: 'mdi-lightning-bolt',    color: '#FFD700', description: { ar: 'اختبارات فيزياء', en: 'Physics quizzes' } },
-  { name: { ar: 'أحياء',       en: 'Biology'           }, slug: 'biology',           icon: 'mdi-leaf',              color: '#228B22', description: { ar: 'اختبارات أحياء', en: 'Biology quizzes' } },
-  { name: { ar: 'دين إسلامي',  en: 'Islamic Studies'   }, slug: 'islamic-studies',   icon: 'mdi-star-crescent',     color: '#006400', description: { ar: 'اختبارات دينية', en: 'Islamic studies quizzes' } },
+  { name: { ar: 'معلومات عامة',   en: 'General Knowledge' }, slug: 'general-knowledge',  color: '#3a3798', icon: 'mdi-brain',         quizCount: 0 },
+  { name: { ar: 'تاريخ',          en: 'History'           }, slug: 'history',            color: '#8B4513', icon: 'mdi-book-open',     quizCount: 0 },
+  { name: { ar: 'علوم',           en: 'Science'           }, slug: 'science',            color: '#2E8B57', icon: 'mdi-flask',         quizCount: 0 },
+  { name: { ar: 'رياضيات',        en: 'Mathematics'       }, slug: 'mathematics',        color: '#DC143C', icon: 'mdi-calculator',   quizCount: 0 },
+  { name: { ar: 'جغرافيا',        en: 'Geography'         }, slug: 'geography',          color: '#1E90FF', icon: 'mdi-earth',         quizCount: 0 },
+  { name: { ar: 'لغة عربية',      en: 'Arabic Language'   }, slug: 'arabic-language',    color: '#8B008B', icon: 'mdi-abjad-arabic', quizCount: 0 },
+  { name: { ar: 'لغات أجنبية',   en: 'Foreign Languages' }, slug: 'foreign-languages',  color: '#FF8C00', icon: 'mdi-translate',    quizCount: 0 },
+  { name: { ar: 'كيمياء',         en: 'Chemistry'         }, slug: 'chemistry',          color: '#00CED1', icon: 'mdi-atom',          quizCount: 0 },
+  { name: { ar: 'فيزياء',         en: 'Physics'           }, slug: 'physics',            color: '#9400D3', icon: 'mdi-lightning-bolt', quizCount: 0 },
+  { name: { ar: 'أحياء',          en: 'Biology'           }, slug: 'biology',            color: '#228B22', icon: 'mdi-dna',           quizCount: 0 },
+  { name: { ar: 'دراسات إسلامية', en: 'Islamic Studies'   }, slug: 'islamic-studies',    color: '#B8860B', icon: 'mdi-star-crescent', quizCount: 0 },
 ];
 
-// ── 2. تعريف الاختبارات والأسئلة ─────────────────────────────────────────────
+// ─── USERS ───────────────────────────────────────────────────────────────────
+const USERS = [
+  {
+    username: 'admin',
+    email: 'admin@equization.com',
+    password: 'Admin@123456',
+    firstName: 'مدير',
+    lastName: 'النظام',
+    role: 'admin',
+    isVerified: true,
+    bio: 'مدير منصة eQuization',
+    statistics: { quizzesCreated: 3, quizzesPlayed: 10, totalScore: 1250 }
+  },
+  {
+    username: 'ahmed_teacher',
+    email: 'demo@equization.com',
+    password: 'Demo@123456',
+    firstName: 'أحمد',
+    lastName: 'المعلم',
+    role: 'user',
+    isVerified: true,
+    bio: 'مدرّس رياضيات ومهتم بالتعليم التفاعلي',
+    statistics: { quizzesCreated: 5, quizzesPlayed: 23, totalScore: 2840 }
+  },
+  {
+    username: 'sara_student',
+    email: 'sara@equization.com',
+    password: 'Sara@123456',
+    firstName: 'سارة',
+    lastName: 'الطالبة',
+    role: 'user',
+    isVerified: true,
+    bio: 'طالبة جامعية تحب التعلم',
+    statistics: { quizzesCreated: 2, quizzesPlayed: 45, totalScore: 5320 }
+  },
+  {
+    username: 'omar_quiz',
+    email: 'omar@equization.com',
+    password: 'Omar@123456',
+    firstName: 'عمر',
+    lastName: 'منشئ الكويزات',
+    role: 'user',
+    isVerified: true,
+    bio: 'متحمس لإنشاء اختبارات تفاعلية',
+    statistics: { quizzesCreated: 8, quizzesPlayed: 18, totalScore: 3150 }
+  },
+];
 
+// ─── QUIZZES & QUESTIONS ─────────────────────────────────────────────────────
 const QUIZZES_DATA = [
   {
     title: 'اختبار المعلومات العامة الشامل',
     description: 'اختبر معلوماتك العامة في مختلف المجالات',
-    detailedDescription: 'اختبار شامل يغطي مجالات متعددة من المعلومات العامة، التاريخ، الجغرافيا، والعلوم. مناسب لجميع الأعمار ويساعدك على قياس مستوى معرفتك العامة.',
+    detailedDescription: 'اختبار شامل يغطي مواضيع متنوعة من الجغرافيا والتاريخ والعلوم',
     difficulty: 'medium',
     educationLevel: 'general',
-    language: 'en',
+    language: 'ar',
     isPublic: true,
     timeLimit: 30,
     pointsPerQuestion: 100,
-    totalPlays: 245,
-    totalPlayers: 1823,
-    averageScore: 72,
     categorySlug: 'general-knowledge',
+    statistics: { totalPlays: 245, totalPlayers: 1823, averageScore: 72 },
     questions: [
       {
-        text: 'ما هي عاصمة المملكة العربية السعودية؟',
-        type: 'multiple-choice',
+        questionText: 'ما هي عاصمة المملكة العربية السعودية؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'الرياض',  isCorrect: true  },
-          { text: 'جدة',     isCorrect: false },
+          { text: 'الرياض', isCorrect: true },
+          { text: 'جدة', isCorrect: false },
           { text: 'مكة المكرمة', isCorrect: false },
-          { text: 'الدمام',  isCorrect: false },
+          { text: 'الدمام', isCorrect: false },
         ],
-        explanation: 'الرياض هي عاصمة المملكة العربية السعودية ومركزها السياسي والإداري.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'الرياض هي عاصمة المملكة العربية السعودية منذ عام 1932',
+        points: 100, timeLimit: 30, order: 1
       },
       {
-        text: 'كم عدد قارات العالم؟',
-        type: 'multiple-choice',
+        questionText: 'كم عدد القارات في العالم؟',
+        questionType: 'multiple-choice',
         answers: [
           { text: '5', isCorrect: false },
           { text: '6', isCorrect: false },
-          { text: '7', isCorrect: true  },
+          { text: '7', isCorrect: true },
           { text: '8', isCorrect: false },
         ],
-        explanation: 'يتكون العالم من سبع قارات: آسيا، أفريقيا، أمريكا الشمالية، أمريكا الجنوبية، أوروبا، أستراليا، القارة القطبية الجنوبية.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'يوجد 7 قارات: آسيا، أفريقيا، أمريكا الشمالية، أمريكا الجنوبية، أنتاركتيكا، أوروبا، أستراليا',
+        points: 100, timeLimit: 30, order: 2
       },
       {
-        text: 'أي من هذه الدول يقع في قارة أمريكا الجنوبية؟',
-        type: 'multiple-choice',
+        questionText: 'أي دولة تقع في أمريكا الجنوبية؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'المكسيك',  isCorrect: false },
-          { text: 'البرازيل', isCorrect: true  },
-          { text: 'كندا',     isCorrect: false },
-          { text: 'كوبا',     isCorrect: false },
+          { text: 'المكسيك', isCorrect: false },
+          { text: 'البرازيل', isCorrect: true },
+          { text: 'كندا', isCorrect: false },
+          { text: 'الولايات المتحدة', isCorrect: false },
         ],
-        explanation: 'البرازيل هي أكبر دولة في أمريكا الجنوبية من حيث المساحة والسكان.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'البرازيل أكبر دولة في أمريكا الجنوبية',
+        points: 100, timeLimit: 30, order: 3
       },
       {
-        text: 'النيل هو أطول نهر في العالم.',
-        type: 'true-false',
+        questionText: 'نهر النيل هو أطول نهر في العالم',
+        questionType: 'true-false',
         answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
         ],
-        explanation: 'نعم، نهر النيل هو أطول أنهار العالم بطول يبلغ حوالي 6650 كيلومتراً.',
-        timeLimit: 20,
-        points: 80,
+        explanation: 'نهر النيل بطول 6650 كم يُعد أطول نهر في العالم',
+        points: 100, timeLimit: 20, order: 4
       },
       {
-        text: 'ما هو أكبر محيط في العالم؟',
-        type: 'multiple-choice',
+        questionText: 'ما هو أكبر محيط في العالم؟',
+        questionType: 'multiple-choice',
         answers: [
           { text: 'المحيط الأطلسي', isCorrect: false },
-          { text: 'المحيط الهندي',  isCorrect: false },
-          { text: 'المحيط الهادئ',  isCorrect: true  },
+          { text: 'المحيط الهندي', isCorrect: false },
+          { text: 'المحيط الهادئ', isCorrect: true },
           { text: 'المحيط المتجمد الشمالي', isCorrect: false },
         ],
-        explanation: 'المحيط الهادئ هو أكبر وأعمق المحيطات على وجه الأرض.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'المحيط الهادئ هو الأكبر ويغطي نحو 46% من أسطح المياه على الأرض',
+        points: 100, timeLimit: 30, order: 5
       },
-    ],
+    ]
   },
+
   {
     title: 'اختبار تاريخ الحضارة الإسلامية',
     description: 'رحلة عبر تاريخ الحضارة الإسلامية العريقة',
-    detailedDescription: 'اختبار تاريخي شامل يغطي أبرز محطات الحضارة الإسلامية، من صدر الإسلام حتى الدولة العثمانية. يناسب طلاب التاريخ والمهتمين بالتراث الإسلامي.',
-    difficulty: 'medium',
-    educationLevel: 'high',
-    language: 'en',
+    detailedDescription: 'اختبار يختبر معرفتك بالتاريخ الإسلامي والحضارة العربية',
+    difficulty: 'hard',
+    educationLevel: 'university',
+    language: 'ar',
     isPublic: true,
-    timeLimit: 40,
-    pointsPerQuestion: 100,
-    totalPlays: 189,
-    totalPlayers: 1456,
-    averageScore: 65,
+    timeLimit: 45,
+    pointsPerQuestion: 150,
     categorySlug: 'history',
+    statistics: { totalPlays: 189, totalPlayers: 1205, averageScore: 65 },
     questions: [
       {
-        text: 'في أي عام هاجر النبي محمد ﷺ من مكة إلى المدينة؟',
-        type: 'multiple-choice',
+        questionText: 'في أي سنة هجرية بُنيت الكعبة المشرفة وفق الروايات الإسلامية؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '610 م', isCorrect: false },
-          { text: '622 م', isCorrect: true  },
-          { text: '630 م', isCorrect: false },
-          { text: '632 م', isCorrect: false },
+          { text: 'قبل الإسلام بزمن طويل', isCorrect: true },
+          { text: 'السنة الأولى للهجرة', isCorrect: false },
+          { text: 'السنة العاشرة للهجرة', isCorrect: false },
+          { text: 'السنة الخامسة للهجرة', isCorrect: false },
         ],
-        explanation: 'كانت الهجرة النبوية عام 622 م، وهي بداية التقويم الهجري.',
-        timeLimit: 40,
-        points: 100,
+        explanation: 'بُنيت الكعبة المشرفة من قِبَل إبراهيم وإسماعيل عليهما السلام قبل الإسلام',
+        points: 150, timeLimit: 45, order: 1
       },
       {
-        text: 'من هو أول الخلفاء الراشدين؟',
-        type: 'multiple-choice',
+        questionText: 'من هو أول خليفة للمسلمين بعد وفاة النبي محمد ﷺ؟',
+        questionType: 'multiple-choice',
         answers: [
           { text: 'عمر بن الخطاب', isCorrect: false },
           { text: 'أبو بكر الصديق', isCorrect: true },
           { text: 'علي بن أبي طالب', isCorrect: false },
           { text: 'عثمان بن عفان', isCorrect: false },
         ],
-        explanation: 'أبو بكر الصديق رضي الله عنه هو أول الخلفاء الراشدين، خلف النبي ﷺ في قيادة المسلمين.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'أبو بكر الصديق رضي الله عنه هو أول الخلفاء الراشدين',
+        points: 150, timeLimit: 45, order: 2
       },
       {
-        text: 'ما هي أول عاصمة للدولة الإسلامية؟',
-        type: 'multiple-choice',
+        questionText: 'ما هو اسم العاصمة التي أسسها المعتصم العباسي؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'مكة المكرمة', isCorrect: false },
-          { text: 'دمشق',        isCorrect: false },
-          { text: 'المدينة المنورة', isCorrect: true },
-          { text: 'بغداد',       isCorrect: false },
+          { text: 'بغداد', isCorrect: false },
+          { text: 'الفسطاط', isCorrect: false },
+          { text: 'سامراء', isCorrect: true },
+          { text: 'قرطبة', isCorrect: false },
         ],
-        explanation: 'المدينة المنورة كانت أول عاصمة للدولة الإسلامية في عهد النبي ﷺ والخلفاء الراشدين.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'أسس الخليفة المعتصم مدينة سامراء عام 221 هـ',
+        points: 150, timeLimit: 45, order: 3
       },
       {
-        text: 'الدولة الأموية أسسها معاوية بن أبي سفيان.',
-        type: 'true-false',
+        questionText: 'كانت بغداد عاصمة الخلافة العباسية',
+        questionType: 'true-false',
         answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
         ],
-        explanation: 'نعم، معاوية بن أبي سفيان رضي الله عنه هو مؤسس الدولة الأموية عام 661 م.',
-        timeLimit: 20,
-        points: 80,
+        explanation: 'بغداد أسسها الخليفة المنصور عام 762م لتكون عاصمة الخلافة العباسية',
+        points: 150, timeLimit: 30, order: 4
       },
       {
-        text: 'في أي عام فتحت القسطنطينية على يد السلطان محمد الفاتح؟',
-        type: 'multiple-choice',
+        questionText: 'من مؤلف كتاب "القانون في الطب"؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '1389 م', isCorrect: false },
-          { text: '1453 م', isCorrect: true  },
-          { text: '1517 م', isCorrect: false },
-          { text: '1571 م', isCorrect: false },
+          { text: 'الرازي', isCorrect: false },
+          { text: 'ابن سينا', isCorrect: true },
+          { text: 'ابن الهيثم', isCorrect: false },
+          { text: 'الخوارزمي', isCorrect: false },
         ],
-        explanation: 'فتح السلطان محمد الفاتح القسطنطينية عام 1453 م، وأصبحت عاصمة للدولة العثمانية.',
-        timeLimit: 40,
-        points: 100,
+        explanation: 'ابن سينا (أبو علي الحسين بن عبد الله) كتب القانون في الطب وهو مرجع طبي شهير',
+        points: 150, timeLimit: 45, order: 5
       },
-    ],
+    ]
   },
+
   {
     title: 'اختبار العلوم - الفيزياء والكيمياء',
     description: 'اختبر معلوماتك في الفيزياء والكيمياء',
-    detailedDescription: 'اختبار علمي متوسط المستوى يغطي أساسيات الفيزياء والكيمياء. يناسب طلاب المرحلة الثانوية والجامعية الراغبين في مراجعة المفاهيم العلمية.',
-    difficulty: 'hard',
-    educationLevel: 'university',
-    language: 'en',
+    detailedDescription: 'اختبار يشمل المفاهيم الأساسية في الفيزياء والكيمياء للمرحلة الثانوية',
+    difficulty: 'medium',
+    educationLevel: 'high',
+    language: 'ar',
     isPublic: true,
-    timeLimit: 45,
-    pointsPerQuestion: 120,
-    totalPlays: 312,
-    totalPlayers: 2105,
-    averageScore: 58,
+    timeLimit: 40,
+    pointsPerQuestion: 100,
     categorySlug: 'science',
+    statistics: { totalPlays: 312, totalPlayers: 2150, averageScore: 68 },
     questions: [
       {
-        text: 'ما هي وحدة قياس الشحنة الكهربائية؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'أمبير', isCorrect: false },
-          { text: 'فولت',  isCorrect: false },
-          { text: 'كولوم', isCorrect: true  },
-          { text: 'واط',   isCorrect: false },
-        ],
-        explanation: 'الكولوم (C) هي وحدة قياس الشحنة الكهربائية في النظام الدولي للوحدات.',
-        timeLimit: 45,
-        points: 120,
-      },
-      {
-        text: 'ما هو العنصر الأكثر شيوعاً في الغلاف الجوي للأرض؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'الأكسجين', isCorrect: false },
-          { text: 'النيتروجين', isCorrect: true },
-          { text: 'ثاني أكسيد الكربون', isCorrect: false },
-          { text: 'الهيدروجين', isCorrect: false },
-        ],
-        explanation: 'النيتروجين يشكل حوالي 78% من الغلاف الجوي للأرض، بينما يشكل الأكسجين حوالي 21%.',
-        timeLimit: 30,
-        points: 120,
-      },
-      {
-        text: 'سرعة الضوء في الفراغ تبلغ حوالي 300,000 كيلومتر في الثانية.',
-        type: 'true-false',
-        answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
-        ],
-        explanation: 'نعم، سرعة الضوء في الفراغ تبلغ 299,792,458 متراً في الثانية، أي ما يقارب 300,000 كم/ث.',
-        timeLimit: 20,
-        points: 80,
-      },
-      {
-        text: 'ما هو الرمز الكيميائي للذهب؟',
-        type: 'multiple-choice',
+        questionText: 'ما هو الرمز الكيميائي للذهب؟',
+        questionType: 'multiple-choice',
         answers: [
           { text: 'Go', isCorrect: false },
           { text: 'Gd', isCorrect: false },
-          { text: 'Au', isCorrect: true  },
+          { text: 'Au', isCorrect: true },
           { text: 'Ag', isCorrect: false },
         ],
-        explanation: 'الرمز الكيميائي للذهب هو Au، مشتق من الكلمة اللاتينية "Aurum".',
-        timeLimit: 30,
-        points: 120,
+        explanation: 'رمز الذهب Au مشتق من اللاتينية Aurum',
+        points: 100, timeLimit: 30, order: 1
       },
       {
-        text: 'أي قانون من قوانين نيوتن يقول: لكل فعل رد فعل مساوٍ له في المقدار ومعاكس له في الاتجاه؟',
-        type: 'multiple-choice',
+        questionText: 'ما هي سرعة الضوء في الفراغ تقريباً؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'القانون الأول',  isCorrect: false },
-          { text: 'القانون الثاني', isCorrect: false },
-          { text: 'القانون الثالث', isCorrect: true  },
-          { text: 'قانون الجاذبية', isCorrect: false },
+          { text: '300,000 كم/ث', isCorrect: true },
+          { text: '150,000 كم/ث', isCorrect: false },
+          { text: '450,000 كم/ث', isCorrect: false },
+          { text: '100,000 كم/ث', isCorrect: false },
         ],
-        explanation: 'القانون الثالث لنيوتن ينص على أن لكل فعل رد فعل مساوٍ له في المقدار ومعاكس في الاتجاه.',
-        timeLimit: 40,
-        points: 120,
+        explanation: 'سرعة الضوء في الفراغ ≈ 299,792,458 م/ث أي نحو 300,000 كم/ث',
+        points: 100, timeLimit: 30, order: 2
       },
-    ],
+      {
+        questionText: 'كم عدد بروتونات ذرة الكربون؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: '4', isCorrect: false },
+          { text: '6', isCorrect: true },
+          { text: '8', isCorrect: false },
+          { text: '12', isCorrect: false },
+        ],
+        explanation: 'الكربون العنصر رقم 6 في الجدول الدوري، لذا يحتوي على 6 بروتونات',
+        points: 100, timeLimit: 30, order: 3
+      },
+      {
+        questionText: 'الصيغة الكيميائية للماء هي H2O',
+        questionType: 'true-false',
+        answers: [
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
+        ],
+        explanation: 'الماء يتكون من ذرتين هيدروجين وذرة أكسجين (H₂O)',
+        points: 100, timeLimit: 20, order: 4
+      },
+      {
+        questionText: 'ما هو قانون نيوتن الثاني للحركة؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'القوة = الكتلة × التسارع', isCorrect: true },
+          { text: 'الطاقة = الكتلة × التسارع²', isCorrect: false },
+          { text: 'الضغط = القوة ÷ المساحة', isCorrect: false },
+          { text: 'العمل = القوة × الزمن', isCorrect: false },
+        ],
+        explanation: 'قانون نيوتن الثاني: القوة المحصلة على جسم = كتلة الجسم × تسارعه (F = ma)',
+        points: 100, timeLimit: 40, order: 5
+      },
+    ]
   },
+
   {
     title: 'اختبار الرياضيات الأساسية',
-    description: 'اختبر قدراتك في الرياضيات الأساسية',
-    detailedDescription: 'اختبار يشمل مسائل رياضية متنوعة في الجبر، الهندسة والحساب. مناسب للمرحلة الإعدادية والثانوية.',
+    description: 'اختبر مهاراتك الرياضية الأساسية',
+    detailedDescription: 'مسائل رياضية تشمل الجبر والهندسة والحساب للمرحلة الإعدادية',
     difficulty: 'easy',
     educationLevel: 'middle',
-    language: 'en',
+    language: 'ar',
     isPublic: true,
     timeLimit: 60,
-    pointsPerQuestion: 100,
-    totalPlays: 523,
-    totalPlayers: 3782,
-    averageScore: 81,
+    pointsPerQuestion: 80,
     categorySlug: 'mathematics',
+    statistics: { totalPlays: 421, totalPlayers: 3180, averageScore: 78 },
     questions: [
       {
-        text: 'ما هو ناتج: 15 × 8 ؟',
-        type: 'multiple-choice',
+        questionText: 'ما هو حاصل ضرب 7 × 8؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '110', isCorrect: false },
-          { text: '120', isCorrect: true  },
-          { text: '130', isCorrect: false },
-          { text: '140', isCorrect: false },
+          { text: '54', isCorrect: false },
+          { text: '56', isCorrect: true },
+          { text: '48', isCorrect: false },
+          { text: '63', isCorrect: false },
         ],
-        explanation: '15 × 8 = 120',
-        timeLimit: 30,
-        points: 100,
+        explanation: '7 × 8 = 56',
+        points: 80, timeLimit: 20, order: 1
       },
       {
-        text: 'ما هو الجذر التربيعي للعدد 144؟',
-        type: 'multiple-choice',
+        questionText: 'ما هي قيمة √144؟',
+        questionType: 'multiple-choice',
         answers: [
           { text: '10', isCorrect: false },
-          { text: '11', isCorrect: false },
-          { text: '12', isCorrect: true  },
-          { text: '13', isCorrect: false },
+          { text: '14', isCorrect: false },
+          { text: '12', isCorrect: true },
+          { text: '16', isCorrect: false },
         ],
-        explanation: '√144 = 12، لأن 12 × 12 = 144.',
-        timeLimit: 30,
-        points: 100,
+        explanation: '12 × 12 = 144، إذن √144 = 12',
+        points: 80, timeLimit: 30, order: 2
       },
       {
-        text: 'مجموع زوايا المثلث يساوي 180 درجة.',
-        type: 'true-false',
+        questionText: 'مجموع زوايا المثلث يساوي 180 درجة',
+        questionType: 'true-false',
         answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
         ],
-        explanation: 'نعم، مجموع زوايا أي مثلث يساوي دائماً 180 درجة.',
-        timeLimit: 15,
-        points: 80,
+        explanation: 'مجموع زوايا المثلث دائماً يساوي 180 درجة',
+        points: 80, timeLimit: 20, order: 3
       },
       {
-        text: 'ما هي قيمة π (باي) التقريبية؟',
-        type: 'multiple-choice',
+        questionText: 'ما هو حاصل 15² - 10²؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '3.14', isCorrect: true  },
-          { text: '2.71', isCorrect: false },
-          { text: '1.61', isCorrect: false },
-          { text: '4.13', isCorrect: false },
+          { text: '25', isCorrect: false },
+          { text: '125', isCorrect: true },
+          { text: '225', isCorrect: false },
+          { text: '50', isCorrect: false },
         ],
-        explanation: 'π ≈ 3.14159...، وهي نسبة محيط الدائرة إلى قطرها.',
-        timeLimit: 20,
-        points: 100,
+        explanation: '15² - 10² = 225 - 100 = 125',
+        points: 80, timeLimit: 40, order: 4
       },
       {
-        text: 'إذا كان س + 5 = 12، فما قيمة س؟',
-        type: 'multiple-choice',
+        questionText: 'كم يساوي 2⁴ × 3²؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '5', isCorrect: false },
-          { text: '6', isCorrect: false },
-          { text: '7', isCorrect: true  },
-          { text: '8', isCorrect: false },
+          { text: '72', isCorrect: false },
+          { text: '144', isCorrect: true },
+          { text: '108', isCorrect: false },
+          { text: '96', isCorrect: false },
         ],
-        explanation: 'س + 5 = 12، إذن س = 12 - 5 = 7.',
-        timeLimit: 30,
-        points: 100,
+        explanation: '2⁴ = 16 و 3² = 9، إذن 16 × 9 = 144',
+        points: 80, timeLimit: 40, order: 5
       },
-    ],
+    ]
   },
+
   {
     title: 'اختبار اللغة العربية والنحو',
-    description: 'اختبر مهاراتك في اللغة العربية وقواعد النحو',
-    detailedDescription: 'اختبار شامل في قواعد اللغة العربية يغطي النحو والصرف والبلاغة. مناسب لطلاب اللغة العربية والمهتمين بتطوير مهاراتهم اللغوية.',
+    description: 'اختبر معلوماتك في قواعد اللغة العربية',
+    detailedDescription: 'اختبار شامل في النحو والصرف والبلاغة العربية',
     difficulty: 'medium',
     educationLevel: 'high',
-    language: 'en',
+    language: 'ar',
+    isPublic: true,
+    timeLimit: 45,
+    pointsPerQuestion: 120,
+    categorySlug: 'arabic-language',
+    statistics: { totalPlays: 278, totalPlayers: 1920, averageScore: 62 },
+    questions: [
+      {
+        questionText: 'ما إعراب كلمة "الطالبُ" في جملة: "حضر الطالبُ"؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'مبتدأ مرفوع', isCorrect: false },
+          { text: 'فاعل مرفوع', isCorrect: true },
+          { text: 'خبر مرفوع', isCorrect: false },
+          { text: 'مفعول به منصوب', isCorrect: false },
+        ],
+        explanation: 'الطالب فاعل للفعل "حضر" مرفوع وعلامة رفعه الضمة الظاهرة',
+        points: 120, timeLimit: 45, order: 1
+      },
+      {
+        questionText: 'ما جمع كلمة "كتاب"؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'أكتب', isCorrect: false },
+          { text: 'كتابات', isCorrect: false },
+          { text: 'كتب', isCorrect: true },
+          { text: 'كاتبون', isCorrect: false },
+        ],
+        explanation: 'جمع كتاب هو كُتُب، وهو جمع تكسير',
+        points: 120, timeLimit: 30, order: 2
+      },
+      {
+        questionText: 'الفعل "ذهب" فعل لازم يتعدى إلى مفعول به',
+        questionType: 'true-false',
+        answers: [
+          { text: 'صحيح', isCorrect: false },
+          { text: 'خطأ', isCorrect: true },
+        ],
+        explanation: 'الفعل "ذهب" فعل لازم لا يحتاج إلى مفعول به',
+        points: 120, timeLimit: 30, order: 3
+      },
+      {
+        questionText: 'ما الضمير المستتر في الفعل "يكتبُ"؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'أنا', isCorrect: false },
+          { text: 'هو', isCorrect: true },
+          { text: 'نحن', isCorrect: false },
+          { text: 'أنت', isCorrect: false },
+        ],
+        explanation: 'الفعل المضارع مع الواو للمفرد المذكر يحمل ضميراً مستتراً تقديره "هو"',
+        points: 120, timeLimit: 30, order: 4
+      },
+      {
+        questionText: 'أيّ من التالي مثال على أسلوب الشرط؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'جاء الطالب', isCorrect: false },
+          { text: 'إن تجتهد تنجح', isCorrect: true },
+          { text: 'الكتاب مفيد', isCorrect: false },
+          { text: 'كيف حالك؟', isCorrect: false },
+        ],
+        explanation: 'أسلوب الشرط يتكون من أداة الشرط وفعل الشرط وجوابه، مثل "إن تجتهد تنجح"',
+        points: 120, timeLimit: 45, order: 5
+      },
+    ]
+  },
+
+  {
+    title: 'اختبار الجغرافيا العربية والعالمية',
+    description: 'جولة جغرافية حول العالم',
+    detailedDescription: 'اختبار الجغرافيا البشرية والطبيعية للوطن العربي والعالم',
+    difficulty: 'medium',
+    educationLevel: 'general',
+    language: 'ar',
     isPublic: true,
     timeLimit: 35,
     pointsPerQuestion: 100,
-    totalPlays: 178,
-    totalPlayers: 1234,
-    averageScore: 69,
-    categorySlug: 'arabic-language',
+    categorySlug: 'geography',
+    statistics: { totalPlays: 198, totalPlayers: 1450, averageScore: 70 },
     questions: [
       {
-        text: 'ما إعراب كلمة "محمدٌ" في جملة: "محمدٌ مجتهدٌ"؟',
-        type: 'multiple-choice',
+        questionText: 'ما هي أكبر دولة في العالم من حيث المساحة؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'مبتدأ مرفوع', isCorrect: true  },
-          { text: 'خبر مرفوع',   isCorrect: false },
-          { text: 'فاعل مرفوع',  isCorrect: false },
-          { text: 'مفعول به',    isCorrect: false },
+          { text: 'الصين', isCorrect: false },
+          { text: 'الولايات المتحدة', isCorrect: false },
+          { text: 'روسيا', isCorrect: true },
+          { text: 'كندا', isCorrect: false },
         ],
-        explanation: '"محمدٌ" مبتدأ مرفوع بالضمة الظاهرة على آخره.',
-        timeLimit: 35,
-        points: 100,
+        explanation: 'روسيا أكبر دولة في العالم بمساحة تبلغ 17.1 مليون كم²',
+        points: 100, timeLimit: 30, order: 1
       },
       {
-        text: 'كم عدد حروف الجر في اللغة العربية؟',
-        type: 'multiple-choice',
+        questionText: 'أي نهر يشكل الحد الفاصل بين المغرب والجزائر؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: '10', isCorrect: false },
-          { text: '17', isCorrect: false },
-          { text: '20', isCorrect: true  },
-          { text: '25', isCorrect: false },
+          { text: 'نهر تافيلالت', isCorrect: false },
+          { text: 'نهر ملوية', isCorrect: false },
+          { text: 'نهر Kiss', isCorrect: true },
+          { text: 'وادي درعة', isCorrect: false },
         ],
-        explanation: 'عدد حروف الجر في اللغة العربية 20 حرفاً.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'نهر Kiss (كيس) يشكّل جزءاً من الحدود بين المغرب والجزائر في الشمال',
+        points: 100, timeLimit: 35, order: 2
       },
       {
-        text: 'الفعل المضارع يبدأ دائماً بأحد حروف "أنيت".',
-        type: 'true-false',
+        questionText: 'ما هي عاصمة استراليا؟',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
+          { text: 'سيدني', isCorrect: false },
+          { text: 'ملبورن', isCorrect: false },
+          { text: 'كانبيرا', isCorrect: true },
+          { text: 'بريزبان', isCorrect: false },
         ],
-        explanation: 'نعم، يبدأ الفعل المضارع بأحد حروف "أنيت" (الهمزة، النون، الياء، التاء).',
-        timeLimit: 20,
-        points: 80,
+        explanation: 'كانبيرا هي عاصمة أستراليا، وليس سيدني كما يعتقد كثيرون',
+        points: 100, timeLimit: 30, order: 3
       },
-    ],
+      {
+        questionText: 'القاهرة هي أكبر مدينة عربية من حيث السكان',
+        questionType: 'true-false',
+        answers: [
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
+        ],
+        explanation: 'القاهرة الكبرى تعد أكبر مدينة عربية بعدد سكان يتجاوز 20 مليون نسمة',
+        points: 100, timeLimit: 20, order: 4
+      },
+      {
+        questionText: 'ما هي أطول سلسلة جبال في العالم؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'جبال الهيمالايا', isCorrect: false },
+          { text: 'جبال الأنديز', isCorrect: true },
+          { text: 'جبال الروكي', isCorrect: false },
+          { text: 'جبال الألب', isCorrect: false },
+        ],
+        explanation: 'جبال الأنديز في أمريكا الجنوبية هي أطول سلسلة جبال في العالم بطول ~7,000 كم',
+        points: 100, timeLimit: 35, order: 5
+      },
+    ]
   },
+
   {
-    title: 'اختبار الجغرافيا العربية والعالمية',
-    description: 'اختبر معلوماتك الجغرافية عن الوطن العربي والعالم',
-    detailedDescription: 'اختبار جغرافي شامل يغطي الدول العربية والقارات والمعالم الجغرافية الكبرى في العالم.',
+    title: 'اختبار الدراسات الإسلامية',
+    description: 'اختبر معلوماتك الإسلامية والشرعية',
+    detailedDescription: 'اختبار في الفقه والحديث والسيرة النبوية',
     difficulty: 'easy',
     educationLevel: 'general',
+    language: 'ar',
+    isPublic: true,
+    timeLimit: 30,
+    pointsPerQuestion: 100,
+    categorySlug: 'islamic-studies',
+    statistics: { totalPlays: 356, totalPlayers: 2780, averageScore: 82 },
+    questions: [
+      {
+        questionText: 'كم عدد أركان الإسلام؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: '3', isCorrect: false },
+          { text: '4', isCorrect: false },
+          { text: '5', isCorrect: true },
+          { text: '6', isCorrect: false },
+        ],
+        explanation: 'أركان الإسلام الخمسة: الشهادتان، الصلاة، الزكاة، الصوم، الحج',
+        points: 100, timeLimit: 20, order: 1
+      },
+      {
+        questionText: 'ما عدد سور القرآن الكريم؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: '100', isCorrect: false },
+          { text: '114', isCorrect: true },
+          { text: '112', isCorrect: false },
+          { text: '120', isCorrect: false },
+        ],
+        explanation: 'القرآن الكريم يتكون من 114 سورة',
+        points: 100, timeLimit: 20, order: 2
+      },
+      {
+        questionText: 'صلاة الفجر ركعتان',
+        questionType: 'true-false',
+        answers: [
+          { text: 'صحيح', isCorrect: true },
+          { text: 'خطأ', isCorrect: false },
+        ],
+        explanation: 'صلاة الفجر ركعتان فريضة',
+        points: 100, timeLimit: 20, order: 3
+      },
+      {
+        questionText: 'في أي شهر أُنزل القرآن الكريم؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'محرم', isCorrect: false },
+          { text: 'رجب', isCorrect: false },
+          { text: 'رمضان', isCorrect: true },
+          { text: 'شعبان', isCorrect: false },
+        ],
+        explanation: 'قال تعالى: "شهر رمضان الذي أنزل فيه القرآن"',
+        points: 100, timeLimit: 25, order: 4
+      },
+      {
+        questionText: 'ما هو أول مسجد بُني في الإسلام؟',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'المسجد الحرام', isCorrect: false },
+          { text: 'المسجد النبوي', isCorrect: false },
+          { text: 'مسجد قباء', isCorrect: true },
+          { text: 'المسجد الأقصى', isCorrect: false },
+        ],
+        explanation: 'مسجد قباء هو أول مسجد بُني في الإسلام وكان ذلك في السنة الأولى للهجرة',
+        points: 100, timeLimit: 30, order: 5
+      },
+    ]
+  },
+
+  {
+    title: 'اختبار اللغة الإنجليزية - المستوى المتوسط',
+    description: 'Test your English language skills at intermediate level',
+    detailedDescription: 'اختبار شامل في اللغة الإنجليزية يشمل القواعد والمفردات',
+    difficulty: 'medium',
+    educationLevel: 'high',
     language: 'en',
     isPublic: true,
     timeLimit: 30,
     pointsPerQuestion: 100,
-    totalPlays: 412,
-    totalPlayers: 2987,
-    averageScore: 77,
-    categorySlug: 'geography',
-    questions: [
-      {
-        text: 'ما هي أكبر دولة عربية من حيث المساحة؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'مصر',                    isCorrect: false },
-          { text: 'السودان',                isCorrect: false },
-          { text: 'الجزائر',               isCorrect: true  },
-          { text: 'المملكة العربية السعودية', isCorrect: false },
-        ],
-        explanation: 'الجزائر هي أكبر الدول العربية والأفريقية مساحةً.',
-        timeLimit: 30,
-        points: 100,
-      },
-      {
-        text: 'يقع جبل إيفرست في قارة آسيا.',
-        type: 'true-false',
-        answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
-        ],
-        explanation: 'نعم، جبل إيفرست يقع في سلسلة جبال الهيمالايا على الحدود بين نيبال والصين.',
-        timeLimit: 20,
-        points: 80,
-      },
-      {
-        text: 'ما هو المضيق الفاصل بين المغرب وإسبانيا؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'مضيق هرمز',   isCorrect: false },
-          { text: 'مضيق جبل طارق', isCorrect: true },
-          { text: 'مضيق باب المندب', isCorrect: false },
-          { text: 'مضيق دوفر',   isCorrect: false },
-        ],
-        explanation: 'مضيق جبل طارق يفصل بين أوروبا وأفريقيا، وبين المغرب وإسبانيا.',
-        timeLimit: 30,
-        points: 100,
-      },
-      {
-        text: 'ما هي أطول سلسلة جبلية في العالم؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'جبال الهيمالايا', isCorrect: false },
-          { text: 'جبال الألب',      isCorrect: false },
-          { text: 'جبال الأنديز',    isCorrect: true  },
-          { text: 'جبال روكي',       isCorrect: false },
-        ],
-        explanation: 'جبال الأنديز في أمريكا الجنوبية هي أطول سلسلة جبلية في العالم بطول يتجاوز 7000 كيلومتر.',
-        timeLimit: 35,
-        points: 100,
-      },
-    ],
-  },
-  {
-    title: 'اختبار الدراسات الإسلامية',
-    description: 'اختبر معلوماتك في الدين الإسلامي والقرآن الكريم',
-    detailedDescription: 'اختبار ديني شامل يغطي أحكام الإسلام، القرآن الكريم، السيرة النبوية، والفقه الإسلامي.',
-    difficulty: 'medium',
-    educationLevel: 'general',
-    language: 'en',
-    isPublic: true,
-    timeLimit: 40,
-    pointsPerQuestion: 100,
-    totalPlays: 567,
-    totalPlayers: 4123,
-    averageScore: 74,
-    categorySlug: 'islamic-studies',
-    questions: [
-      {
-        text: 'كم عدد سور القرآن الكريم؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: '110', isCorrect: false },
-          { text: '114', isCorrect: true  },
-          { text: '120', isCorrect: false },
-          { text: '124', isCorrect: false },
-        ],
-        explanation: 'القرآن الكريم يتكون من 114 سورة.',
-        timeLimit: 20,
-        points: 100,
-      },
-      {
-        text: 'ما هو أركان الإسلام الخمسة؟ اختر الإجابة الصحيحة:',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'الشهادة، الصلاة، الصوم، الزكاة، الحج', isCorrect: true  },
-          { text: 'الشهادة، الصلاة، الصوم، الحج، الجهاد', isCorrect: false },
-          { text: 'الصلاة، الصوم، الزكاة، الحج، العمرة',  isCorrect: false },
-          { text: 'الشهادة، الصلاة، الصوم، الزكاة، العمرة', isCorrect: false },
-        ],
-        explanation: 'أركان الإسلام الخمسة هي: الشهادتان، إقام الصلاة، إيتاء الزكاة، صوم رمضان، حج البيت.',
-        timeLimit: 40,
-        points: 100,
-      },
-      {
-        text: 'المدينة المنورة تسمى أيضاً يثرب.',
-        type: 'true-false',
-        answers: [
-          { text: 'صحيح', isCorrect: true  },
-          { text: 'خطأ',  isCorrect: false },
-        ],
-        explanation: 'نعم، كان الاسم القديم للمدينة المنورة يثرب، وسميت لاحقاً بالمدينة المنورة.',
-        timeLimit: 20,
-        points: 80,
-      },
-      {
-        text: 'في أي شهر هجري يكون صيام رمضان؟',
-        type: 'multiple-choice',
-        answers: [
-          { text: 'الشهر الثامن',  isCorrect: false },
-          { text: 'الشهر التاسع',  isCorrect: true  },
-          { text: 'الشهر العاشر', isCorrect: false },
-          { text: 'الشهر الثاني', isCorrect: false },
-        ],
-        explanation: 'رمضان هو الشهر التاسع في التقويم الهجري، وهو شهر الصيام المفروض.',
-        timeLimit: 20,
-        points: 100,
-      },
-    ],
-  },
-  {
-    title: 'اختبار اللغة الإنجليزية - المستوى المتوسط',
-    description: 'Test your English language skills at intermediate level',
-    detailedDescription: 'اختبار يقيس مستواك في اللغة الإنجليزية، يشمل القواعد، المفردات، والفهم. مناسب للمستوى المتوسط.',
-    difficulty: 'medium',
-    educationLevel: 'high',
-    language: 'en',
-    isPublic: true,
-    timeLimit: 40,
-    pointsPerQuestion: 100,
-    totalPlays: 298,
-    totalPlayers: 2156,
-    averageScore: 63,
     categorySlug: 'foreign-languages',
+    statistics: { totalPlays: 298, totalPlayers: 2156, averageScore: 63 },
     questions: [
       {
-        text: 'What is the plural of "child"?',
-        type: 'multiple-choice',
+        questionText: 'Which tense is used in: "She has been working for 3 hours"?',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'childs',   isCorrect: false },
-          { text: 'childes',  isCorrect: false },
-          { text: 'children', isCorrect: true  },
-          { text: 'childre',  isCorrect: false },
+          { text: 'Present Perfect', isCorrect: false },
+          { text: 'Present Perfect Continuous', isCorrect: true },
+          { text: 'Past Continuous', isCorrect: false },
+          { text: 'Past Perfect', isCorrect: false },
         ],
-        explanation: 'The plural of "child" is "children" - it is an irregular plural form.',
-        timeLimit: 30,
-        points: 100,
+        explanation: 'Present Perfect Continuous = has/have been + verb-ing, showing an action that started in the past and is still ongoing',
+        points: 100, timeLimit: 30, order: 1
       },
       {
-        text: 'Which sentence is grammatically correct?',
-        type: 'multiple-choice',
+        questionText: 'What is the plural of "child"?',
+        questionType: 'multiple-choice',
         answers: [
-          { text: 'She don\'t like coffee.',  isCorrect: false },
-          { text: 'She doesn\'t like coffee.', isCorrect: true },
-          { text: 'She not like coffee.',     isCorrect: false },
-          { text: 'She no like coffee.',      isCorrect: false },
+          { text: 'childs', isCorrect: false },
+          { text: 'childrens', isCorrect: false },
+          { text: 'children', isCorrect: true },
+          { text: 'childer', isCorrect: false },
         ],
-        explanation: 'With third person singular (she/he/it), we use "doesn\'t" in negative sentences.',
-        timeLimit: 30,
-        points: 100,
+        explanation: '"Child" has an irregular plural: children',
+        points: 100, timeLimit: 20, order: 2
       },
       {
-        text: 'The word "beautiful" is an adjective.',
-        type: 'true-false',
+        questionText: '"Quickly" is an adverb.',
+        questionType: 'true-false',
         answers: [
-          { text: 'True',  isCorrect: true  },
+          { text: 'True', isCorrect: true },
           { text: 'False', isCorrect: false },
         ],
-        explanation: 'Yes, "beautiful" is an adjective that describes a noun.',
-        timeLimit: 15,
-        points: 80,
+        explanation: '"Quickly" is formed from the adjective "quick" by adding -ly, making it an adverb',
+        points: 100, timeLimit: 20, order: 3
       },
-    ],
+      {
+        questionText: 'Choose the correct sentence:',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'He don\'t like coffee', isCorrect: false },
+          { text: 'He doesn\'t likes coffee', isCorrect: false },
+          { text: 'He doesn\'t like coffee', isCorrect: true },
+          { text: 'He not like coffee', isCorrect: false },
+        ],
+        explanation: 'With third-person singular (he/she/it), we use "doesn\'t" followed by the base form of the verb',
+        points: 100, timeLimit: 30, order: 4
+      },
+      {
+        questionText: 'What is the synonym of "happy"?',
+        questionType: 'multiple-choice',
+        answers: [
+          { text: 'sad', isCorrect: false },
+          { text: 'angry', isCorrect: false },
+          { text: 'joyful', isCorrect: true },
+          { text: 'tired', isCorrect: false },
+        ],
+        explanation: '"Joyful" means feeling or expressing great happiness, making it a synonym of "happy"',
+        points: 100, timeLimit: 25, order: 5
+      },
+    ]
   },
 ];
 
-// ── 3. تنفيذ الـ seed ─────────────────────────────────────────────────────────
-
+// ─── SEED FUNCTION ────────────────────────────────────────────────────────────
 async function seed() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ MongoDB connected');
+    await mongoose.connect(MONGO_URI);
+    console.log('✅ Connected to MongoDB');
 
-    // مسح البيانات القديمة
+    // ── Clear existing data ──────────────────────────────────────────────────
     await Promise.all([
       User.deleteMany({}),
       Category.deleteMany({}),
@@ -609,191 +687,188 @@ async function seed() {
       Question.deleteMany({}),
       PlayHistory.deleteMany({}),
     ]);
-    console.log('🗑️  Old data cleared');
+    console.log('🗑️  Cleared existing data');
 
-    // ── إنشاء التصنيفات ──────────────────────────────────────────────────────
+    // ── Create categories ────────────────────────────────────────────────────
     const createdCategories = await Category.insertMany(CATEGORIES);
-    console.log(`✅ ${createdCategories.length} categories created`);
     const catMap = {};
-    createdCategories.forEach(c => { catMap[c.slug] = c; });
+    createdCategories.forEach(c => { catMap[c.slug] = c._id; });
+    console.log(`📂 Created ${createdCategories.length} categories`);
 
-    // ── إنشاء المستخدمين ─────────────────────────────────────────────────────
-    // ملاحظة: لا نشفر كلمة المرور هنا - الـ model يشفرها تلقائياً في pre-save hook
+    // ── Create users (password will be hashed by pre-save hook) ──────────────
+    const createdUsers = [];
+    for (const u of USERS) {
+      const user = await User.create(u);
+      createdUsers.push(user);
+    }
+    console.log(`👥 Created ${createdUsers.length} users`);
 
-    const adminUser = await User.create({
-      username:   'admin',
-      email:      'admin@equization.com',
-      password:   'Admin@123456',
-      firstName:  'مدير',
-      lastName:   'النظام',
-      role:       'admin',
-      isVerified: true,
-      bio:        'مدير منصة eQuization',
-      statistics: { quizzesCreated: 3, quizzesPlayed: 10, totalScore: 1250 },
-    });
-
-    const demoUser = await User.create({
-      username:   'ahmed_teacher',
-      email:      'demo@equization.com',
-      password:   'Demo@123456',
-      firstName:  'أحمد',
-      lastName:   'المعلم',
-      role:       'user',
-      isVerified: true,
-      bio:        'مدرّس رياضيات ومهتم بالتعليم التفاعلي',
-      statistics: { quizzesCreated: 5, quizzesPlayed: 23, totalScore: 2840 },
-    });
-
-    const user2 = await User.create({
-      username:   'sara_student',
-      email:      'sara@equization.com',
-      password:   'Sara@123456',
-      firstName:  'سارة',
-      lastName:   'الطالبة',
-      role:       'user',
-      isVerified: true,
-      bio:        'طالبة جامعية ومحبة للاختبارات الإلكترونية',
-      statistics: { quizzesCreated: 2, quizzesPlayed: 45, totalScore: 5320 },
-    });
-
-    const user3 = await User.create({
-      username:   'omar_quiz',
-      email:      'omar@equization.com',
-      password:   'Omar@123456',
-      firstName:  'عمر',
-      lastName:   'منشئ الاختبارات',
-      role:       'user',
-      isVerified: true,
-      bio:        'مهتم بإنشاء اختبارات تعليمية متنوعة',
-      statistics: { quizzesCreated: 8, quizzesPlayed: 18, totalScore: 3150 },
-    });
-
-    const creators = [adminUser, demoUser, user2, user3];
-    console.log(`✅ ${creators.length} users created`);
-
-    // ── إنشاء الاختبارات والأسئلة ────────────────────────────────────────────
-    let totalQuizzes = 0;
+    // ── Create quizzes and questions ─────────────────────────────────────────
+    let totalQuizzes   = 0;
     let totalQuestions = 0;
+    const createdQuizzes = [];
 
     for (let i = 0; i < QUIZZES_DATA.length; i++) {
-      const qData   = QUIZZES_DATA[i];
-      const creator = creators[i % creators.length];
-      const cat     = catMap[qData.categorySlug];
+      const qData    = QUIZZES_DATA[i];
+      const creator  = createdUsers[i % createdUsers.length];
+      const catId    = catMap[qData.categorySlug];
 
-      if (!cat) {
+      if (!catId) {
         console.warn(`⚠️  Category not found: ${qData.categorySlug}`);
         continue;
       }
 
-      // إنشاء الاختبار
-      const quizDoc = new Quiz({
-        title:               qData.title,
-        description:         qData.description,
+      // Create quiz (without questions first)
+      const quiz = await Quiz.create({
+        title:            qData.title,
+        description:      qData.description,
         detailedDescription: qData.detailedDescription,
-        categories:          [cat._id],
-        creator:             creator._id,
-        difficulty:          qData.difficulty,
-        educationLevel:      qData.educationLevel,
-        language:            'en',          // MongoDB text index يدعم en فقط
-        isPublic:            qData.isPublic,
-        timeLimit:           qData.timeLimit,
-        pointsPerQuestion:   qData.pointsPerQuestion,
-        statistics: {
-          totalPlays:   qData.totalPlays,
-          totalPlayers: qData.totalPlayers,
-          averageScore: qData.averageScore,
-          views:        qData.totalPlays * 3,
-        },
+        creator:          creator._id,
+        categories:       [catId],
+        difficulty:       qData.difficulty,
+        educationLevel:   qData.educationLevel,
+        language:         qData.language,
+        isPublic:         qData.isPublic,
+        isActive:         true,
+        timeLimit:        qData.timeLimit,
+        pointsPerQuestion: qData.pointsPerQuestion,
+        statistics:       qData.statistics,
+        settings: {
+          showAnswers:        true,
+          randomizeQuestions: false,
+          randomizeAnswers:   false,
+          allowMultipleTakes: true,
+          autoNext:           false,
+          showTimer:          true,
+        }
       });
-      await quizDoc.save();
-      totalQuizzes++;
 
-      // إنشاء الأسئلة
-      for (let j = 0; j < qData.questions.length; j++) {
-        const qItem = qData.questions[j];
-        const questionDoc = new Question({
-          quiz:         quizDoc._id,
-          questionText: qItem.text,
-          questionType: qItem.type,
-          answers:      qItem.answers.map(a => ({ text: a.text, isCorrect: a.isCorrect })),
+      // Create questions
+      const questionIds = [];
+      for (const qItem of qData.questions) {
+        const question = await Question.create({
+          quiz:         quiz._id,
+          questionText: qItem.questionText,
+          questionType: qItem.questionType,
+          answers:      qItem.answers,
           explanation:  qItem.explanation,
-          timeLimit:    qItem.timeLimit,
           points:       qItem.points,
-          order:        j + 1,
+          timeLimit:    qItem.timeLimit,
+          order:        qItem.order,
         });
-        await questionDoc.save();
-        quizDoc.questions.push(questionDoc._id);
+        questionIds.push(question._id);
         totalQuestions++;
       }
-      await quizDoc.save();
 
-      // تحديث عدد الاختبارات في التصنيف
-      await Category.findByIdAndUpdate(cat._id, { $inc: { quizCount: 1 } });
+      // Link questions to quiz
+      quiz.questions = questionIds;
+      await quiz.save();
 
-      // تحديث إحصائيات المنشئ
+      // Update category quiz count
+      await Category.findByIdAndUpdate(catId, { $inc: { quizCount: 1 } });
+
+      // Update creator's quizzes list
       await User.findByIdAndUpdate(creator._id, {
-        $push: { quizzes: quizDoc._id },
-        $inc:  { 'statistics.quizzesCreated': 0 },
+        $push: { quizzes: quiz._id }
       });
+
+      createdQuizzes.push(quiz);
+      totalQuizzes++;
+      console.log(`  ✅ Quiz: "${quiz.title}" (${qData.questions.length} questions)`);
     }
 
-    console.log(`✅ ${totalQuizzes} quizzes created with ${totalQuestions} questions`);
+    // ── Create play history records ──────────────────────────────────────────
+    let totalHistory = 0;
+    const historyRecords = [
+      {
+        quiz: createdQuizzes[0]?._id,
+        player: createdUsers[2]?._id,
+        playerName: 'سارة الطالبة',
+        mode: 'individual',
+        score: 450, totalQuestions: 5, correctAnswers: 4, wrongAnswers: 1,
+        timeSpent: 95000,
+        answers: [
+          { questionIndex: 0, isCorrect: true, timeSpent: 15000, points: 100 },
+          { questionIndex: 1, isCorrect: true, timeSpent: 20000, points: 100 },
+          { questionIndex: 2, isCorrect: true, timeSpent: 18000, points: 100 },
+          { questionIndex: 3, isCorrect: true, timeSpent: 10000, points: 100 },
+          { questionIndex: 4, isCorrect: false, timeSpent: 32000, points: 0 },
+        ]
+      },
+      {
+        quiz: createdQuizzes[0]?._id,
+        player: createdUsers[1]?._id,
+        playerName: 'أحمد المعلم',
+        mode: 'individual',
+        score: 500, totalQuestions: 5, correctAnswers: 5, wrongAnswers: 0,
+        timeSpent: 80000,
+        answers: [
+          { questionIndex: 0, isCorrect: true, timeSpent: 12000, points: 100 },
+          { questionIndex: 1, isCorrect: true, timeSpent: 15000, points: 100 },
+          { questionIndex: 2, isCorrect: true, timeSpent: 18000, points: 100 },
+          { questionIndex: 3, isCorrect: true, timeSpent: 8000, points: 100 },
+          { questionIndex: 4, isCorrect: true, timeSpent: 27000, points: 100 },
+        ]
+      },
+      {
+        quiz: createdQuizzes[3]?._id,
+        player: createdUsers[2]?._id,
+        playerName: 'سارة الطالبة',
+        mode: 'individual',
+        score: 320, totalQuestions: 5, correctAnswers: 4, wrongAnswers: 1,
+        timeSpent: 120000,
+      },
+      {
+        quiz: createdQuizzes[1]?._id,
+        player: createdUsers[3]?._id,
+        playerName: 'عمر منشئ الكويزات',
+        mode: 'individual',
+        score: 600, totalQuestions: 5, correctAnswers: 4, wrongAnswers: 1,
+        timeSpent: 100000,
+      },
+      {
+        quiz: createdQuizzes[6]?._id,
+        player: createdUsers[0]?._id,
+        playerName: 'مدير النظام',
+        mode: 'individual',
+        score: 500, totalQuestions: 5, correctAnswers: 5, wrongAnswers: 0,
+        timeSpent: 60000,
+      },
+      {
+        quiz: createdQuizzes[2]?._id,
+        player: createdUsers[1]?._id,
+        playerName: 'أحمد المعلم',
+        mode: 'individual',
+        score: 350, totalQuestions: 5, correctAnswers: 3, wrongAnswers: 2,
+        timeSpent: 110000,
+      },
+    ];
 
-    // ── إنشاء سجلات لعب تجريبية ──────────────────────────────────────────────
-    const allQuizzes = await Quiz.find({}).limit(4);
-    const players    = [demoUser, user2, user3];
-    let historyCount = 0;
-
-    for (const quiz of allQuizzes) {
-      const questions = await Question.find({ quiz: quiz._id });
-      for (const player of players) {
-        const answers = questions.map((q, idx) => ({
-          question:    q._id,
-          answer:      q.answers[0]._id,
-          isCorrect:   idx % 3 !== 2,
-          points:      idx % 3 !== 2 ? q.points : 0,
-          timeSpent:   Math.floor(Math.random() * q.timeLimit * 1000),
-        }));
-        const correct = answers.filter(a => a.isCorrect).length;
-        const score   = answers.reduce((s, a) => s + a.points, 0);
-
-        await PlayHistory.create({
-          quiz:           quiz._id,
-          player:         player._id,
-          playerName:     player.username,
-          mode:           'individual',
-          score,
-          totalQuestions: questions.length,
-          correctAnswers: correct,
-          wrongAnswers:   questions.length - correct,
-          totalTimeSpent: answers.reduce((s, a) => s + a.timeSpent, 0),
-          answers,
-          completedAt:    new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-        });
-        historyCount++;
-      }
+    for (const h of historyRecords) {
+      if (!h.quiz) continue;
+      await PlayHistory.create(h);
+      totalHistory++;
     }
-    console.log(`✅ ${historyCount} play history records created`);
 
-    // ── ملخص نهائي ───────────────────────────────────────────────────────────
-    console.log('\n🎉 Database seeded successfully!\n');
-    console.log('📊 Summary:');
-    console.log(`   Categories : ${createdCategories.length}`);
-    console.log(`   Users      : ${creators.length}`);
-    console.log(`   Quizzes    : ${totalQuizzes}`);
-    console.log(`   Questions  : ${totalQuestions}`);
-    console.log(`   Play History: ${historyCount}`);
-    console.log('\n🔑 Test Accounts:');
-    console.log('   Admin : admin@equization.com  / Admin@123456');
-    console.log('   Demo  : demo@equization.com   / Demo@123456');
-    console.log('   Sara  : sara@equization.com   / Sara@123456');
-    console.log('   Omar  : omar@equization.com   / Omar@123456');
+    console.log(`\n🎉 Seed completed successfully!`);
+    console.log(`   📂 Categories : ${createdCategories.length}`);
+    console.log(`   👥 Users      : ${createdUsers.length}`);
+    console.log(`   📝 Quizzes    : ${totalQuizzes}`);
+    console.log(`   ❓ Questions  : ${totalQuestions}`);
+    console.log(`   🏆 History    : ${totalHistory}`);
+    console.log(`\n📋 Test Accounts:`);
+    console.log(`   Admin  : admin@equization.com  /  Admin@123456`);
+    console.log(`   Demo   : demo@equization.com   /  Demo@123456`);
+    console.log(`   Sara   : sara@equization.com   /  Sara@123456`);
+    console.log(`   Omar   : omar@equization.com   /  Omar@123456`);
 
-    await mongoose.disconnect();
-    process.exit(0);
   } catch (err) {
-    console.error('❌ Seed error:', err);
-    process.exit(1);
+    console.error('❌ Seed failed:', err.message);
+    console.error(err.stack);
+  } finally {
+    await mongoose.disconnect();
+    console.log('\n🔌 Disconnected from MongoDB');
+    process.exit(0);
   }
 }
 

@@ -1,122 +1,62 @@
-<!-- Start Of The ScoreBoard Component -->
+<!-- Player Scoreboard - After each question results -->
 <template>
   <section class="play-page play-quiz quiz-scoreboard">
     <v-container fluid>
       <div class="play-page-container">
-        <!-- QuestionHeader Component -->
         <QuestionHeader
-          :timer="seconds"
-          :QuestionOrder="QuestionOrder"
+          :timer="0"
+          :QuestionOrder="questionIndex + 1"
           :score="score"
-          :Questions="Questions"
+          :Questions="totalQuestions"
         />
 
         <div class="answer-result w-100">
-          <div
-            class="answer-result-content d-flex align-center justify-space-between w-100"
-          >
-            <h2>{{ $t("finalResults.correctAnswer") }} {{ correctAnswer }}</h2>
-
-            <!-- Show Explanation Button -->
-            <v-btn
-              height="auto"
-              class="white--text"
-              @click="showExp = true"
-              text
-            >
+          <div class="answer-result-content d-flex align-center justify-space-between w-100">
+            <h2>{{ $t("finalResults.correctAnswer") }}
+              <span v-for="(ans, i) in correctAnswers" :key="i">{{ ans.text }}<span v-if="i < correctAnswers.length - 1">, </span></span>
+            </h2>
+            <v-btn height="auto" class="white--text" @click="showExp = true" text>
               {{ $t("finalResults.showExplanation") }}
             </v-btn>
           </div>
         </div>
 
+        <!-- Leaderboard -->
         <div class="result-description">
           <div class="table-content w-100 mx-auto">
             <div class="headers w-100 d-flex align-center">
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.name") }}
-                </h3>
-              </div>
-
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.currentResult") }}
-                </h3>
-              </div>
-
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.finalResult") }}
-                </h3>
-              </div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.name") }}</h3></div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.currentResult") }}</h3></div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.finalResult") }}</h3></div>
             </div>
             <v-divider horizontal></v-divider>
 
-            <div
-              class="table-body w-100 d-flex align-center flex-column"
-              v-for="content in tableContent"
-              :key="content.id"
-            >
-              <div
-                class="table-body-content d-flex align-center justify-center w-100"
-              >
-                <div class="text-center">
-                  <h2>
-                    {{ content.playerName }}
-                  </h2>
-                  <v-divider class="d-none"></v-divider>
-                </div>
-                <div
-                  class="text-center d-flex align-center justify-center flex-column"
-                >
-                  <div class="description d-none">
-                    <h6 class="text-center">
-                      {{ $t("resultTables.scoreBoard.headers.currentResult") }}
-                    </h6>
-                  </div>
-                  <h2>
-                    {{ content.questionResult }}
-                  </h2>
-                </div>
-                <v-divider vertical class="d-none"></v-divider>
-                <div class="text-center">
-                  <div class="description d-none">
-                    <h6 class="text-center">
-                      {{ $t("resultTables.scoreBoard.headers.finalResult") }}
-                    </h6>
-                  </div>
-                  <h2>
-                    {{ content.finalResult }}
-                  </h2>
-                </div>
-                <v-divider vertical class="d-none"></v-divider>
+            <div class="table-body w-100 d-flex align-center flex-column" v-for="(entry, i) in leaderboard" :key="i">
+              <div class="table-body-content d-flex align-center justify-center w-100">
+                <div class="text-center"><h2>{{ entry.name }}</h2></div>
+                <div class="text-center"><h2>{{ entry.lastAnswer ? entry.lastAnswer.points : 0 }}</h2></div>
+                <div class="text-center"><h2>{{ entry.score }}</h2></div>
               </div>
               <v-divider horizontal class="last-divider w-100"></v-divider>
+            </div>
+
+            <div v-if="!leaderboard.length" class="text-center py-8">
+              <p class="grey--text">في انتظار نتائج المزيد من اللاعبين...</p>
             </div>
           </div>
         </div>
 
-        <v-btn
-          class="white--text d-block mx-auto title next-question"
-          height="auto"
-        >
-          {{ $t("resultTables.scoreBoard.headers.btn") }}
-        </v-btn>
+        <p class="text-center white--text mt-4">في انتظار السؤال التالي...</p>
+        <v-progress-linear indeterminate color="#ff5e94" height="4" rounded class="mt-2"></v-progress-linear>
       </div>
 
-      <!-- explanation dialog -->
+      <!-- Explanation Dialog -->
       <v-dialog v-model="showExp" max-width="550px">
         <v-card>
-          <v-card-title class="text-center font-weight-bold d-block">
-            {{ $t("finalResults.questionExplanation") }}
-          </v-card-title>
+          <v-card-title class="text-center font-weight-bold d-block">{{ $t("finalResults.questionExplanation") }}</v-card-title>
           <v-divider></v-divider>
-          <p class="exp" v-if="questionExplanation">
-            {{ questionExplanation }}
-          </p>
-          <p class="exp text-center" v-else>
-            {{ $t("finalResults.noExplanation") }}
-          </p>
+          <p class="exp" v-if="explanation">{{ explanation }}</p>
+          <p class="exp text-center" v-else>{{ $t("finalResults.noExplanation") }}</p>
         </v-card>
       </v-dialog>
     </v-container>
@@ -125,49 +65,71 @@
 
 <script>
 import QuestionHeader from "@/components/PlayComponents/QuestionHeader";
+
 export default {
   layout: "play",
-  head() {
-    return {
-      title: this.$t("resultTables.scoreBoard.title"),
-    };
-  },
+  head() { return { title: this.$t("resultTables.scoreBoard.title") }; },
+
   data() {
     return {
-      showExp: false,
-      seconds: 30,
-      QuestionOrder: 1,
-      Questions: 10,
-      score: 100,
-      correctAnswer: "نص الإجابة الأولي التجريبية",
-      questionExplanation:
-        "شرح مفصل للإختبار يشرح الإختبار بشكل أكثر تفصيلاً, أكثر من الشرح المختصر الذي يسبقه, هذا الشرح تجريبي فقط, ولا يعتد به بتاتاً, وإنما هو لغرض المعاينة فقط ليس إلا, فلا يأخذ علي محمل الجد إطلاقاً, فكما وضحت سابقاً انه فقط لمعاينة كيف يبدو النص في الموقع في حال إن كان الوصف طويلاً يتعدي طوله الثلاث أسطر فيصبح بالشكل الحالي الذي هو يبدو عليه الآن.",
-      tableContent: [
-        {
-          playerName: "محمد الإسكندراني",
-          questionResult: 100,
-          finalResult: 856,
-        },
-      ],
+      questionIndex:  0,
+      totalQuestions: 0,
+      score:          0,
+      correctAnswers: [],
+      leaderboard:    [],
+      explanation:    '',
+      showExp:        false,
     };
   },
-  components: {
-    QuestionHeader,
+
+  mounted() {
+    if (!process.client) return;
+    const gameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+
+    this.questionIndex   = gameState.questionIndex  || 0;
+    this.totalQuestions  = gameState.totalQuestions || 0;
+    this.score           = gameState.score          || 0;
+    this.explanation     = gameState.explanation    || '';
+    this.correctAnswers  = gameState.correctAnswers || [];
+    this.leaderboard     = (gameState.leaderboard || []).slice(0, 10);
+
+    // Listen for next question or game end
+    const socket = this.$socket?.getSocket?.();
+    if (socket) {
+      socket.on('question:received', (data) => {
+        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.questionIndex  = data.questionIndex;
+        gs.questionText   = data.questionText;
+        gs.questionImage  = data.questionImage || '';
+        gs.timer          = data.timeLimit || 30;
+        gs.questionId     = data.questionId;
+        gs.answers        = data.answers || [];
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+        this.$router.push(this.localePath('/play/standby'));
+      });
+
+      socket.on('game:ended', (data) => {
+        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.finalResults = data.finalResults || [];
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+        this.$router.push(this.localePath('/play/totalscores'));
+      });
+    }
   },
+
+  beforeDestroy() {
+    const socket = this.$socket?.getSocket?.();
+    if (socket) {
+      socket.off('question:received');
+      socket.off('game:ended');
+    }
+  },
+
+  components: { QuestionHeader },
 };
 </script>
 
 <style scoped>
-.v-dialog .v-card {
-  overflow: hidden !important;
-  text-align: center;
-  min-height: 200px;
-}
-
-.v-dialog .v-card p.exp {
-  padding: 20px;
-  font-size: 20px;
-  color: #a9aac5;
-  text-align: justify;
-}
+.v-dialog .v-card { overflow: hidden; text-align: center; min-height: 200px; }
+.v-dialog .v-card p.exp { padding: 20px; font-size: 20px; color: #a9aac5; text-align: justify; }
 </style>

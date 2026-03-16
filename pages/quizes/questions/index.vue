@@ -1,8 +1,6 @@
+<!-- Questions List Page - Dynamic from API -->
 <template>
-  <section
-    class="question-page d-flex align-center justify-center"
-    style="min-height: 100vh; width: 100%;"
-  >
+  <section class="question-page d-flex align-center justify-center" style="min-height:100vh; width:100%;">
     <section class="account-section d-flex align-center mx-auto w-100">
       <v-container fluid>
         <v-row>
@@ -17,27 +15,94 @@
                 :backText="headerContent.backText"
                 :isActive="headerContent.isActive"
               />
-              <v-row class="questions-container" v-if="questions.length > 0">
-                <Question
-                  v-for="question in questions"
-                  :key="question.id"
-                  :imgSrc="question.imgSrc"
-                  :questionTitle="question.questionTitle"
-                  :questionTime="question.questionTime"
-                  :answersNumber="question.answersNumber"
-                />
-              </v-row>
-              <v-row v-else>
-                <EmptyData :descriptionText="emptyData.descriptionText" />
-              </v-row>
-              <div class="sub-btn d-flex align-center justify-center">
-                <v-btn
-                  class="white--text title sub-btn d-flex align-center"
-                  @click="$router.push(localePath('/quizes/questions/add'))"
-                >
-                  {{ $t("questionPage.subBtn") }}
-                </v-btn>
+
+              <!-- Loading -->
+              <div v-if="loading" class="d-flex justify-center align-center py-16">
+                <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
               </div>
+
+              <!-- Error -->
+              <div v-else-if="error" class="text-center pa-8">
+                <v-icon size="64" color="red">mdi-alert-circle</v-icon>
+                <p class="title mt-4">{{ error }}</p>
+                <v-btn color="primary" @click="fetchQuestions">إعادة التحميل</v-btn>
+              </div>
+
+              <template v-else>
+                <!-- Quiz Info Bar -->
+                <div v-if="quizData" class="quiz-info-bar d-flex align-center justify-space-between pa-3 mb-4 rounded">
+                  <div>
+                    <span class="font-weight-bold title">{{ quizData.title }}</span>
+                    <v-chip small class="mr-2 ml-2" color="primary" text-color="white">
+                      {{ questions.length }} {{ $t('questionPage.questionsCount') || 'سؤال' }}
+                    </v-chip>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <v-btn
+                      small outlined color="primary"
+                      @click="$router.push(localePath(`/quizes/my-quiz?id=${quizId}`))"
+                    >
+                      <v-icon small class="ml-1">mdi-eye</v-icon>
+                      عرض الاختبار
+                    </v-btn>
+                  </div>
+                </div>
+
+                <!-- Questions List -->
+                <v-row class="questions-container" v-if="questions.length > 0">
+                  <Question
+                    v-for="(question, idx) in questions"
+                    :key="question._id"
+                    :imgSrc="question.imageUrl || ''"
+                    :questionTitle="question.questionText || question.text || ''"
+                    :questionTime="String(question.timeLimit || 30)"
+                    :answersNumber="String(question.answers ? question.answers.length : 0)"
+                    :questionOrder="idx + 1"
+                    @delete="deleteQuestion(question._id)"
+                    @edit="editQuestion(question._id)"
+                  />
+                </v-row>
+
+                <!-- Empty State -->
+                <v-row v-else>
+                  <EmptyData :descriptionText="$t('questionPage.emptyData.descriptionText')" />
+                </v-row>
+
+                <!-- Add Question Button -->
+                <div class="sub-btn d-flex align-center justify-center">
+                  <v-btn
+                    class="white--text title sub-btn d-flex align-center"
+                    color="primary"
+                    @click="$router.push(localePath(`/quizes/questions/add?quizId=${quizId}`))"
+                  >
+                    <v-icon class="ml-2">mdi-plus-circle</v-icon>
+                    {{ $t("questionPage.subBtn") }}
+                  </v-btn>
+                </div>
+              </template>
+
+              <!-- Delete Confirmation Dialog -->
+              <v-dialog v-model="deleteDialog" max-width="400px">
+                <v-card>
+                  <v-card-title class="text-center font-weight-bold d-block">
+                    حذف السؤال
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <p class="text-center mt-5 h5">هل أنت متأكد من حذف هذا السؤال؟</p>
+                  <v-row class="px-10 pt-2 pb-5">
+                    <v-col class="pa-2">
+                      <v-btn color="#ff5e94" class="white--text w-100" height="50"
+                        :loading="deleting" @click="confirmDelete">
+                        <v-icon class="mx-2">mdi-trash-can-outline</v-icon>
+                        حذف
+                      </v-btn>
+                    </v-col>
+                    <v-col class="pa-2">
+                      <v-btn outlined class="w-100" height="50" @click="deleteDialog = false">إلغاء</v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-dialog>
             </div>
           </v-col>
         </v-row>
@@ -51,6 +116,7 @@ import SideMenu from "@/components/AccountComponents/SideMenu";
 import AccountHeader from "@/components/AccountComponents/AccountHeader";
 import Question from "@/components/AccountComponents/Question";
 import EmptyData from "@/components/AccountComponents/EmptyData";
+
 export default {
   layout: "account",
   head() {
@@ -60,73 +126,80 @@ export default {
   },
   data() {
     return {
-      questionName: "تجرية إختبار عنوان تجريبي",
+      loading: true,
+      error: null,
+      questions: [],
+      quizData: null,
+      deleteDialog: false,
+      deleting: false,
+      questionToDelete: null,
     };
   },
   computed: {
-    // Header Content
+    quizId() {
+      return this.$route.query.quizId
+        || (process.client ? sessionStorage.getItem('currentQuizId') : null);
+    },
     headerContent() {
       return {
-        headerText: `${this.$t("questionPage.headerText")} ${
-          this.questionName
-        }`,
-        backLink: "/quizes/my-quiz",
+        headerText: `${this.$t("questionPage.headerText")} ${this.quizData ? this.quizData.title : ''}`,
+        backLink: this.quizId ? `/quizes/my-quiz?id=${this.quizId}` : '/my-quizzes',
         backText: this.$t("AccountPage.AccountHeader.backText"),
         isActive: true,
       };
     },
-    // Questions Data
-    questions() {
-      return [
-        {
-          id: 1,
-          imgSrc: require("@/assets/images/Home-Page-Images/EQUIZATION.png"),
-          questionTitle: "نص السؤال الأول التجريبي نص غير صحيح",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-        {
-          id: 2,
-          imgSrc: "",
-          questionTitle: "نص السؤال الأول التجريبي",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-        {
-          id: 3,
-          imgSrc: "",
-          questionTitle: "نص السؤال الأول التجريبي",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-        {
-          id: 4,
-          imgSrc: "",
-          questionTitle: "نص السؤال الأول التجريبي",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-        {
-          id: 5,
-          imgSrc: "",
-          questionTitle: "نص السؤال الأول التجريبي",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-        {
-          id: 6,
-          imgSrc: "",
-          questionTitle: "نص السؤال الأول التجريبي",
-          questionTime: "30",
-          answersNumber: "4",
-        },
-      ];
+  },
+  async mounted() {
+    if (this.quizId) {
+      await Promise.all([this.fetchQuizData(), this.fetchQuestions()]);
+    } else {
+      this.error = 'لم يتم تحديد اختبار. يرجى العودة واختيار اختبار.';
+      this.loading = false;
+    }
+  },
+  methods: {
+    async fetchQuizData() {
+      try {
+        const res = await this.$axios.get(`/quizzes/${this.quizId}`);
+        this.quizData = res.data?.data?.quiz || res.data?.data || null;
+      } catch (e) {
+        console.error('Fetch quiz data error:', e);
+      }
     },
-    // Empty Data Content
-    emptyData() {
-      return {
-        descriptionText: this.$t("questionPage.emptyData.descriptionText"),
-      };
+    async fetchQuestions() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const res = await this.$axios.get(`/questions/quiz/${this.quizId}`);
+        this.questions = res.data?.data?.questions || res.data?.data || [];
+      } catch (e) {
+        this.error = e.response?.data?.message || 'فشل في تحميل الأسئلة';
+        console.error('Fetch questions error:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    editQuestion(questionId) {
+      this.$router.push(this.localePath(`/quizes/questions/edit?id=${questionId}&quizId=${this.quizId}`));
+    },
+    deleteQuestion(questionId) {
+      this.questionToDelete = questionId;
+      this.deleteDialog = true;
+    },
+    async confirmDelete() {
+      if (!this.questionToDelete) return;
+      this.deleting = true;
+      try {
+        await this.$axios.delete(`/questions/${this.questionToDelete}`);
+        this.questions = this.questions.filter(q => q._id !== this.questionToDelete);
+        this.deleteDialog = false;
+        this.questionToDelete = null;
+      } catch (e) {
+        console.error('Delete question error:', e);
+        alert(e.response?.data?.message || 'فشل في حذف السؤال');
+      } finally {
+        this.deleting = false;
+      }
     },
   },
   components: {
@@ -152,9 +225,19 @@ export default {
   height: 51px !important;
   min-width: 200px !important;
   padding: 1px 35px 3px !important;
+  border-radius: 10px !important;
 }
 
 .empty-data a {
   display: none !important;
+}
+
+.quiz-info-bar {
+  background: #f5f5ff;
+  border: 1px solid #e0e0f0;
+}
+
+.gap-2 {
+  gap: 8px;
 }
 </style>

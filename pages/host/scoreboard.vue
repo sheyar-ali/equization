@@ -1,145 +1,97 @@
+<!-- Host Scoreboard - After each question, show leaderboard -->
 <template>
   <section class="play-page play-quiz quiz-scoreboard">
     <v-container fluid>
       <div class="play-page-container">
         <QuestionHostHeader
-          :timer="seconds"
-          :QuestionOrder="QuestionOrder"
-          :Questions="Questions"
-          :answers="answersNum"
-          :players="playersNum"
+          :timer="timer"
+          :QuestionOrder="questionIndex + 1"
+          :Questions="totalQuestions"
+          :answers="answeredCount"
+          :players="playersCount"
         />
+
         <div class="answer-result w-100">
-          <div
-            class="answer-result-content d-flex align-center justify-space-between w-100"
-          >
-            <h2>{{ $t("finalResults.correctAnswer") }} {{ correctAnswer }}</h2>
-            <v-btn
-              height="auto"
-              class="white--text"
-              @click="showExp = true"
-              text
-            >
+          <div class="answer-result-content d-flex align-center justify-space-between w-100">
+            <h2>{{ $t("finalResults.correctAnswer") }} {{ correctAnswerText }}</h2>
+            <v-btn height="auto" class="white--text" @click="showExp = true" text>
               {{ $t("finalResults.showExplanation") }}
             </v-btn>
           </div>
+
+          <!-- Answer stats -->
           <div class="stat mx-auto">
             <v-row>
-              <v-col
-                cols="12"
-                md="6"
-                class="stat-col"
-                v-for="stat in stats"
-                :key="stat.id"
-              >
+              <v-col cols="12" md="6" class="stat-col" v-for="stat in stats" :key="stat.id">
                 <div class="stat-content d-flex align-center w-100">
-                  <span
-                    class="result-icon text-white true-icon d-flex justify-center align-center"
-                    v-if="stat.isCorrect"
-                  >
-                    <i class="fas fa-check"></i>
+                  <span class="result-icon text-white d-flex justify-center align-center" :class="stat.isCorrect ? 'true-icon' : 'false-icon'">
+                    <i :class="stat.isCorrect ? 'fas fa-check' : 'fas fa-times'"></i>
                   </span>
-                  <span
-                    class="result-icon text-white false-icon d-flex justify-center align-center"
-                    v-else
-                  >
-                    <i class="fas fa-times"></i>
-                  </span>
-                  <span class="stat-number d-flex align-center justify-center">
-                    {{ stat.statNumber }}
-                  </span>
-                  <h3>{{ stat.statQuestion }}</h3>
+                  <span class="stat-number d-flex align-center justify-center">{{ stat.count }}</span>
+                  <h3>{{ stat.text }}</h3>
                 </div>
               </v-col>
             </v-row>
           </div>
         </div>
 
+        <!-- Leaderboard -->
         <div class="result-description">
           <div class="table-content w-100 mx-auto">
             <div class="headers w-100 d-flex align-center">
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.name") }}
-                </h3>
-              </div>
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.currentResult") }}
-                </h3>
-              </div>
-              <div class="table-head">
-                <h3 class="text-center">
-                  {{ $t("resultTables.scoreBoard.headers.finalResult") }}
-                </h3>
-              </div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.name") }}</h3></div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.currentResult") }}</h3></div>
+              <div class="table-head"><h3 class="text-center">{{ $t("resultTables.scoreBoard.headers.finalResult") }}</h3></div>
             </div>
             <v-divider horizontal></v-divider>
-            <div
-              class="table-body w-100 d-flex align-center flex-column"
-              v-for="content in tableContent"
-              :key="content.id"
-            >
-              <div
-                class="table-body-content d-flex align-center justify-center w-100"
-              >
-                <div class="text-center">
-                  <h2>
-                    {{ content.playerName }}
-                  </h2>
-                  <v-divider class="d-none"></v-divider>
-                </div>
-                <div
-                  class="text-center d-flex align-center justify-center flex-column"
-                >
-                  <div class="description d-none">
-                    <h6 class="text-center">
-                      {{ $t("resultTables.scoreBoard.headers.currentResult") }}
-                    </h6>
-                  </div>
-                  <h2>
-                    {{ content.questionResult }}
-                  </h2>
-                </div>
-                <v-divider vertical class="d-none"></v-divider>
-                <div class="text-center">
-                  <div class="description d-none">
-                    <h6 class="text-center">
-                      {{ $t("resultTables.scoreBoard.headers.finalResult") }}
-                    </h6>
-                  </div>
-                  <h2>
-                    {{ content.finalResult }}
-                  </h2>
-                </div>
-                <v-divider vertical class="d-none"></v-divider>
+            <div class="table-body w-100 d-flex align-center flex-column" v-for="entry in leaderboard" :key="entry.id">
+              <div class="table-body-content d-flex align-center justify-center w-100">
+                <div class="text-center"><h2>{{ entry.name }}</h2></div>
+                <div class="text-center"><h2>{{ entry.lastPoints }}</h2></div>
+                <div class="text-center"><h2>{{ entry.score }}</h2></div>
               </div>
               <v-divider horizontal class="last-divider w-100"></v-divider>
+            </div>
+
+            <!-- Empty leaderboard -->
+            <div v-if="!leaderboard.length" class="text-center py-6">
+              <p class="grey--text">لم يجب أحد على هذا السؤال بعد</p>
             </div>
           </div>
         </div>
 
-        <v-btn
-          class="white--text d-block mx-auto title next-question"
-          height="auto"
-        >
-          {{ $t("resultTables.scoreBoard.headers.btn") }}
-        </v-btn>
+        <!-- Next Question / End Game -->
+        <div class="d-flex justify-center mt-4 gap-4" style="gap:16px">
+          <v-btn
+            v-if="questionIndex + 1 < totalQuestions"
+            class="white--text title next-question"
+            color="#3a3798"
+            height="auto"
+            @click="nextQuestion"
+          >
+            <v-icon class="mx-2">mdi-skip-next</v-icon>
+            {{ $t("resultTables.scoreBoard.headers.btn") || 'السؤال التالي' }}
+          </v-btn>
+          <v-btn
+            v-else
+            class="white--text title"
+            color="#ff5e94"
+            height="auto"
+            @click="endGame"
+          >
+            <v-icon class="mx-2">mdi-flag-checkered</v-icon>
+            {{ $t("finalResults.endQuiz") || 'إنهاء اللعبة' }}
+          </v-btn>
+        </div>
       </div>
 
-      <!-- explanation dialog -->
+      <!-- Explanation Dialog -->
       <v-dialog v-model="showExp" max-width="550px">
         <v-card>
-          <v-card-title class="text-center font-weight-bold d-block">
-            {{ $t("finalResults.questionExplanation") }}
-          </v-card-title>
+          <v-card-title class="text-center font-weight-bold d-block">{{ $t("finalResults.questionExplanation") }}</v-card-title>
           <v-divider></v-divider>
-          <p class="exp" v-if="questionExplanation">
-            {{ questionExplanation }}
-          </p>
-          <p class="exp text-center" v-else>
-            {{ $t("finalResults.noExplanation") }}
-          </p>
+          <p class="exp" v-if="explanation">{{ explanation }}</p>
+          <p class="exp text-center" v-else>{{ $t("finalResults.noExplanation") }}</p>
         </v-card>
       </v-dialog>
     </v-container>
@@ -148,177 +100,143 @@
 
 <script>
 import QuestionHostHeader from "@/components/PlayComponents/QuestionHostHeader";
+
 export default {
   layout: "play",
-  head() {
-    return {
-      title: this.$t("resultTables.scoreBoard.title"),
-    };
-  },
+  head() { return { title: this.$t("resultTables.scoreBoard.title") }; },
+
   data() {
     return {
-      answersNum: 4,
-      playersNum: 5,
-      showExp: false,
-      seconds: 30,
-      QuestionOrder: 1,
-      Questions: 10,
-      score: 100,
-      correctAnswer: "نص الإجابة الأولي التجريبية",
-      questionExplanation:
-        "شرح مفصل للإختبار يشرح الإختبار بشكل أكثر تفصيلاً, أكثر من الشرح المختصر الذي يسبقه, هذا الشرح تجريبي فقط, ولا يعتد به بتاتاً, وإنما هو لغرض المعاينة فقط ليس إلا, فلا يأخذ علي محمل الجد إطلاقاً, فكما وضحت سابقاً انه فقط لمعاينة كيف يبدو النص في الموقع في حال إن كان الوصف طويلاً يتعدي طوله الثلاث أسطر فيصبح بالشكل الحالي الذي هو يبدو عليه الآن.",
-      tableContent: [
-        {
-          id: 1,
-          playerName: "محمدالإسكندراني",
-          questionResult: 100,
-          finalResult: 856,
-        },
-        {
-          id: 2,
-          playerName: "اسم لاعب جديد",
-          questionResult: 25,
-          finalResult: 845,
-        },
-        {
-          id: 3,
-          playerName: "اسم لاعب مختلف",
-          questionResult: 0,
-          finalResult: 785,
-        },
-        {
-          id: 4,
-          playerName: "اسم لاعب آخر",
-          questionResult: 10,
-          finalResult: 457,
-        },
-        {
-          id: 5,
-          playerName: "اسم لاعب",
-          questionResult: 0,
-          finalResult: 425,
-        },
-      ],
-      stats: [
-        {
-          id: 1,
-          isCorrect: true,
-          statNumber: 3,
-          statQuestion: "نص الإجابة الأولي التجريبية",
-        },
-        {
-          id: 2,
-          isCorrect: false,
-          statNumber: 1,
-          statQuestion: "نص الإجابة الأولي التجريبية",
-        },
-        {
-          id: 3,
-          isCorrect: false,
-          statNumber: 0,
-          statQuestion: "نص الإجابة الأولي التجريبية",
-        },
-        {
-          id: 4,
-          isCorrect: false,
-          statNumber: 1,
-          statQuestion: "نص الإجابة الأولي التجريبية",
-        },
-      ],
+      sessionCode:       '',
+      questionIndex:     0,
+      totalQuestions:    0,
+      timer:             30,
+      answeredCount:     0,
+      playersCount:      0,
+      correctAnswerText: '',
+      explanation:       '',
+      leaderboard:       [],
+      stats:             [],
+      showExp:           false,
     };
   },
-  components: {
-    QuestionHostHeader,
+
+  mounted() {
+    if (!process.client) return;
+
+    this.sessionCode = sessionStorage.getItem('sessionCode') || '';
+    const gameState  = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+
+    this.questionIndex   = gameState.questionIndex   || 0;
+    this.totalQuestions  = gameState.totalQuestions  || 0;
+    this.timer           = gameState.timer           || 30;
+    this.playersCount    = gameState.playersCount    || 0;
+    this.explanation     = gameState.explanation     || '';
+
+    // Build leaderboard from gameState
+    const lb = gameState.leaderboard || [];
+    this.leaderboard = lb.slice(0, 10).map(p => ({
+      id:         p.id || p._id,
+      name:       p.name,
+      score:      p.score,
+      lastPoints: p.lastAnswer?.points || 0,
+    }));
+
+    // Build answer stats from gameState
+    const answers = gameState.answers || [];
+    const rawLb   = lb;
+    this.stats = answers.map((ans, idx) => {
+      const count = rawLb.filter(p =>
+        p.lastAnswer?.selectedAnswers?.includes(String(ans._id))
+      ).length;
+      return {
+        id:        idx,
+        isCorrect: ans.isCorrect,
+        count,
+        text:      ans.text || ans.ansText || '',
+      };
+    });
+
+    // Correct answer text
+    const correctAns = answers.find(a => a.isCorrect);
+    this.correctAnswerText = correctAns?.text || correctAns?.ansText || '';
+
+    // Listen for live updates
+    const socket = this.$socket?.getSocket?.();
+    if (socket) {
+      socket.on('results:shown', (data) => {
+        // Update leaderboard live if needed
+        if (data.leaderboard) {
+          this.leaderboard = data.leaderboard.slice(0, 10).map(p => ({
+            id:         p.id || p._id,
+            name:       p.name,
+            score:      p.score,
+            lastPoints: p.lastAnswer?.points || 0,
+          }));
+        }
+      });
+    }
   },
+
+  beforeDestroy() {
+    const socket = this.$socket?.getSocket?.();
+    if (socket) socket.off('results:shown');
+  },
+
+  methods: {
+    async nextQuestion() {
+      const nextIndex = this.questionIndex + 1;
+      if (nextIndex >= this.totalQuestions) {
+        await this.endGame();
+        return;
+      }
+
+      // Send next question via socket
+      this.$socket?.sendQuestion(
+        { sessionCode: this.sessionCode, questionIndex: nextIndex },
+        (res) => {
+          if (res?.success && res.question) {
+            const q = res.question;
+            const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+            gameState.questionIndex = nextIndex;
+            gameState.questionText  = q.questionText;
+            gameState.questionImage = q.questionImage || '';
+            gameState.timer         = q.timeLimit || 30;
+            gameState.answers       = q.answers || [];
+            gameState.leaderboard   = [];
+            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+            this.$router.push(this.localePath('/host/standby'));
+          }
+        }
+      );
+    },
+
+    async endGame() {
+      this.$socket?.endGame({ sessionCode: this.sessionCode }, (res) => {
+        if (res?.success) {
+          const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+          gameState.finalResults = res.finalResults || [];
+          sessionStorage.setItem('gameState', JSON.stringify(gameState));
+          this.$router.push(this.localePath('/host/totalscores'));
+        }
+      });
+    },
+  },
+
+  components: { QuestionHostHeader },
 };
 </script>
 
 <style scoped>
-.stat {
-  padding: 15px 30px;
-  margin-top: 15px;
-}
-
-.stat .stat-col {
-  padding: 5px !important;
-}
-
-.stat-content {
-  padding: 15px 25px;
-  background-color: #e5e4f2 !important;
-  border-radius: 10px;
-}
-
-.stat-number {
-  width: 30px;
-  height: 30px;
-  margin: 0 10px;
-  background-color: #f7f7ff !important;
-  color: #3a3798 !important;
-  font-weight: 600;
-  font-size: 23px;
-  border-radius: 5px;
-}
-
-.stat-content h3 {
-  color: #3a3798 !important;
-  font-weight: 600;
-  margin-right: 10px;
-  font-size: 24px;
-  line-height: 35px;
-  width: calc(100% - 80px) !important;
-  flex-grow: 1;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.v-dialog .v-card {
-  overflow: hidden !important;
-  text-align: center;
-  min-height: 200px;
-}
-
-.v-dialog .v-card p.exp {
-  padding: 20px;
-  font-size: 20px;
-  color: #a9aac5;
-  text-align: justify;
-}
-
-/* Ltr Direction Style */
-.ltr .stat-content h3 {
-  margin-right: unset !important;
-  margin-left: 10px !important;
-}
-
+.stat { padding: 15px 30px; margin-top: 15px; }
+.stat .stat-col { padding: 5px !important; }
+.stat-content { padding: 15px 25px; background-color: #e5e4f2; border-radius: 10px; }
+.stat-number { width: 30px; height: 30px; margin: 0 10px; background-color: #f7f7ff; color: #3a3798; font-weight: 600; font-size: 23px; border-radius: 5px; }
+.stat-content h3 { color: #3a3798; font-weight: 600; margin-right: 10px; font-size: 20px; line-height: 35px; flex-grow: 1; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.v-dialog .v-card { overflow: hidden; text-align: center; min-height: 200px; }
+.v-dialog .v-card p.exp { padding: 20px; font-size: 20px; color: #a9aac5; text-align: justify; }
 @media only screen and (max-width: 767px) {
-  .play-page .stat {
-    padding: 20px 0;
-    width: 100% !important;
-  }
-
-  .play-page .stat-content {
-    padding: 20px 10px;
-  }
-
-  .stat-content h3 {
-    font-size: 20px !important;
-  }
-}
-
-@media only screen and (min-width: 960px) and (max-width: 1200px) {
-  .stat {
-    padding: 20px 5px !important;
-    width: 100% !important;
-  }
-}
-
-@media only screen and (min-width: 1200px) and (max-width: 1500px) {
-  .stat {
-    padding: 20px 7px !important;
-    width: 100% !important;
-  }
+  .play-page .stat { padding: 20px 0; width: 100%; }
+  .stat-content h3 { font-size: 16px !important; }
 }
 </style>

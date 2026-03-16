@@ -130,16 +130,21 @@ exports.getAllQuizzes = async (req, res, next) => {
     const quizzes = await Quiz.find(query)
       .populate('categories', 'name slug icon color')
       .populate('creator', 'username avatar')
-      .select('-questions')
       .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    // Add questionCount to each quiz in list
+    const quizzesWithCount = quizzes.map(q => {
+      const obj = q.toObject({ virtuals: true });
+      return obj;
+    });
 
     paginatedResponse(
       res,
       200,
       'Quizzes retrieved successfully',
-      quizzes,
+      quizzesWithCount,
       page,
       limit,
       total
@@ -294,16 +299,17 @@ exports.getMyQuizzes = async (req, res, next) => {
 
     const quizzes = await Quiz.find({ creator: req.user.id })
       .populate('categories', 'name slug icon color')
-      .select('-questions')
       .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    const quizzesWithCount = quizzes.map(q => q.toObject({ virtuals: true }));
 
     paginatedResponse(
       res,
       200,
       'Your quizzes retrieved successfully',
-      quizzes,
+      quizzesWithCount,
       page,
       limit,
       total
@@ -326,11 +332,11 @@ exports.getFeaturedQuizzes = async (req, res, next) => {
     })
       .populate('categories', 'name slug icon color')
       .populate('creator', 'username avatar')
-      .select('-questions')
       .sort({ 'statistics.totalPlays': -1, 'statistics.views': -1 })
       .limit(limit);
 
-    successResponse(res, 200, 'Featured quizzes retrieved successfully', { quizzes });
+    const quizzesWithCount = quizzes.map(q => q.toObject({ virtuals: true }));
+    successResponse(res, 200, 'Featured quizzes retrieved successfully', { quizzes: quizzesWithCount });
   } catch (error) {
     next(error);
   }
