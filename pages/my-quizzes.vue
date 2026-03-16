@@ -29,6 +29,7 @@
                   :quizTitle="quiz.title"
                   :categories="formatCategories(quiz.categories)"
                   :wowDelay="`${idx * 0.1}s`"
+                  :coverImage="quiz.coverImage"
                 />
               </v-row>
 

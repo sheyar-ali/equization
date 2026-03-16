@@ -11,11 +11,12 @@
             <v-text-field
               outlined
               v-model="sessionCode"
-              type="number"
-              min="0"
+              type="text"
               :label="$t('play.numLabel')"
-              :rules="[v => (v && String(v).length >= 6) || 'أدخل كود الجلسة']"
+              :rules="[v => (v && String(v).trim().length >= 4) || 'أدخل كود الجلسة']"
               required
+              style="text-transform:uppercase"
+              @input="sessionCode = sessionCode.toUpperCase()"
             ></v-text-field>
             <v-btn
               class="white--text d-block title sub-btn"

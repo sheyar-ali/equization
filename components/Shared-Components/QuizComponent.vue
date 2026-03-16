@@ -14,9 +14,10 @@
     >
       <div class="card-head position-relative">
         <img
-          src="@/assets/images/Home-Page-Images/EQUIZATION.png"
+          :src="coverImage || require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
           class="card-img-top w-100"
           alt="test-img"
+          @error="$event.target.src = require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
         />
         <div class="test-description position-absolute">
           <p class="text-white">
@@ -53,6 +54,7 @@ export default {
     "categories",
     "categoryLink",
     "wowDelay",
+    "coverImage",
   ],
 };
 </script>

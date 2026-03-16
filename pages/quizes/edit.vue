@@ -272,7 +272,7 @@ export default {
           this.lang                = quiz.language || 'ar';
           this.difficulty          = quiz.difficulty || 'medium';
           this.visible             = quiz.isPublic !== false;
-          this.imageUrl            = quiz.imageUrl || '';
+          this.imageUrl            = quiz.coverImage || '';
           this.selectedCategories  = (quiz.categories || []).map(c => c._id || c);
         }
       } catch (e) {
@@ -312,6 +312,7 @@ export default {
           language:            this.lang,
           difficulty:          this.difficulty,
           isPublic:            this.visible,
+          ...(this.imageUrl ? { coverImage: this.imageUrl } : {}),
         };
 
         await this.$axios.put(`/quizzes/${quizId}`, payload);

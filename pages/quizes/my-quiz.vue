@@ -136,7 +136,7 @@
                           <!-- Quiz Image -->
                           <div class="quiz-img h-100">
                             <img
-                              :src="quiz.imageUrl || require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
+                              :src="quiz.coverImage || require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
                               class="d-block w-100 h-100"
                               alt="quiz-img"
                             />
