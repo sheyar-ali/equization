@@ -262,14 +262,22 @@ module.exports = (io) => {
         // Reset per-question answered counter
         if (mem) mem.answeredCount = 0;
 
-        // Remove isCorrect from answers before broadcasting
+        // Sanitized answers for players (no isCorrect)
         const sanitizedAnswers = question.answers.map(a => ({
           _id:   a._id,
           text:  a.text,
           image: a.image
         }));
 
-        const questionData = {
+        // Full answers for host (with isCorrect)
+        const fullAnswers = question.answers.map(a => ({
+          _id:       a._id,
+          text:      a.text,
+          image:     a.image,
+          isCorrect: a.isCorrect || false
+        }));
+
+        const questionDataForPlayers = {
           questionIndex,
           totalQuestions:  session.quiz.questions.length,
           questionId:      question._id,
@@ -281,10 +289,16 @@ module.exports = (io) => {
           points:          question.points
         };
 
-        io.to(`session:${code}`).emit('question:received', questionData);
+        // Broadcast to players (without isCorrect)
+        io.to(`session:${code}`).emit('question:received', questionDataForPlayers);
 
         console.log(`[Socket] ❓ Question ${questionIndex + 1}/${session.quiz.questions.length} → ${code}`);
-        ack?.({ success: true, question: questionData });
+
+        // ACK to host includes full answers with isCorrect
+        ack?.({
+          success:  true,
+          question: { ...questionDataForPlayers, fullAnswers }
+        });
 
       } catch (err) {
         console.error('[Socket] host:send-question error:', err.message);

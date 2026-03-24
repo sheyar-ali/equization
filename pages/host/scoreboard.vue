@@ -192,34 +192,43 @@ export default {
       }
 
       // Send next question via socket
-      this.$socket?.sendQuestion(
-        { sessionCode: this.sessionCode, questionIndex: nextIndex },
-        (res) => {
-          if (res?.success && res.question) {
-            const q = res.question;
-            const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-            gameState.questionIndex = nextIndex;
-            gameState.questionText  = q.questionText;
-            gameState.questionImage = q.questionImage || '';
-            gameState.timer         = q.timeLimit || 30;
-            gameState.answers       = q.answers || [];
-            gameState.leaderboard   = [];
-            sessionStorage.setItem('gameState', JSON.stringify(gameState));
-            this.$router.push(this.localePath('/host/standby'));
+      const socket = this.$socket?.getSocket?.();
+      if (socket) {
+        socket.emit('host:send-question',
+          { sessionCode: this.sessionCode, questionIndex: nextIndex },
+          (res) => {
+            if (res?.success && res.question) {
+              const q = res.question;
+              const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+              gameState.questionIndex  = nextIndex;
+              gameState.questionText   = q.questionText;
+              gameState.questionImage  = q.questionImage || '';
+              gameState.timer          = q.timeLimit || 30;
+              gameState.answers        = q.answers || [];
+              gameState.fullAnswers    = q.fullAnswers || q.answers || [];
+              gameState.leaderboard    = [];
+              sessionStorage.setItem('gameState', JSON.stringify(gameState));
+              this.$router.push(this.localePath('/host/standby'));
+            } else {
+              console.error('[Scoreboard] nextQuestion failed:', res?.message);
+            }
           }
-        }
-      );
+        );
+      }
     },
 
     async endGame() {
-      this.$socket?.endGame({ sessionCode: this.sessionCode }, (res) => {
-        if (res?.success) {
+      const socket = this.$socket?.getSocket?.();
+      if (socket) {
+        socket.emit('host:end-game', { sessionCode: this.sessionCode }, (res) => {
           const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-          gameState.finalResults = res.finalResults || [];
+          gameState.finalResults = res?.finalResults || [];
           sessionStorage.setItem('gameState', JSON.stringify(gameState));
           this.$router.push(this.localePath('/host/totalscores'));
-        }
-      });
+        });
+      } else {
+        this.$router.push(this.localePath('/host/totalscores'));
+      }
     },
   },
 

@@ -242,15 +242,31 @@ export default {
     async startGame() {
       try {
         const code = this.session.sessionCode;
-        if (this.$socket) {
-          const socket = this.$socket.getSocket();
-          if (socket) {
-            socket.emit('host:start-game', { sessionCode: code }, (ack) => {
-              console.log('[Host] start-game ack:', ack);
-            });
-          }
+        const socket = this.$socket?.getSocket?.();
+
+        if (socket) {
+          socket.emit('host:start-game', { sessionCode: code }, (ack) => {
+            console.log('[Host] start-game ack:', ack);
+          });
         }
+
+        // حفظ بيانات الجلسة الكاملة في gameState
+        const gameState = {
+          sessionCode:    code,
+          questionIndex:  0,
+          totalQuestions: this.session.quiz?.questions?.length
+                          || this.session.questionCount
+                          || 0,
+          playersCount:   this.players.length,
+          timer:          30,
+          questionText:   '',
+          questionImage:  '',
+          answers:        [],
+          leaderboard:    [],
+        };
         sessionStorage.setItem('sessionCode', code);
+        sessionStorage.setItem('gameState',   JSON.stringify(gameState));
+
         this.$router.push(this.localePath('/host/standby'));
       } catch (e) {
         console.error('Start game error:', e);

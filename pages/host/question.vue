@@ -80,11 +80,13 @@ export default {
     this.timer           = gameState.timer           || 30;
     this.playersCount    = gameState.playersCount    || 0;
 
-    // Format answers for display (host sees correct answers highlighted)
-    const raw = gameState.answers || [];
+    // Format answers for display
+    // gameState.answers comes from socket (sanitized, no isCorrect)
+    // We store the full answers with isCorrect in gameState.fullAnswers
+    const raw = gameState.fullAnswers || gameState.answers || [];
     this.answers = raw.map(a => ({
-      ansText:  a.text || '',
-      imageUrl: a.image || '',
+      ansText:   a.text     || a.ansText  || '',
+      imageUrl:  a.image    || a.imageUrl || '',
       isCorrect: a.isCorrect || false,
       points:    a.isCorrect ? 100 : 0,
     }));
@@ -118,15 +120,19 @@ export default {
     async showResults() {
       if (!this.sessionCode) return;
       try {
-        this.$socket?.showResults({ sessionCode: this.sessionCode, questionIndex: this.questionIndex }, (res) => {
-          if (res?.success) {
-            // Store leaderboard
-            const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-            gameState.leaderboard = res.leaderboard || [];
-            sessionStorage.setItem('gameState', JSON.stringify(gameState));
-            this.$router.push(this.localePath('/host/scoreboard'));
+        const socket = this.$socket?.getSocket?.();
+        if (!socket) return;
+        socket.emit('host:show-results',
+          { sessionCode: this.sessionCode, questionIndex: this.questionIndex },
+          (res) => {
+            if (res?.success) {
+              const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+              gameState.leaderboard = res.leaderboard || [];
+              sessionStorage.setItem('gameState', JSON.stringify(gameState));
+              this.$router.push(this.localePath('/host/scoreboard'));
+            }
           }
-        });
+        );
       } catch (e) {
         console.error('Show results error:', e);
       }

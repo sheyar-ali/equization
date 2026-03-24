@@ -37,8 +37,28 @@ export default {
     const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
     this.quizTitle = gs.quizTitle || '';
 
-    const socket = this.$socket?.getSocket?.();
-    if (socket) {
+    // تأكد من اتصال الـ socket
+    if (this.$socket) {
+      this.$socket.connect();
+    }
+
+    // انتظر قليلاً للتأكد من الاتصال ثم استمع للأحداث
+    this.$nextTick(() => {
+      this._setupSocketListeners();
+    });
+  },
+
+  methods: {
+    _setupSocketListeners() {
+      const socket = this.$socket?.getSocket?.();
+      if (!socket) {
+        // أعد المحاولة بعد 500ms
+        setTimeout(() => this._setupSocketListeners(), 500);
+        return;
+      }
+
+      console.log('[BeReady] Socket connected:', socket.connected, 'id:', socket.id);
+
       socket.on('player:joined', (data) => {
         this.playersCount = data.totalPlayers || this.playersCount;
       });
@@ -51,9 +71,11 @@ export default {
         const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         gs.totalQuestions = data.questionCount || 0;
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+        console.log('[BeReady] game:started received, totalQuestions:', gs.totalQuestions);
       });
 
       socket.on('question:received', (data) => {
+        console.log('[BeReady] question:received!', data.questionText);
         const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         gs.questionIndex  = data.questionIndex;
         gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
@@ -65,7 +87,7 @@ export default {
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
       });
-    }
+    },
   },
 
   beforeDestroy() {
@@ -74,7 +96,7 @@ export default {
       socket.off('player:joined');
       socket.off('player:left');
       socket.off('game:started');
-      socket.off('question:received');
+      // لا تُزيل question:received لأن play-sub-domain/question.vue يحتاجه
     }
   },
 };
