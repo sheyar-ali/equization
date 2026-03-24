@@ -81,6 +81,19 @@ export default {
 
     const socket = this.$socket?.getSocket?.();
     if (socket) {
+      // إذا وصل results:shown هنا (حالة التأخر)
+      socket.on('results:shown', (data) => {
+        this.correctAnswers = data.correctAnswers || [];
+        if (data.leaderboard) {
+          this.leaderboard = data.leaderboard.slice(0, 10);
+          const me = this.leaderboard.find(p => p.name === this.playerName);
+          this.myRank = me ? this.leaderboard.indexOf(me) + 1 : null;
+        }
+        const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        s.correctAnswers = data.correctAnswers || [];
+        s.leaderboard    = data.leaderboard    || [];
+        sessionStorage.setItem('playerGameState', JSON.stringify(s));
+      });
       socket.on('question:received', (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.questionIndex = data.questionIndex; s.questionText = data.questionText;
@@ -99,7 +112,7 @@ export default {
   },
   beforeDestroy() {
     const socket = this.$socket?.getSocket?.();
-    if (socket) { socket.off('question:received'); socket.off('game:ended'); }
+    if (socket) { socket.off('results:shown'); socket.off('question:received'); socket.off('game:ended'); }
   },
   components: { QuestionHeader },
 };

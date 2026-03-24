@@ -56,31 +56,55 @@
 <script>
 export default {
   name: "QuestionAnwers",
-  props: ["answersData", "enabled"],
+  props: ["answersData", "enabled", "showCorrect"],
   data() {
     return {
       isSelected: false,
     };
   },
+  mounted() {
+    // إذا كان showCorrect=true (عند المستضيف)، أظهر الإجابات الصحيحة فوراً
+    if (this.showCorrect) {
+      this.$nextTick(() => this._highlightCorrect());
+    }
+  },
+  watch: {
+    answersData() {
+      if (this.showCorrect) {
+        this.$nextTick(() => this._highlightCorrect());
+      }
+    },
+    showCorrect(val) {
+      if (val) this.$nextTick(() => this._highlightCorrect());
+    },
+  },
   methods: {
+    _highlightCorrect() {
+      if (!process.browser) return;
+      const answersList = document.querySelectorAll(".answer-label");
+      this.answersData.forEach((ans, index) => {
+        if (!answersList[index]) return;
+        answersList[index].classList.remove("normal", "selected", "correct", "incorrect");
+        if (ans.isCorrect) {
+          answersList[index].classList.add("correct");
+        } else {
+          answersList[index].classList.add("incorrect");
+        }
+      });
+    },
     selectAnswer(i) {
-      if (!this.enabled) {
-        return;
-      }
-      if (this.isSelected) {
-        return;
-      }
+      if (!this.enabled) return;
+      if (this.isSelected) return;
       if (process.browser) {
         const answersList = document.querySelectorAll(".answer-label");
-        // set selected
         answersList[i].classList.remove("normal");
         answersList[i].classList.add("selected");
+        // إرسال الحدث للأعلى
+        this.$emit("answer-selected", this.answersData[i]);
         setTimeout(() => {
-          // show correct
           this.answersData.forEach((ans, index) => {
-            answersList[index].classList.remove("normal");
-            answersList[index].classList.remove("selected");
-
+            if (!answersList[index]) return;
+            answersList[index].classList.remove("normal", "selected");
             if (ans.isCorrect) {
               answersList[index].classList.add("correct");
             } else {

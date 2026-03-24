@@ -17,10 +17,18 @@
 
           <!-- Answered feedback -->
           <div v-if="answered" class="answered-feedback text-center py-10">
-            <v-icon :color="lastCorrect ? 'green' : 'red lighten-1'" size="80">
-              {{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-            <p class="white--text title mt-2">{{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}</p>
+            <template v-if="timeExpired && lastPoints === 0 && !lastCorrect">
+              <v-icon color="orange" size="80">mdi-clock-alert-outline</v-icon>
+              <p class="white--text title mt-2">انتهى الوقت!</p>
+              <p class="white--text subtitle-1">في انتظار نتائج المستضيف...</p>
+              <v-progress-linear indeterminate color="#ff5e94" height="3" class="mt-3" rounded></v-progress-linear>
+            </template>
+            <template v-else>
+              <v-icon :color="lastCorrect ? 'green' : 'red lighten-1'" size="80">
+                {{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}
+              </v-icon>
+              <p class="white--text title mt-2">{{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}</p>
+            </template>
           </div>
 
           <CheckBoxAnswers v-else-if="isMulti" :answersData="answers" :enabled="true" @answer-selected="submitAnswer" />
@@ -46,6 +54,7 @@ export default {
       questionText: '', questionImage: '', isMulti: false,
       answers: [], seconds: 30, timerValue: 100, score: 0,
       answered: false, lastCorrect: false, lastPoints: 0,
+      timeExpired: false, resultsReceived: false,
       interval: null, answerStartTime: 0,
     };
   },
@@ -65,18 +74,35 @@ export default {
     this.answerStartTime = Date.now();
 
     this.interval = setInterval(() => {
-      if (this.timerValue > 0) { this.timerValue -= 100 / (this.seconds * 5); }
-      else { clearInterval(this.interval); if (!this.answered) setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 500); }
+      if (this.timerValue > 0) {
+        this.timerValue -= 100 / (this.seconds * 5);
+      } else {
+        clearInterval(this.interval);
+        // انتهى الوقت - انتظر النتائج من المستضيف (results:shown)
+        // لا تنتقل مباشرة، بل انتظر 5 ثواني كحد أقصى
+        if (!this.answered) {
+          this.answered = true; // امنع الإجابة
+          this.timeExpired = true;
+          setTimeout(() => {
+            // إذا لم يصل results:shown بعد 5 ثواني، انتقل للنتائج
+            if (!this.resultsReceived) {
+              this.$router.push(this.localePath('/play-sub-domain/scoreBoard'));
+            }
+          }, 5000);
+        }
+      }
     }, 200);
 
     const socket = this.$socket?.getSocket?.();
     if (socket) {
       socket.on('results:shown', (data) => {
+        console.log('[Player] results:shown received');
+        this.resultsReceived = true;
+        clearInterval(this.interval);
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.correctAnswers = data.correctAnswers || [];
         s.leaderboard    = data.leaderboard    || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        clearInterval(this.interval);
         setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 500);
       });
       socket.on('game:ended', (data) => {

@@ -21,7 +21,8 @@
             <img :src="questionImage" alt="question-img" />
           </div>
 
-          <QuestionAnswers :answersData="answers" :enabled="false" />
+          <!-- enabled=false (لا يختار المستضيف) showCorrect=true (يُظهر الصح/الخطأ) -->
+          <QuestionAnswers :answersData="answers" :enabled="false" :showCorrect="true" />
         </div>
 
         <!-- Show Results Button -->
@@ -91,12 +92,14 @@ export default {
       points:    a.isCorrect ? 100 : 0,
     }));
 
-    // Timer countdown
+    // Timer countdown - عند الانتهاء يُظهر النتائج تلقائياً
     this.interval = setInterval(() => {
       if (this.timerValue > 0) {
         this.timerValue -= 100 / (this.timer * 5);
       } else {
         clearInterval(this.interval);
+        // انتظر ثانية ثم أظهر النتائج تلقائياً
+        setTimeout(() => this.showResults(), 1000);
       }
     }, 200);
 
