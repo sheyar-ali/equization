@@ -130,7 +130,8 @@ export default {
           (res) => {
             if (res?.success) {
               const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-              gameState.leaderboard = res.leaderboard || [];
+              gameState.leaderboard    = res.leaderboard    || [];
+              gameState.correctAnswers = res.correctAnswers || [];
               sessionStorage.setItem('gameState', JSON.stringify(gameState));
               this.$router.push(this.localePath('/host/scoreboard'));
             }

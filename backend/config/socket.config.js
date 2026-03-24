@@ -438,7 +438,7 @@ module.exports = (io) => {
         });
 
         console.log(`[Socket] 📊 Results shown for Q${questionIndex + 1} in ${code}`);
-        ack?.({ success: true, leaderboard });
+        ack?.({ success: true, leaderboard, correctAnswers });
 
       } catch (err) {
         console.error('[Socket] host:show-results error:', err.message);

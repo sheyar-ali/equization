@@ -15,12 +15,13 @@
             @click="selectAnswer(i)"
             type="radio"
             name="radio"
-            :id="`radioAnswers-${i}`"
+            :id="`radioAnswers-${_uid}-${i}`"
             style="visibility: hidden; width: 0"
           />
           <label
-            :for="`radioAnswers-${i}`"
-            class="d-block h-100 w-100 answer-label normal"
+            :for="`radioAnswers-${_uid}-${i}`"
+            class="d-block h-100 w-100 answer-label"
+            :class="getLabelClass(i)"
           >
             <div
               class="answer-content h-100 w-100 d-flex justify-center align-center"
@@ -59,61 +60,37 @@ export default {
   props: ["answersData", "enabled", "showCorrect"],
   data() {
     return {
-      isSelected: false,
+      selectedIndex: -1,
     };
   },
-  mounted() {
-    // إذا كان showCorrect=true (عند المستضيف)، أظهر الإجابات الصحيحة فوراً
-    if (this.showCorrect) {
-      this.$nextTick(() => this._highlightCorrect());
-    }
-  },
-  watch: {
-    answersData() {
-      if (this.showCorrect) {
-        this.$nextTick(() => this._highlightCorrect());
-      }
-    },
-    showCorrect(val) {
-      if (val) this.$nextTick(() => this._highlightCorrect());
-    },
-  },
   methods: {
-    _highlightCorrect() {
-      if (!process.browser) return;
-      const answersList = document.querySelectorAll(".answer-label");
-      this.answersData.forEach((ans, index) => {
-        if (!answersList[index]) return;
-        answersList[index].classList.remove("normal", "selected", "correct", "incorrect");
-        if (ans.isCorrect) {
-          answersList[index].classList.add("correct");
-        } else {
-          answersList[index].classList.add("incorrect");
-        }
-      });
+    getLabelClass(i) {
+      const answer = this.answersData[i];
+      // showCorrect mode: host sees correct/incorrect immediately
+      if (this.showCorrect) {
+        return answer.isCorrect ? 'correct' : 'incorrect';
+      }
+      // Player selected this answer
+      if (this.selectedIndex === i) {
+        // If isCorrect is now known (after results:shown updated answersData)
+        if (answer.isCorrect === true) return 'correct';
+        if (answer.isCorrect === false && this.selectedIndex === i) return 'incorrect';
+        return 'selected';
+      }
+      // After selection, show correct/incorrect for all answers if isCorrect is known
+      if (this.selectedIndex !== -1 && answer.isCorrect === true) {
+        return 'correct';
+      }
+      if (this.selectedIndex !== -1 && answer.isCorrect === false) {
+        return 'incorrect';
+      }
+      return 'normal';
     },
     selectAnswer(i) {
       if (!this.enabled) return;
-      if (this.isSelected) return;
-      if (process.browser) {
-        const answersList = document.querySelectorAll(".answer-label");
-        answersList[i].classList.remove("normal");
-        answersList[i].classList.add("selected");
-        // إرسال الحدث للأعلى
-        this.$emit("answer-selected", this.answersData[i]);
-        setTimeout(() => {
-          this.answersData.forEach((ans, index) => {
-            if (!answersList[index]) return;
-            answersList[index].classList.remove("normal", "selected");
-            if (ans.isCorrect) {
-              answersList[index].classList.add("correct");
-            } else {
-              answersList[index].classList.add("incorrect");
-            }
-          });
-        }, 500);
-      }
-      this.isSelected = true;
+      if (this.selectedIndex !== -1) return;
+      this.selectedIndex = i;
+      this.$emit("answer-selected", this.answersData[i]);
     },
   },
 };

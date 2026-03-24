@@ -142,24 +142,31 @@ export default {
       lastPoints: p.lastAnswer?.points || 0,
     }));
 
-    // Build answer stats from gameState
-    const answers = gameState.answers || [];
+    // Use fullAnswers (with isCorrect) if available, else fall back to answers
+    const answers = gameState.fullAnswers || gameState.answers || [];
     const rawLb   = lb;
     this.stats = answers.map((ans, idx) => {
-      const count = rawLb.filter(p =>
-        p.lastAnswer?.selectedAnswers?.includes(String(ans._id))
-      ).length;
+      const ansId = String(ans._id || '');
+      const count = rawLb.filter(p => {
+        const selected = p.lastAnswer?.selectedAnswers || [];
+        return selected.map(s => String(s)).includes(ansId);
+      }).length;
       return {
         id:        idx,
-        isCorrect: ans.isCorrect,
+        isCorrect: ans.isCorrect || false,
         count,
         text:      ans.text || ans.ansText || '',
       };
     });
 
-    // Correct answer text
-    const correctAns = answers.find(a => a.isCorrect);
-    this.correctAnswerText = correctAns?.text || correctAns?.ansText || '';
+    // Correct answer text - from correctAnswers saved by show-results, or from fullAnswers
+    const correctAnswers = gameState.correctAnswers || [];
+    if (correctAnswers.length > 0) {
+      this.correctAnswerText = correctAnswers.map(a => a.text).filter(Boolean).join(' / ');
+    } else {
+      const correctAns = answers.find(a => a.isCorrect);
+      this.correctAnswerText = correctAns?.text || correctAns?.ansText || '';
+    }
 
     // Listen for live updates
     const socket = this.$socket?.getSocket?.();
@@ -207,6 +214,7 @@ export default {
               gameState.answers        = q.answers || [];
               gameState.fullAnswers    = q.fullAnswers || q.answers || [];
               gameState.leaderboard    = [];
+              gameState.correctAnswers = [];
               sessionStorage.setItem('gameState', JSON.stringify(gameState));
               this.$router.push(this.localePath('/host/standby'));
             } else {

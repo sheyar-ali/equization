@@ -15,24 +15,33 @@
             <img :src="questionImage" alt="question-img" />
           </div>
 
-          <!-- Answered feedback -->
-          <div v-if="answered" class="answered-feedback text-center py-10">
+          <!-- Answer feedback badge (shown after answering) -->
+          <div v-if="answered && !resultsReceived" class="answered-badge text-center mb-2">
             <template v-if="timeExpired && lastPoints === 0 && !lastCorrect">
-              <v-icon color="orange" size="80">mdi-clock-alert-outline</v-icon>
-              <p class="white--text title mt-2">انتهى الوقت!</p>
-              <p class="white--text subtitle-1">في انتظار نتائج المستضيف...</p>
-              <v-progress-linear indeterminate color="#ff5e94" height="3" class="mt-3" rounded></v-progress-linear>
+              <v-chip color="orange" dark large class="px-6">
+                <v-icon left>mdi-clock-alert-outline</v-icon>
+                انتهى الوقت! في انتظار النتائج...
+              </v-chip>
             </template>
             <template v-else>
-              <v-icon :color="lastCorrect ? 'green' : 'red lighten-1'" size="80">
-                {{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}
-              </v-icon>
-              <p class="white--text title mt-2">{{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}</p>
+              <v-chip :color="lastCorrect ? 'success' : 'error'" dark large class="px-6">
+                <v-icon left>{{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}</v-icon>
+                {{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}
+              </v-chip>
             </template>
           </div>
 
-          <CheckBoxAnswers v-else-if="isMulti" :answersData="answers" :enabled="true" @answer-selected="submitAnswer" />
-          <QuestionAnswers v-else :answersData="answers" :enabled="true" @answer-selected="submitAnswer" />
+          <!-- Show correct answers when results arrive -->
+          <div v-if="resultsReceived" class="answered-badge text-center mb-2">
+            <v-chip color="teal" dark large class="px-6">
+              <v-icon left>mdi-check-all</v-icon>
+              عرض الإجابات الصحيحة
+            </v-chip>
+          </div>
+
+          <!-- Answers grid: always shown, disabled after answering -->
+          <CheckBoxAnswers v-if="isMulti" :answersData="answers" :enabled="!answered" @answer-selected="submitAnswer" />
+          <QuestionAnswers v-else :answersData="answers" :enabled="!answered" :showCorrect="resultsReceived" @answer-selected="submitAnswer" />
         </div>
       </div>
     </v-container>
@@ -96,14 +105,25 @@ export default {
     const socket = this.$socket?.getSocket?.();
     if (socket) {
       socket.on('results:shown', (data) => {
-        console.log('[Player] results:shown received');
+        console.log('[Player] results:shown received', data);
         this.resultsReceived = true;
         clearInterval(this.interval);
+
+        // Mark correct answers so the UI can highlight them
+        if (data.correctAnswers && data.correctAnswers.length > 0) {
+          const correctIds = data.correctAnswers.map(a => String(a._id));
+          this.answers = this.answers.map(a => ({
+            ...a,
+            isCorrect: correctIds.includes(String(a._id)),
+          }));
+        }
+
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.correctAnswers = data.correctAnswers || [];
         s.leaderboard    = data.leaderboard    || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 500);
+        // Show correct answers briefly before navigating
+        setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 1500);
       });
       socket.on('game:ended', (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
@@ -152,6 +172,7 @@ export default {
 .question-container { height: calc(100vh - 160px); margin: 10px 0; padding: 0 70px; }
 .question-container h1 { margin-bottom: 5px; padding: 15px; line-height: 34px; background-color: #38389a; border-radius: 10px; font-size: 20px; max-height: 119px; display: -webkit-box !important; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 3; }
 .answered-feedback { width: 100%; }
+.answered-badge { width: 100%; padding: 8px 0; }
 .question-img { max-width: 90%; margin: 10px 0 0; flex-grow: 1; }
 .question-img img { max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 10px; }
 @media only screen and (max-width: 992px) {
