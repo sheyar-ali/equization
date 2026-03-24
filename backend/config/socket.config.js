@@ -84,6 +84,54 @@ module.exports = (io) => {
       }
     });
 
+    // ── 1b. HOST: Register into an existing REST-created session ─────────────
+    // Emit: host:register-session { sessionCode }
+    // ACK:  { success, sessionCode, quizTitle, questionCount }
+    socket.on('host:register-session', async ({ sessionCode } = {}, ack) => {
+      try {
+        if (!sessionCode) return ack?.({ success: false, message: 'sessionCode required' });
+
+        const code    = sessionCode.toUpperCase();
+        const session = await GameSession.findOne({ sessionCode: code })
+          .populate({ path: 'quiz', populate: { path: 'questions', options: { sort: { order: 1 } } } });
+
+        if (!session) return ack?.({ success: false, message: 'Session not found' });
+
+        const quiz = session.quiz;
+
+        // Cache in memory so player:join-session can find it
+        if (!activeSessions.has(code)) {
+          activeSessions.set(code, {
+            sessionId:    session._id.toString(),
+            hostSocketId: socket.id,
+            quiz,
+            questionCount: quiz.questions ? quiz.questions.length : 0,
+            answeredCount: 0,
+            playerCount:  session.players ? session.players.length : 0
+          });
+        } else {
+          // Update host socket id
+          activeSessions.get(code).hostSocketId = socket.id;
+        }
+
+        socketMeta.set(socket.id, { sessionCode: code, role: 'host' });
+        socket.join(`session:${code}`);
+
+        console.log(`[Socket] 🎮 Host registered for session: ${code}`);
+
+        ack?.({
+          success:       true,
+          sessionCode:   code,
+          quizTitle:     quiz ? quiz.title : '',
+          questionCount: quiz && quiz.questions ? quiz.questions.length : 0
+        });
+
+      } catch (err) {
+        console.error('[Socket] host:register-session error:', err.message);
+        ack?.({ success: false, message: err.message });
+      }
+    });
+
     // ── 2. PLAYER: Join a game session ────────────────────────────────────────
     // Emit: player:join-session { sessionCode, playerName, userId? }
     // ACK:  { success, quizTitle, playerCount, playerId }

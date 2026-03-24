@@ -39,7 +39,7 @@
 
             <!-- Session Code — big & prominent -->
             <div class="join-item join-code-block text-center">
-              <p class="join-label">{{ $t("settings.enterNumber") || 'أدخل الكود' }}</p>
+              <p class="join-label">{{ $t("settings.enterNumber") || 'كود الجلسة' }}</p>
               <div class="session-code">
                 <span
                   v-for="(ch, i) in sessionCodeChars"
@@ -65,6 +65,14 @@
 
           </div>
 
+          <!-- Socket status -->
+          <div class="text-center mt-2">
+            <v-chip x-small :color="socketConnected ? 'green' : 'red'" text-color="white">
+              <v-icon x-small left>{{ socketConnected ? 'mdi-wifi' : 'mdi-wifi-off' }}</v-icon>
+              {{ socketConnected ? 'متصل' : 'غير متصل' }}
+            </v-chip>
+          </div>
+
           <v-divider horizontal class="my-4" style="border-color:rgba(255,255,255,0.15)"></v-divider>
 
           <!-- ─── Players List ───────────────────────────────── -->
@@ -76,12 +84,12 @@
             </div>
             <div
               class="name text-white text-center"
-              v-for="player in players"
-              :key="player.socketId || player.name"
+              v-for="(player, idx) in players"
+              :key="player.socketId || player.playerId || idx"
             >
               <v-icon small color="white" class="mb-1">mdi-account</v-icon>
               <br/>
-              <span>{{ player.name }}</span>
+              <span>{{ player.name || player.playerName }}</span>
             </div>
           </div>
 
@@ -117,12 +125,13 @@ export default {
   head() { return { title: this.$t("host.options.title") }; },
   data() {
     return {
-      loading:  true,
-      error:    null,
-      session:  null,
-      players:  [],
-      playLink: '',
-      copied:   false,
+      loading:         true,
+      error:           null,
+      session:         null,
+      players:         [],
+      playLink:        '',
+      copied:          false,
+      socketConnected: false,
     };
   },
   computed: {
@@ -139,6 +148,7 @@ export default {
       return;
     }
     await this.createSession(quizId);
+
     const origin = window.location.origin;
     const path   = this.localePath ? this.localePath('/play-sub-domain') : '/play-sub-domain';
     this.playLink = `${origin}${path}`;
@@ -147,55 +157,138 @@ export default {
     async createSession(quizId) {
       try {
         this.loading = true;
+        // Create session via REST API
         const res    = await this.$axios.post('/host', { quizId });
-        // API wraps in data.session
         this.session = res.data?.data?.session || res.data?.data;
-        this.setupSocket();
+        if (!this.session) throw new Error('لم يتم إنشاء الجلسة');
+        // Now setup socket listeners
+        await this.setupSocket();
       } catch (e) {
-        this.error = e.response?.data?.message || 'فشل في إنشاء الجلسة';
+        this.error = e.response?.data?.message || e.message || 'فشل في إنشاء الجلسة';
       } finally {
         this.loading = false;
       }
     },
-    setupSocket() {
-      if (!this.$socket) return;
-      this.$socket.connect();
-      const socket = this.$socket.getSocket();
+
+    async setupSocket() {
+      if (!this.$socket) {
+        console.warn('Socket plugin not available');
+        return;
+      }
+
+      // Connect and wait for connection
+      const socket = this.$socket.connect();
       if (!socket) return;
-      this.$socket.createSession(this.session.sessionCode, this.$store.getters.user?._id);
-      socket.on('player-joined',   (d) => { this.players = d.players || []; });
-      socket.on('player-left',     (d) => { this.players = d.players || []; });
-      socket.on('session-players', (d) => { this.players = d.players || []; });
+
+      // Wait up to 3s for connection
+      await new Promise((resolve) => {
+        if (socket.connected) {
+          this.socketConnected = true;
+          resolve();
+        } else {
+          const timeout = setTimeout(() => resolve(), 3000);
+          socket.once('connect', () => {
+            clearTimeout(timeout);
+            this.socketConnected = true;
+            resolve();
+          });
+        }
+      });
+
+      socket.on('connect', () => {
+        this.socketConnected = true;
+        console.log('[Host] Socket connected');
+      });
+
+      socket.on('disconnect', () => {
+        this.socketConnected = false;
+        console.log('[Host] Socket disconnected');
+      });
+
+      // ── الحدث الصحيح من الباك اند: 'player:joined' ──
+      socket.on('player:joined', (data) => {
+        console.log('[Host] player:joined', data);
+        // data = { playerId, playerName, totalPlayers }
+        // أضف اللاعب للقائمة إذا لم يكن موجوداً
+        const exists = this.players.find(p => p.playerId === data.playerId);
+        if (!exists) {
+          this.players.push({
+            playerId:   data.playerId,
+            playerName: data.playerName,
+            name:       data.playerName,
+          });
+        }
+      });
+
+      // ── لاعب غادر ──
+      socket.on('player:left', (data) => {
+        console.log('[Host] player:left', data);
+        // data = { playerId, playerName, totalPlayers }
+        this.players = this.players.filter(p => p.playerId !== data.playerId);
+      });
+
+      // ── سجّل المستضيف في الجلسة الموجودة (المُنشأة عبر REST) ──
+      socket.emit('host:register-session',
+        { sessionCode: this.session.sessionCode },
+        (ack) => {
+          console.log('[Host] host:register-session ack:', ack);
+          if (!ack?.success) {
+            console.warn('[Host] Failed to register socket session:', ack?.message);
+          }
+        }
+      );
     },
+
     async startGame() {
       try {
-        if (this.$socket) this.$socket.startGame(this.session.sessionCode);
-        if (process.client) sessionStorage.setItem('sessionCode', this.session.sessionCode);
+        const code = this.session.sessionCode;
+        if (this.$socket) {
+          const socket = this.$socket.getSocket();
+          if (socket) {
+            socket.emit('host:start-game', { sessionCode: code }, (ack) => {
+              console.log('[Host] start-game ack:', ack);
+            });
+          }
+        }
+        sessionStorage.setItem('sessionCode', code);
         this.$router.push(this.localePath('/host/standby'));
-      } catch (e) { console.error('Start game error:', e); }
+      } catch (e) {
+        console.error('Start game error:', e);
+      }
     },
+
     copyCode() {
       if (!process.client || !this.session) return;
-      navigator.clipboard?.writeText(this.session.sessionCode).then(() => {
+      const code = this.session.sessionCode;
+      const doCopy = () => {
         this.copied = true;
         setTimeout(() => { this.copied = false; }, 2000);
-      }).catch(() => {
-        // fallback
-        const el = document.createElement('textarea');
-        el.value = this.session.sessionCode;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        this.copied = true;
-        setTimeout(() => { this.copied = false; }, 2000);
-      });
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(doCopy).catch(() => this.fallbackCopy(code, doCopy));
+      } else {
+        this.fallbackCopy(code, doCopy);
+      }
+    },
+    fallbackCopy(text, cb) {
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      cb?.();
     },
   },
   beforeDestroy() {
     if (this.$socket) {
       const s = this.$socket.getSocket();
-      if (s) { s.off('player-joined'); s.off('player-left'); s.off('session-players'); }
+      if (s) {
+        s.off('player:joined');
+        s.off('player:left');
+        s.off('connect');
+        s.off('disconnect');
+      }
     }
   },
   components: { PlayHeader },
