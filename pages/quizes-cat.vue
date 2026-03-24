@@ -50,6 +50,7 @@
             :categories="formatCategories(quiz.categories)"
             :wowDelay="delays[index % delays.length]"
             :coverImage="quiz.coverImage"
+            :quizCode="quiz.quizCode"
           />
         </v-row>
 

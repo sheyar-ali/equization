@@ -57,6 +57,16 @@
                 <div class="quiz-content">
                   <h1 class="quiz-title font-weight-bold text-justify">{{ quiz.title }}</h1>
                   <p class="title-line rounded"></p>
+                  <!-- Quiz Code Badge -->
+                  <div v-if="quiz.quizCode" class="quiz-code-badge d-flex align-center mb-3">
+                    <v-chip color="primary" text-color="white" class="font-weight-bold" label>
+                      <v-icon left small>mdi-key-variant</v-icon>
+                      كود الكويز: {{ quiz.quizCode }}
+                    </v-chip>
+                    <v-btn icon x-small class="mx-2" @click="copyCode(quiz.quizCode)" title="نسخ الكود">
+                      <v-icon small>mdi-content-copy</v-icon>
+                    </v-btn>
+                  </div>
                   <div class="quiz-description overflow-hidden">
                     <p class="font-weight-bold">{{ quiz.description }}</p>
                     <p class="full-desc" id="fullDesc">{{ quiz.detailedDescription }}</p>
@@ -285,6 +295,21 @@ export default {
     },
     getCategoryImage(slug) {
       return CATEGORY_IMAGES[slug] || CATEGORY_IMAGES['default'];
+    },
+    copyCode(code) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(() => {
+          this.$toast?.success?.('تم نسخ الكود!') || alert('تم نسخ الكود: ' + code);
+        });
+      } else {
+        const el = document.createElement('input');
+        el.value = code;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        alert('تم نسخ الكود: ' + code);
+      }
     },
     startIndividual() {
       this.startQuiz = false;

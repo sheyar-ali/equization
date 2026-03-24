@@ -85,6 +85,7 @@
             :categories="formatCategories(quiz.categories)"
             :wowDelay="getDelay(idx)"
             :coverImage="quiz.coverImage"
+            :quizCode="quiz.quizCode"
           />
         </div>
 
