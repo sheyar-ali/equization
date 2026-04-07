@@ -371,17 +371,28 @@ module.exports = (io) => {
         const mem = activeSessions.get(code);
         if (mem) {
           mem.answeredCount = (mem.answeredCount || 0) + 1;
+          const activePlayers = session.players.filter(p => p.isActive).length;
 
           // Notify host about this answer
           io.to(mem.hostSocketId).emit('player:answered', {
-            playerId:     player._id,
-            playerName:   player.name,
+            playerId:      player._id,
+            playerName:    player.name,
             isCorrect,
             points,
-            totalScore:   player.score,
+            totalScore:    player.score,
             answeredCount: mem.answeredCount,
-            totalPlayers:  session.players.filter(p => p.isActive).length
+            totalPlayers:  activePlayers
           });
+
+          // ── Auto show results when ALL active players have answered ──────────
+          if (mem.answeredCount >= activePlayers && activePlayers > 0) {
+            console.log(`[Socket] ✅ All ${activePlayers} players answered in ${code} — triggering auto show-results`);
+            io.to(mem.hostSocketId).emit('all:answered', {
+              sessionCode:   code,
+              answeredCount: mem.answeredCount,
+              totalPlayers:  activePlayers
+            });
+          }
         }
 
         console.log(`[Socket] ✏️ ${player.name} answered Q${session.currentQuestionIndex + 1} → ${isCorrect ? '✅' : '❌'} ${points}pts`);

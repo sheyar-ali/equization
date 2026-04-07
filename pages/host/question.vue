@@ -65,6 +65,7 @@ export default {
       answeredCount:  0,
       playersCount:   0,
       interval:       null,
+      resultsShowing: false,  // منع استدعاء showResults مرتين
     };
   },
 
@@ -110,18 +111,34 @@ export default {
         this.answeredCount = data.answeredCount || 0;
         this.playersCount  = data.totalPlayers  || this.playersCount;
       });
+
+      // ── عند إجابة كل اللاعبين → عرض النتائج تلقائياً فوراً ──────────────────
+      socket.on('all:answered', (data) => {
+        console.log('[Host] All players answered — auto show results');
+        this.answeredCount = data.answeredCount || this.answeredCount;
+        this.playersCount  = data.totalPlayers  || this.playersCount;
+        clearInterval(this.interval);  // أوقف العداد
+        this.timerValue = 0;           // أظهر الشريط فارغاً
+        // استدعِ showResults فوراً بدون انتظار العداد
+        this.showResults();
+      });
     }
   },
 
   beforeDestroy() {
     if (this.interval) clearInterval(this.interval);
     const socket = this.$socket?.getSocket?.();
-    if (socket) socket.off('player:answered');
+    if (socket) {
+      socket.off('player:answered');
+      socket.off('all:answered');
+    }
   },
 
   methods: {
     async showResults() {
       if (!this.sessionCode) return;
+      if (this.resultsShowing) return;  // منع الاستدعاء المزدوج
+      this.resultsShowing = true;
       try {
         const socket = this.$socket?.getSocket?.();
         if (!socket) return;
