@@ -59,6 +59,12 @@ export default {
 
       console.log('[BeReady] Socket connected:', socket.connected, 'id:', socket.id);
 
+      // Remove any existing listeners first to prevent duplicates
+      socket.off('player:joined');
+      socket.off('player:left');
+      socket.off('game:started');
+      socket.off('question:received');
+
       socket.on('player:joined', (data) => {
         this.playersCount = data.totalPlayers || this.playersCount;
       });
@@ -96,7 +102,8 @@ export default {
       socket.off('player:joined');
       socket.off('player:left');
       socket.off('game:started');
-      // لا تُزيل question:received لأن play-sub-domain/question.vue يحتاجه
+      // Do NOT remove question:received here - play-sub-domain/question.vue needs it
+      // It will be removed in question.vue's beforeDestroy
     }
   },
 };

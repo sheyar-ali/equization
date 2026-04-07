@@ -144,18 +144,18 @@ module.exports = (io) => {
         const session = await GameSession.findOne({ sessionCode: code });
 
         if (!session)
-          return ack?.({ success: false, message: 'Session not found' });
+          return ack?.({ success: false, message: 'الجلسة غير موجودة. تأكد من الكود وحاول مجدداً.' });
 
         if (session.status !== 'waiting')
-          return ack?.({ success: false, message: 'Session already started' });
+          return ack?.({ success: false, message: 'اللعبة بدأت بالفعل! لا يمكن الانضمام الآن.' });
 
-        if (session.players.length >= session.settings.maxPlayers)
-          return ack?.({ success: false, message: 'Session is full' });
+        if (session.players.filter(p => p.isActive).length >= session.settings.maxPlayers)
+          return ack?.({ success: false, message: 'الجلسة ممتلئة. لا توجد أماكن متاحة.' });
 
         // Check for duplicate name
         const nameTaken = session.players.some(p => p.name.toLowerCase() === playerName.toLowerCase() && p.isActive);
         if (nameTaken)
-          return ack?.({ success: false, message: 'Name already taken in this session' });
+          return ack?.({ success: false, message: 'هذا الاسم مستخدم بالفعل. اختر اسماً آخر.' });
 
         // Add player
         session.players.push({

@@ -59,6 +59,15 @@ export default {
     }
   },
 
+  beforeDestroy() {
+    // Clean up socket listeners set up in this component
+    const socket = this.$socket?.getSocket?.();
+    if (socket) {
+      socket.off('game:started');
+      socket.off('question:received');
+    }
+  },
+
   methods: {
     async joinSession() {
       if (!process.client) return;
@@ -72,17 +81,20 @@ export default {
         return;
       }
 
-      // Connect socket if not connected
-      if (this.$socket) {
-        this.$socket.connect();
+      // Connect socket and wait for it to be truly connected
+      let socket = null;
+      try {
+        socket = await this._connectSocket();
+      } catch (e) {
+        this.error = 'فشل الاتصال بالخادم. حاول مرة أخرى.';
+        this.loading = false;
+        return;
       }
-
-      // Small delay to ensure connection
-      await new Promise(r => setTimeout(r, 500));
 
       const user = JSON.parse(localStorage.getItem('user') || 'null');
 
-      this.$socket?.joinSession(
+      socket.emit(
+        'player:join-session',
         {
           sessionCode: sessionCode.toString().toUpperCase(),
           playerName:  this.playerName.trim(),
@@ -102,28 +114,28 @@ export default {
               quizTitle:      res.quizTitle || '',
             }));
 
-            // Listen for game start
-            const socket = this.$socket?.getSocket?.();
-            if (socket) {
-              socket.on('game:started', (data) => {
-                const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-                gs.totalQuestions = data.questionCount || 0;
-                sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-              });
+            // Listen for game events (will be cleaned up in beforeDestroy)
+            socket.off('game:started');
+            socket.off('question:received');
 
-              socket.on('question:received', (data) => {
-                const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-                gs.questionIndex  = data.questionIndex;
-                gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
-                gs.questionText   = data.questionText;
-                gs.questionImage  = data.questionImage || '';
-                gs.timer          = data.timeLimit || 30;
-                gs.questionId     = data.questionId;
-                gs.answers        = data.answers || [];
-                sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-                this.$router.push(this.localePath('/play-sub-domain/standby'));
-              });
-            }
+            socket.on('game:started', (data) => {
+              const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+              gs.totalQuestions = data.questionCount || 0;
+              sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+            });
+
+            socket.on('question:received', (data) => {
+              const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+              gs.questionIndex  = data.questionIndex;
+              gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
+              gs.questionText   = data.questionText;
+              gs.questionImage  = data.questionImage || '';
+              gs.timer          = data.timeLimit || 30;
+              gs.questionId     = data.questionId;
+              gs.answers        = data.answers || [];
+              sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+              this.$router.push(this.localePath('/play-sub-domain/standby'));
+            });
 
             this.$router.push(this.localePath('/play-sub-domain/beReady'));
           } else {
@@ -131,6 +143,49 @@ export default {
           }
         }
       );
+    },
+
+    // Wait until socket is connected (up to 5 seconds)
+    _connectSocket() {
+      return new Promise((resolve, reject) => {
+        if (!this.$socket) {
+          reject(new Error('Socket plugin not available'));
+          return;
+        }
+
+        const socket = this.$socket.connect();
+        if (!socket) {
+          reject(new Error('Could not create socket'));
+          return;
+        }
+
+        if (socket.connected) {
+          resolve(socket);
+          return;
+        }
+
+        // Wait for connect event
+        const timeout = setTimeout(() => {
+          socket.off('connect', onConnect);
+          socket.off('connect_error', onError);
+          reject(new Error('Connection timeout'));
+        }, 5000);
+
+        const onConnect = () => {
+          clearTimeout(timeout);
+          socket.off('connect_error', onError);
+          resolve(socket);
+        };
+
+        const onError = (err) => {
+          clearTimeout(timeout);
+          socket.off('connect', onConnect);
+          reject(err);
+        };
+
+        socket.once('connect', onConnect);
+        socket.once('connect_error', onError);
+      });
     },
   },
 };
