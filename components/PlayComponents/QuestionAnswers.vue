@@ -66,26 +66,26 @@ export default {
   methods: {
     getLabelClass(i) {
       const answer = this.answersData[i];
-      // showCorrect mode: host sees correct/incorrect immediately
+
+      // ── showCorrect mode (host scoreboard / after results:shown) ──
+      // Only show correct/incorrect when explicitly told to reveal answers
       if (this.showCorrect) {
         return answer.isCorrect ? 'correct' : 'incorrect';
       }
-      // Player selected this answer
+
+      // ── Player has selected an answer ──
       if (this.selectedIndex === i) {
-        // If isCorrect is now known (after results:shown updated answersData)
-        if (answer.isCorrect === true) return 'correct';
-        if (answer.isCorrect === false && this.selectedIndex === i) return 'incorrect';
+        // Selected item → just show as "selected" (purple)
+        // Don't reveal correct/incorrect until showCorrect is true
         return 'selected';
       }
-      // After selection, show correct/incorrect for all answers if isCorrect is known
-      if (this.selectedIndex !== -1 && answer.isCorrect === true) {
-        return 'correct';
-      }
-      if (this.selectedIndex !== -1 && answer.isCorrect === false) {
-        return 'incorrect';
-      }
+
+      // ── No selection yet, or other answers after selection ──
+      // Only show correct/incorrect for non-selected answers if showCorrect is active
+      // (which is handled above). Otherwise just show normal.
       return 'normal';
     },
+
     selectAnswer(i) {
       if (!this.enabled) return;
       if (this.selectedIndex !== -1) return;

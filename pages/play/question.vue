@@ -1,4 +1,4 @@
-<!-- Player Question Page - Show question and receive answers -->
+<!-- play/question.vue - Solo individual quiz question -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>
@@ -20,27 +20,27 @@
             <img :src="questionImage" alt="question-img" />
           </div>
 
-          <!-- Answered feedback -->
-          <div v-if="answered" class="answered-feedback text-center">
-            <v-icon :color="lastCorrect ? 'green' : 'red'" size="80">
-              {{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-            <p class="white--text title mt-2">
-              {{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}
-            </p>
+          <!-- Feedback badge after answering -->
+          <div v-if="answered" class="answered-badge text-center mb-2">
+            <template v-if="timeExpired && !lastCorrect">
+              <v-chip color="orange" dark large class="px-6">
+                <v-icon left>mdi-clock-alert-outline</v-icon>
+                انتهى الوقت!
+              </v-chip>
+            </template>
+            <template v-else>
+              <v-chip :color="lastCorrect ? 'success' : 'error'" dark large class="px-6">
+                <v-icon left>{{ lastCorrect ? 'mdi-check-circle' : 'mdi-close-circle' }}</v-icon>
+                {{ lastCorrect ? `+${lastPoints} نقطة` : 'إجابة خاطئة' }}
+              </v-chip>
+            </template>
           </div>
 
-          <!-- Answer choices -->
-          <CheckBoxAnswers
-            v-else-if="answersType === $t('addQuestionPage.questionTypes.multiAnswers')"
-            :answersData="answers"
-            :enabled="!answered"
-            @answer-selected="submitAnswer"
-          />
+          <!-- Answers: always shown, showCorrect after answering (solo mode knows correct answer) -->
           <QuestionAnswers
-            v-else
             :answersData="answers"
             :enabled="!answered"
+            :showCorrect="answered"
             @answer-selected="submitAnswer"
           />
         </div>
@@ -52,7 +52,6 @@
 <script>
 import QuestionHeader  from "@/components/PlayComponents/QuestionHeader";
 import QuestionAnswers from "@/components/PlayComponents/QuestionAnswers";
-import CheckBoxAnswers from "@/components/PlayComponents/CheckBoxAnswers";
 
 export default {
   layout: "play",
@@ -60,33 +59,29 @@ export default {
 
   data() {
     return {
-      sessionCode:    '',
-      playerId:       '',
-      questionId:     '',
       questionIndex:  0,
       totalQuestions: 0,
       questionText:   '',
       questionImage:  '',
-      answersType:    '',
-      answers:        [],
+      answers:        [],  // includes isCorrect for solo play
       seconds:        30,
       timerValue:     100,
       score:          0,
       answered:       false,
       lastCorrect:    false,
       lastPoints:     0,
+      timeExpired:    false,
       interval:       null,
       answerStartTime: 0,
+      questionId:     '',
+      soloAnswers:    [],  // accumulated answers for final submit
     };
   },
 
   mounted() {
     if (!process.client) return;
 
-    this.sessionCode = sessionStorage.getItem('sessionCode')  || '';
-    this.playerId    = sessionStorage.getItem('playerId')     || '';
-    const gameState  = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-
+    const gameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
     this.questionIndex   = gameState.questionIndex   || 0;
     this.totalQuestions  = gameState.totalQuestions  || 0;
     this.questionText    = gameState.questionText    || '';
@@ -94,75 +89,38 @@ export default {
     this.seconds         = gameState.timer           || 30;
     this.score           = gameState.score           || 0;
     this.questionId      = gameState.questionId      || '';
+    this.soloAnswers     = JSON.parse(sessionStorage.getItem('soloAnswers') || '[]');
 
-    // Format answers (no isCorrect for player)
+    // Solo mode: answers include isCorrect from the API
     const raw = gameState.answers || [];
     this.answers = raw.map(a => ({
-      ansText:  a.text || a.ansText || '',
-      imageUrl: a.image || '',
-      _id:      a._id,
-      isCorrect: false, // hidden from player
-      points: 0,
+      ansText:   a.text   || a.ansText  || '',
+      imageUrl:  a.image  || a.imageUrl || '',
+      _id:       a._id,
+      isCorrect: a.isCorrect || false,  // available in solo mode (from /play/start API)
     }));
 
-    this.answersType = this.$t('addQuestionPage.questionTypes.oneAnswer');
     this.answerStartTime = Date.now();
 
-    // Timer
     this.interval = setInterval(() => {
       if (this.timerValue > 0) {
         this.timerValue -= 100 / (this.seconds * 5);
       } else {
         clearInterval(this.interval);
         if (!this.answered) {
-          // Time's up - go to scoreboard
-          setTimeout(() => this.$router.push(this.localePath('/play/scoreboard')), 1000);
+          this.answered    = true;
+          this.timeExpired = true;
+          // Save a timeout answer
+          this._saveAnswer([], 0, false, this.seconds * 1000);
+          // Navigate after 2s (player sees correct answer highlighted)
+          setTimeout(() => this._navigateNext(), 2000);
         }
       }
     }, 200);
-
-    // Listen for results event
-    const socket = this.$socket?.getSocket?.();
-    if (socket) {
-      socket.on('results:shown', (data) => {
-        const playerGameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        playerGameState.correctAnswers = data.correctAnswers || [];
-        playerGameState.leaderboard    = data.leaderboard    || [];
-        sessionStorage.setItem('playerGameState', JSON.stringify(playerGameState));
-        clearInterval(this.interval);
-        setTimeout(() => this.$router.push(this.localePath('/play/scoreboard')), 500);
-      });
-
-      socket.on('game:ended', (data) => {
-        const playerGameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        playerGameState.finalResults = data.finalResults || [];
-        sessionStorage.setItem('playerGameState', JSON.stringify(playerGameState));
-        this.$router.push(this.localePath('/play/totalscores'));
-      });
-
-      socket.on('question:received', (data) => {
-        // Next question arrived
-        const playerGameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        playerGameState.questionIndex  = data.questionIndex;
-        playerGameState.questionText   = data.questionText;
-        playerGameState.questionImage  = data.questionImage || '';
-        playerGameState.timer          = data.timeLimit || 30;
-        playerGameState.questionId     = data.questionId;
-        playerGameState.answers        = data.answers || [];
-        sessionStorage.setItem('playerGameState', JSON.stringify(playerGameState));
-        this.$router.push(this.localePath('/play/standby'));
-      });
-    }
   },
 
   beforeDestroy() {
     if (this.interval) clearInterval(this.interval);
-    const socket = this.$socket?.getSocket?.();
-    if (socket) {
-      socket.off('results:shown');
-      socket.off('game:ended');
-      socket.off('question:received');
-    }
   },
 
   methods: {
@@ -172,33 +130,70 @@ export default {
       clearInterval(this.interval);
 
       const timeSpent = Date.now() - this.answerStartTime;
-      const selectedAnswers = Array.isArray(selectedAnswer)
-        ? selectedAnswer.map(a => a._id)
-        : [selectedAnswer._id];
+      const selected  = Array.isArray(selectedAnswer) ? selectedAnswer : [selectedAnswer];
+      const selectedIds = selected.map(a => String(a._id));
 
-      this.$socket?.submitAnswer(
-        {
-          sessionCode:     this.sessionCode,
-          questionId:      this.questionId,
-          selectedAnswers,
-          timeSpent,
-        },
-        (res) => {
-          if (res?.success) {
-            this.lastCorrect = res.isCorrect;
-            this.lastPoints  = res.points || 0;
-            this.score       = res.totalScore || this.score;
+      // Check correctness locally (solo mode has isCorrect)
+      const correctIds = this.answers.filter(a => a.isCorrect).map(a => String(a._id));
+      const isCorrect  = correctIds.length === selectedIds.length &&
+                         correctIds.every(id => selectedIds.includes(id));
 
-            const playerGameState = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-            playerGameState.score = this.score;
-            sessionStorage.setItem('playerGameState', JSON.stringify(playerGameState));
-          }
-        }
-      );
+      // Calculate points with time bonus
+      const timeLimitMs = this.seconds * 1000;
+      const elapsed     = Math.min(timeSpent, timeLimitMs);
+      const timeRatio   = 1 - (elapsed / timeLimitMs) * 0.5;
+      const points      = isCorrect ? Math.round(100 * timeRatio) : 0;
+
+      this.lastCorrect = isCorrect;
+      this.lastPoints  = points;
+      this.score      += points;
+
+      this._saveAnswer(selectedIds, points, isCorrect, timeSpent);
+
+      // Navigate after 2s so player sees correct answer
+      setTimeout(() => this._navigateNext(), 2000);
+    },
+
+    _saveAnswer(selectedIds, points, isCorrect, timeSpent) {
+      this.soloAnswers.push({
+        questionId:      this.questionId,
+        selectedAnswers: selectedIds,
+        isCorrect,
+        points,
+        timeSpent,
+      });
+      sessionStorage.setItem('soloAnswers', JSON.stringify(this.soloAnswers));
+
+      // Update score in gameState
+      const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+      gs.score = this.score;
+      sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+    },
+
+    _navigateNext() {
+      const nextIndex  = this.questionIndex + 1;
+      const questions  = JSON.parse(sessionStorage.getItem('soloQuestions') || '[]');
+
+      if (nextIndex < questions.length) {
+        // Save next question to gameState
+        const nextQ = questions[nextIndex];
+        const gs    = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.questionIndex  = nextIndex;
+        gs.questionText   = nextQ.questionText;
+        gs.questionImage  = nextQ.questionImage || '';
+        gs.questionId     = nextQ._id;
+        gs.timer          = nextQ.timeLimit || 30;
+        gs.answers        = nextQ.answers;  // includes isCorrect
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+        this.$router.push(this.localePath('/play/standby'));
+      } else {
+        // Last question - go to total scores
+        this.$router.push(this.localePath('/play/totalscores'));
+      }
     },
   },
 
-  components: { QuestionHeader, QuestionAnswers, CheckBoxAnswers },
+  components: { QuestionHeader, QuestionAnswers },
 };
 </script>
 
@@ -206,7 +201,7 @@ export default {
 .play-page-container { height: calc(100vh - 80px); margin-bottom: 0; padding: 8px 15px 15px; }
 .question-container { height: calc(100vh - 160px); margin: 10px 0; padding: 0 70px; }
 .question-container h1 { margin-bottom: 5px; padding: 15px; line-height: 34px; background-color: #38389a; border-radius: 10px; font-size: 20px; max-height: 119px; display: -webkit-box !important; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 3; }
-.answered-feedback { margin: 40px auto; }
+.answered-badge { width: 100%; padding: 8px 0; }
 .question-img { max-width: 90%; margin: 10px 0 0; flex-grow: 1; }
 .question-img img { max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 10px; }
 @media only screen and (max-width: 992px) {

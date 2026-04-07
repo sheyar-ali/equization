@@ -26,13 +26,14 @@ exports.startIndividualQuiz = async (req, res, next) => {
       return errorResponse(res, 403, 'This quiz is private');
     }
 
-    // Remove correct answers from response
+    // For individual play, include isCorrect so frontend can show correct answer immediately
     const questions = quiz.questions.map(q => {
       const questionObj = q.toObject();
       questionObj.answers = questionObj.answers.map(a => ({
-        _id: a._id,
-        text: a.text,
-        image: a.image
+        _id:       a._id,
+        text:      a.text,
+        image:     a.image,
+        isCorrect: a.isCorrect || false,  // included for solo play
       }));
       return questionObj;
     });

@@ -21,8 +21,8 @@
             <img :src="questionImage" alt="question-img" />
           </div>
 
-          <!-- enabled=false (لا يختار المستضيف) showCorrect=true (يُظهر الصح/الخطأ) -->
-          <QuestionAnswers :answersData="answers" :enabled="false" :showCorrect="true" />
+          <!-- enabled=false (المستضيف لا يختار) showCorrect=false أثناء اللعبة -->
+          <QuestionAnswers :answersData="answers" :enabled="false" :showCorrect="false" />
         </div>
 
         <!-- Show Results Button -->
