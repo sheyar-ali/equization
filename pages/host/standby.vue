@@ -55,6 +55,7 @@ export default {
       playersCount:    0,
       loadingQuestion: false,
       interval:        null,
+      allAnswered:     false,  // flag: جميع اللاعبين أجابوا أثناء العد التنازلي
     };
   },
 
@@ -78,6 +79,21 @@ export default {
       socket.on('player:answered', (data) => {
         this.answeredCount = data.answeredCount || 0;
         this.playersCount  = data.totalPlayers  || this.playersCount;
+      });
+
+      // ── إذا أجاب جميع اللاعبين أثناء العد التنازلي → تخطّ إلى النتائج فوراً ──
+      socket.on('all:answered', (data) => {
+        console.log('[Host Standby] All players answered — skipping countdown, going to question page immediately');
+        this.allAnswered   = true;
+        this.answeredCount = data.answeredCount || this.answeredCount;
+        this.playersCount  = data.totalPlayers  || this.playersCount;
+        // احفظ flag في sessionStorage ليلتقطها host/question.vue
+        const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+        gameState.allAnsweredEarly = true;
+        sessionStorage.setItem('gameState', JSON.stringify(gameState));
+        // أوقف العد التنازلي وانتقل فوراً لصفحة السؤال (التي ستعرض النتائج مباشرة)
+        clearInterval(this.interval);
+        this.$router.push(this.localePath('/host/question'));
       });
     }
   },
@@ -143,7 +159,10 @@ export default {
   beforeDestroy() {
     if (this.interval) clearInterval(this.interval);
     const socket = this.$socket?.getSocket?.();
-    if (socket) socket.off('player:answered');
+    if (socket) {
+      socket.off('player:answered');
+      socket.off('all:answered');
+    }
   },
 
   components: { QuestionHostHeader },

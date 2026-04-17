@@ -104,6 +104,18 @@ export default {
       }
     }, 200);
 
+    // ── إذا أجاب الجميع أثناء standby (allAnsweredEarly flag) → عرض النتائج فوراً ──
+    if (gameState.allAnsweredEarly) {
+      // امسح الـ flag لئلا يتكرر في الأسئلة التالية
+      gameState.allAnsweredEarly = false;
+      sessionStorage.setItem('gameState', JSON.stringify(gameState));
+      clearInterval(this.interval);
+      this.timerValue = 0;
+      // انتظر نصف ثانية لضمان تحميل الصفحة كاملاً ثم أظهر النتائج
+      setTimeout(() => this.showResults(), 500);
+      return; // لا حاجة لإعداد مستمعي السوكيت للحالة العادية
+    }
+
     // Listen for player answers
     const socket = this.$socket?.getSocket?.();
     if (socket) {
