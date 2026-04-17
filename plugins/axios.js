@@ -1,7 +1,26 @@
 export default function ({ $axios, redirect }) {
-  // لا نحتاج setBaseURL - @nuxtjs/axios يقرأ browserBaseURL من nuxt.config.js تلقائياً
+  // ── Dynamic baseURL ──────────────────────────────────────────────────────
+  // In a sandbox/cloud environment the public URL changes per session.
+  // We derive the API base URL from the current browser origin so that
+  // the frontend always talks to the correct backend regardless of sandbox ID.
+  //
+  // Convention used in this project:
+  //   Frontend  → port 3000  (e.g. https://3000-<id>.sandbox.novita.ai)
+  //   Backend   → port 5000  (e.g. https://5000-<id>.sandbox.novita.ai)
+  //
+  // When running locally both services are on localhost, so we fall back to
+  // the env-configured value or http://localhost:5000/api/v1.
 
-  // إضافة التوكن لكل طلب
+  if (process.client) {
+    const origin = window.location.origin          // e.g. https://3000-abc.sandbox.novita.ai
+    const apiBase = origin.includes('sandbox.novita.ai')
+      ? origin.replace(/^(https?:\/\/)\d+(-[^.]+\.sandbox\.novita\.ai.*)$/, '$15000$2') + '/api/v1'
+      : (process.env.API_BASE_URL || 'http://localhost:5000/api/v1')
+
+    $axios.setBaseURL(apiBase)
+  }
+
+  // ── Attach JWT token to every request ───────────────────────────────────
   $axios.onRequest(config => {
     try {
       const token = localStorage.getItem('token')
@@ -12,7 +31,7 @@ export default function ({ $axios, redirect }) {
     return config
   })
 
-  // معالجة الأخطاء
+  // ── Global error handling ────────────────────────────────────────────────
   $axios.onError(error => {
     const code = parseInt(error.response && error.response.status)
     if (code === 401) {

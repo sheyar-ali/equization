@@ -1,7 +1,12 @@
 import io from 'socket.io-client'
 
 export default ({ app, store }, inject) => {
-  const socketURL = process.env.SOCKET_URL || 'http://localhost:5000'
+  // Derive the socket URL from the current browser origin dynamically.
+  // Sandbox frontend runs on port 3000 → backend on port 5000 (same subdomain).
+  const origin = (typeof window !== 'undefined') ? window.location.origin : ''
+  const socketURL = origin.includes('sandbox.novita.ai')
+    ? origin.replace(/^(https?:\/\/)\d+(-[^.]+\.sandbox\.novita\.ai.*)$/, '$15000$2')
+    : (process.env.SOCKET_URL || 'http://localhost:5000')
 
   let socket = null
 
