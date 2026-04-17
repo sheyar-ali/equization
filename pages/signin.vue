@@ -59,7 +59,6 @@
                 type="submit"
                 :disabled="!valid || loading"
                 :loading="loading"
-                @click="handleLogin"
               >
                 {{ $t("loginPage.buttonText") }}
               </v-btn>

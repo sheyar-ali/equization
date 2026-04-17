@@ -26,14 +26,15 @@ exports.startIndividualQuiz = async (req, res, next) => {
       return errorResponse(res, 403, 'This quiz is private');
     }
 
-    // For individual play, include isCorrect so frontend can show correct answer immediately
+    // ✅ Fix #1: Do NOT include isCorrect — prevents cheating via DevTools
+    // Correct answers are only revealed upon /play/submit
     const questions = quiz.questions.map(q => {
       const questionObj = q.toObject();
       questionObj.answers = questionObj.answers.map(a => ({
-        _id:       a._id,
-        text:      a.text,
-        image:     a.image,
-        isCorrect: a.isCorrect || false,  // included for solo play
+        _id:   a._id,
+        text:  a.text,
+        image: a.image,
+        // isCorrect intentionally omitted
       }));
       return questionObj;
     });
@@ -83,9 +84,14 @@ exports.submitQuizAnswers = async (req, res, next) => {
         q => q._id.toString() === answer.questionId
       );
 
+      // ✅ Fix #9: If questionId not found in this quiz, skip it
       if (!question) {
         return { ...answer, isCorrect: false, points: 0 };
       }
+
+      // ✅ Fix #7: Clamp timeSpent to valid range [0, timeLimit]
+      const maxTimeMs = question.timeLimit * 1000;
+      const clampedTimeSpent = Math.max(0, Math.min(answer.timeSpent || 0, maxTimeMs));
 
       // Check if answer is correct
       const correctAnswerIds = question.answers
@@ -99,8 +105,8 @@ exports.submitQuizAnswers = async (req, res, next) => {
 
       let points = 0;
       if (isCorrect) {
-        // Calculate points based on time spent
-        const timePercentage = answer.timeSpent / (question.timeLimit * 1000);
+        // ✅ Fix #7: Use clamped timeSpent so sending 0 doesn't grant full points
+        const timePercentage = clampedTimeSpent / maxTimeMs;
         points = Math.round(question.points * (1 - timePercentage * 0.5));
         totalScore += points;
         correctAnswers++;
@@ -122,7 +128,7 @@ exports.submitQuizAnswers = async (req, res, next) => {
         question: question._id,
         selectedAnswers: answer.selectedAnswers,
         isCorrect,
-        timeSpent: answer.timeSpent,
+        timeSpent: clampedTimeSpent,
         points
       };
     });

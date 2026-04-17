@@ -1,6 +1,13 @@
+const crypto = require('crypto');
 const User = require('../models/User.model');
 const { sendEmail, emailTemplates } = require('../utils/email.util');
 const { successResponse, errorResponse } = require('../utils/response.util');
+
+// Helper: validate password strength
+const isStrongPassword = (password) => {
+  // min 8 chars, at least 1 uppercase, 1 lowercase, 1 digit
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
+};
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -116,9 +123,16 @@ exports.verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.body;
 
-    // Find user with valid token
+    if (!token) {
+      return errorResponse(res, 400, 'Verification token is required');
+    }
+
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user with valid hashed token
     const user = await User.findOne({
-      verificationToken: token,
+      verificationToken: hashedToken,
       verificationTokenExpire: { $gt: Date.now() }
     });
 
@@ -195,10 +209,14 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    // Always respond with success to prevent user enumeration
+    const successMsg = 'If this email is registered, you will receive a password reset code shortly.';
+
     const user = await User.findOne({ email });
 
     if (!user) {
-      return errorResponse(res, 404, 'No user found with that email');
+      // Don't reveal that the email doesn't exist
+      return successResponse(res, 200, successMsg);
     }
 
     // Generate reset token
@@ -213,7 +231,7 @@ exports.forgotPassword = async (req, res, next) => {
         html: emailTemplates.resetPassword(resetToken, user.username)
       });
 
-      successResponse(res, 200, 'Password reset code sent to email');
+      successResponse(res, 200, successMsg);
     } catch (emailError) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
@@ -233,9 +251,21 @@ exports.resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
 
-    // Find user with valid token
+    if (!token || !password) {
+      return errorResponse(res, 400, 'Token and new password are required');
+    }
+
+    // Validate password strength
+    if (!isStrongPassword(password)) {
+      return errorResponse(res, 400, 'Password must be at least 8 characters and contain uppercase, lowercase, and a number');
+    }
+
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user with valid hashed token
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() }
     });
 
@@ -313,6 +343,15 @@ exports.updatePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
+    if (!currentPassword || !newPassword) {
+      return errorResponse(res, 400, 'Current password and new password are required');
+    }
+
+    // Validate new password strength
+    if (!isStrongPassword(newPassword)) {
+      return errorResponse(res, 400, 'New password must be at least 8 characters and contain uppercase, lowercase, and a number');
+    }
+
     // Get user with password
     const user = await User.findById(req.user.id).select('+password');
 
@@ -321,6 +360,12 @@ exports.updatePassword = async (req, res, next) => {
 
     if (!isMatch) {
       return errorResponse(res, 401, 'Current password is incorrect');
+    }
+
+    // Prevent reusing the same password
+    const isSamePassword = await user.matchPassword(newPassword);
+    if (isSamePassword) {
+      return errorResponse(res, 400, 'New password cannot be the same as current password');
     }
 
     // Update password

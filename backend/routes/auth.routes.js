@@ -14,7 +14,11 @@ const { authLimiter, emailLimiter } = require('../middleware/rateLimit.middlewar
 const registerRules = [
   body('username').trim().isLength({ min: 3, max: 50 }).withMessage('Username must be 3-50 chars'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-  body('password').isLength({ min: 8 }).withMessage('Password min 8 chars')
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
+    .matches(/\d/).withMessage('Password must contain at least one number')
 ];
 const loginRules = [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),

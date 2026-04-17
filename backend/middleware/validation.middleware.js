@@ -6,7 +6,8 @@ exports.validate = (req, res, next) => {
   
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => ({
-      field: error.param,
+      // error.path is the v7+ standard; error.param is kept as fallback for older installs
+      field:   error.path || error.param,
       message: error.msg
     }));
     
@@ -19,3 +20,4 @@ exports.validate = (req, res, next) => {
   
   next();
 };
+

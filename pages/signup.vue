@@ -98,7 +98,6 @@
                 type="submit"
                 :disabled="!valid || loading"
                 :loading="loading"
-                @click="handleSignup"
               >
                 {{ $t("createAccountPage.buttonText") }}
               </v-btn>
@@ -170,15 +169,22 @@ export default {
         });
 
         if (res.data && res.data.success) {
-          this.successMsg = "تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.";
+          const { token, user } = res.data.data;
+
+          // Save token & user so /verify can call resend-verification (protected route)
+          this.$store.dispatch('login', { token, user });
+
+          this.successMsg = "تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.";
           setTimeout(() => {
-            this.$router.push(this.localePath("/signin"));
-          }, 2000);
+            this.$router.push(this.localePath("/verify"));
+          }, 1500);
         }
       } catch (err) {
         const msg = err.response?.data?.message;
-        if (msg && msg.includes("duplicate") || msg && msg.includes("already")) {
+        if (msg && (msg.includes("duplicate") || msg.includes("already"))) {
           this.errorMsg = "هذا البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل";
+        } else if (err.response?.status === 429) {
+          this.errorMsg = "طلبات كثيرة جداً، يرجى الانتظار قليلاً ثم المحاولة مرة أخرى";
         } else {
           this.errorMsg = msg || "حدث خطأ أثناء إنشاء الحساب، حاول مرة أخرى";
         }

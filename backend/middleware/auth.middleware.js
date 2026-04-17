@@ -37,8 +37,8 @@ exports.protect = async (req, res, next) => {
     } catch (error) {
       return res.status(401).json({
         success: false,
-        message: 'Not authorized to access this route',
-        error: error.message
+        message: 'Not authorized to access this route'
+        // Note: error.message intentionally omitted to prevent JWT detail leakage
       });
     }
   } catch (error) {

@@ -42,15 +42,24 @@ exports.getUserQuizzes = async (req, res, next) => {
 exports.searchUsers = async (req, res, next) => {
   try {
     const { q = '', limit = 10 } = req.query;
+
+    // Require at least 2 characters to prevent full user list enumeration
+    if (!q || q.trim().length < 2) {
+      return successResponse(res, 200, 'Users found', { users: [] });
+    }
+
+    // Cap limit to max 20 to prevent large data dumps
+    const safeLimit = Math.min(parseInt(limit) || 10, 20);
+
     const users = await User.find({
       $or: [
-        { username:  { $regex: q, $options: 'i' } },
-        { firstName: { $regex: q, $options: 'i' } },
-        { lastName:  { $regex: q, $options: 'i' } }
+        { username:  { $regex: q.trim(), $options: 'i' } },
+        { firstName: { $regex: q.trim(), $options: 'i' } },
+        { lastName:  { $regex: q.trim(), $options: 'i' } }
       ]
     })
       .select('username firstName lastName avatar statistics.quizzesCreated')
-      .limit(parseInt(limit));
+      .limit(safeLimit);
 
     return successResponse(res, 200, 'Users found', { users });
   } catch (err) { next(err); }

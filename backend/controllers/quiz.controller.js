@@ -127,12 +127,15 @@ exports.getAllQuizzes = async (req, res, next) => {
     const skip = (page - 1) * limit;
     const total = await Quiz.countDocuments(query);
 
+    // Cap limit to prevent large data dumps (max 50 per page)
+    const safeLimit = Math.min(parseInt(limit), 50);
+
     const quizzes = await Quiz.find(query)
       .populate('categories', 'name slug icon color')
       .populate('creator', 'username avatar')
       .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(safeLimit);
 
     // Add questionCount to each quiz in list
     const quizzesWithCount = quizzes.map(q => {
@@ -223,14 +226,35 @@ exports.updateQuiz = async (req, res, next) => {
       return errorResponse(res, 403, 'You do not have permission to update this quiz');
     }
 
+    // ── Whitelist allowed fields to prevent Mass Assignment ──
+    // Fields like creator, statistics, quizCode, _id are NOT allowed to be changed by users.
+    const {
+      title, description, detailedDescription, categories,
+      difficulty, educationLevel, isPublic, timeLimit,
+      pointsPerQuestion, settings, tags, language, coverImage
+    } = req.body;
+
+    const allowedUpdate = {
+      ...(title              !== undefined && { title }),
+      ...(description        !== undefined && { description }),
+      ...(detailedDescription !== undefined && { detailedDescription }),
+      ...(categories         !== undefined && { categories }),
+      ...(difficulty         !== undefined && { difficulty }),
+      ...(educationLevel     !== undefined && { educationLevel }),
+      ...(isPublic           !== undefined && { isPublic }),
+      ...(timeLimit          !== undefined && { timeLimit }),
+      ...(pointsPerQuestion  !== undefined && { pointsPerQuestion }),
+      ...(settings           !== undefined && { settings }),
+      ...(tags               !== undefined && { tags }),
+      ...(language           !== undefined && { language }),
+      ...(coverImage         !== undefined && { coverImage })
+    };
+
     // Update quiz
     quiz = await Quiz.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
+      allowedUpdate,
+      { new: true, runValidators: true }
     ).populate('categories', 'name slug')
      .populate('creator', 'username avatar');
 

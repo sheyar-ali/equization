@@ -1,4 +1,4 @@
-export default function ({ $axios, redirect }) {
+export default function ({ $axios, store, redirect, route }) {
   // ── Dynamic baseURL ──────────────────────────────────────────────────────
   // In a sandbox/cloud environment the public URL changes per session.
   // We derive the API base URL from the current browser origin so that
@@ -12,7 +12,7 @@ export default function ({ $axios, redirect }) {
   // the env-configured value or http://localhost:5000/api/v1.
 
   if (process.client) {
-    const origin = window.location.origin          // e.g. https://3000-abc.sandbox.novita.ai
+    const origin = window.location.origin
     const apiBase = origin.includes('sandbox.novita.ai')
       ? origin.replace(/^(https?:\/\/)\d+(-[^.]+\.sandbox\.novita\.ai.*)$/, '$15000$2') + '/api/v1'
       : (process.env.API_BASE_URL || 'http://localhost:5000/api/v1')
@@ -23,7 +23,7 @@ export default function ({ $axios, redirect }) {
   // ── Attach JWT token to every request ───────────────────────────────────
   $axios.onRequest(config => {
     try {
-      const token = localStorage.getItem('token')
+      const token = store.state.token || localStorage.getItem('token')
       if (token) {
         config.headers.common['Authorization'] = `Bearer ${token}`
       }
@@ -36,10 +36,16 @@ export default function ({ $axios, redirect }) {
     const code = parseInt(error.response && error.response.status)
     if (code === 401) {
       try {
+        // Fix: clean both Vuex state AND localStorage via store action
+        store.dispatch('logout')
+      } catch (e) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-      } catch (e) {}
-      redirect('/signin')
+      }
+      // Prevent redirect loop if already on signin page
+      if (route && route.path && !route.path.includes('/signin')) {
+        redirect('/signin')
+      }
     }
     return Promise.reject(error)
   })
