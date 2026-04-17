@@ -1,111 +1,124 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const dotenv = require('dotenv');
-const http = require('http');
-const socketIO = require('socket.io');
-const path = require('path');
+/**
+ * server.js – eQuization Backend Entry Point
+ */
 
-// Load environment variables
+const express   = require('express');
+const mongoose  = require('mongoose');
+const cors      = require('cors');
+const helmet    = require('helmet');
+const morgan    = require('morgan');
+const dotenv    = require('dotenv');
+const http      = require('http');
+const socketIO  = require('socket.io');
+const path      = require('path');
+
 dotenv.config();
 
-// Import routes
-const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes');
-const quizRoutes = require('./routes/quiz.routes');
+// ── Import routes ──────────────────────────────────────────────────────────────
+const authRoutes     = require('./routes/auth.routes');
+const userRoutes     = require('./routes/user.routes');
+const quizRoutes     = require('./routes/quiz.routes');
 const questionRoutes = require('./routes/question.routes');
 const categoryRoutes = require('./routes/category.routes');
-const playRoutes = require('./routes/play.routes');
-const hostRoutes = require('./routes/host.routes');
+const playRoutes     = require('./routes/play.routes');
+const hostRoutes     = require('./routes/host.routes');
 
-// Import error handler
-const errorHandler = require('./middleware/error.middleware');
+// ── Import middleware ──────────────────────────────────────────────────────────
+const errorHandler                 = require('./middleware/error.middleware');
+const { generalLimiter }           = require('./middleware/rateLimit.middleware');
 
-// Initialize Express app
-const app = express();
+// ── App setup ──────────────────────────────────────────────────────────────────
+const app    = express();
 const server = http.createServer(app);
 
-// Initialize Socket.IO
+// ── Socket.IO ──────────────────────────────────────────────────────────────────
 const io = socketIO(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin:      process.env.FRONTEND_URL || '*',
+    methods:     ['GET', 'POST'],
     credentials: true
-  }
+  },
+  transports: ['websocket', 'polling']
 });
 
-// Make io accessible to routes
+// Attach io to app so controllers can access it
 app.set('io', io);
 
-// Middleware
-app.use(helmet());
+// ── Security & general middleware ──────────────────────────────────────────────
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin:      process.env.FRONTEND_URL || '*',
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(morgan('dev'));
 
-// Static files
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
+
+// Apply general rate limiter to all routes
+app.use(generalLimiter);
+
+// ── Static files ───────────────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/quizzes', quizRoutes);
-app.use('/api/v1/questions', questionRoutes);
+// ── API Routes ─────────────────────────────────────────────────────────────────
+app.use('/api/v1/auth',       authRoutes);
+app.use('/api/v1/users',      userRoutes);
+app.use('/api/v1/quizzes',    quizRoutes);
+app.use('/api/v1/questions',  questionRoutes);
 app.use('/api/v1/categories', categoryRoutes);
-app.use('/api/v1/play', playRoutes);
-app.use('/api/v1/host', hostRoutes);
+app.use('/api/v1/play',       playRoutes);
+app.use('/api/v1/host',       hostRoutes);
 
-// Health check route
+// ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
-    success: true,
-    message: 'eQuization API is running',
-    timestamp: new Date().toISOString()
+    success:   true,
+    message:   'eQuization API is running',
+    version:   '1.0.0',
+    timestamp: new Date().toISOString(),
+    database:  mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// Socket.IO connection handling
-require('./config/socket.config')(io);
+// ── 404 handler ────────────────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+});
 
-// Error handler middleware (must be last)
+// ── Error handler (must be last) ───────────────────────────────────────────────
 app.use(errorHandler);
 
-// Handle 404 routes
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
-});
+// ── Real-time game logic ───────────────────────────────────────────────────────
+require('./config/socket.config')(io);
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('✅ MongoDB connected successfully');
-  
-  // Start server
-  const PORT = process.env.PORT || 5000;
-  server.listen(PORT, () => {
-    console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-    console.log(`📡 Socket.IO server ready for real-time connections`);
+// ── Connect to MongoDB & start server ─────────────────────────────────────────
+const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser:    true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+      console.log(`📡 Socket.IO ready for real-time connections`);
+      console.log(`🔗 Health: http://localhost:${PORT}/api/v1/health`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);
   });
-})
-.catch((error) => {
-  console.error('❌ MongoDB connection error:', error.message);
-  process.exit(1);
-});
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('❌ Unhandled Rejection:', err.message);
   server.close(() => process.exit(1));
 });
+
+module.exports = { app, server };

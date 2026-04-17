@@ -1,67 +1,75 @@
 <!-- Start Of The Signin Page -->
 <template>
   <section>
-    <!-- PageTitle Component -->
     <PageTitle :titleText="$t('loginPage.loginPageTitle')" />
     <section class="contact-us d-flex align-center form-section mx-auto">
       <v-container>
-        <v-row
-          class="align-center justify-space-between flex-sm-column-reverse flex-md-row"
-        >
+        <v-row class="align-center justify-space-between flex-sm-column-reverse flex-md-row">
           <v-col cols="12" md="6" class="form-container wow fadeIn">
-            <!-- Invalid Data Alert -->
-            <v-alert type="error">
-              {{ $t("errorAlertText") }}
+
+            <!-- Error Alert -->
+            <v-alert v-if="errorMsg" type="error" dismissible @input="errorMsg = ''">
+              {{ errorMsg }}
             </v-alert>
+
+            <!-- Success Alert -->
+            <v-alert v-if="successMsg" type="success">
+              {{ successMsg }}
+            </v-alert>
+
             <!-- Signin Form -->
-            <v-form class="forms" v-model="valid">
+            <v-form class="forms" ref="form" v-model="valid" @submit.prevent="handleLogin">
+
               <!-- Email Input -->
               <v-text-field
                 outlined
                 type="email"
                 :label="$t('loginPage.emailInputText')"
+                v-model="email"
                 :rules="[
-                  required($t('loginPage.emailInputText')),
-                  emailRules($t('loginPage.emailInputText')),
-                  minLength($t('loginPage.emailInputText'), 8),
+                  v => !!v || $t('errorNameText') + ' ' + $t('loginPage.emailInputText'),
+                  v => /.@+./.test(v) || $t('loginPage.emailInputText') + ' ' + $t('emailRulesError'),
                 ]"
                 required
                 prepend-inner-icon="mdi-email"
               ></v-text-field>
-              <!-- Email Password Input -->
+
+              <!-- Password Input -->
               <v-text-field
                 outlined
+                v-model="password"
                 :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="show1 ? 'text' : 'password'"
                 :label="$t('loginPage.passwordInputText')"
                 :rules="[
-                  required($t('loginPage.passwordInputText')),
-                  minLength($t('loginPage.passwordInputText'), 8),
+                  v => !!v || $t('errorNameText') + ' ' + $t('loginPage.passwordInputText'),
+                  v => (v && v.length >= 8) || $t('loginPage.passwordInputText') + ' ' + $t('minLengthError') + ' 8 ' + $t('characters'),
                 ]"
                 required
                 prepend-inner-icon="mdi-lock"
                 @click:append="show1 = !show1"
-              >
-              </v-text-field>
+              ></v-text-field>
+
               <!-- Submit Button -->
               <v-btn
                 class="white--text d-block mx-auto title"
                 width="30%"
                 height="auto"
-                :disabled="!valid"
+                color="primary"
+                type="submit"
+                :disabled="!valid || loading"
+                :loading="loading"
+                @click="handleLogin"
               >
                 {{ $t("loginPage.buttonText") }}
               </v-btn>
+
               <div class="reset-btn d-flex w-100 justify-center">
-                <!-- Forgot Page Link -->
-                <nuxt-link
-                  :to="localePath('/forgot')"
-                  class="title text-center d-inline-block"
-                >
+                <nuxt-link :to="localePath('/forgot')" class="title text-center d-inline-block">
                   <span>{{ $t("loginPage.forgetPasswordText") }}</span>
                 </nuxt-link>
               </div>
-              <!-- FormDivider Component -->
+
               <FormDivider
                 :DividerText="$t('loginPage.formDividerText')"
                 :DividerLink="localePath('/signup')"
@@ -69,13 +77,12 @@
               />
             </v-form>
           </v-col>
+
           <v-divider vertical></v-divider>
-          <!-- FormContent Component -->
+
           <FormContent
             :formTitle="$t('loginPage.loginPageTitle')"
-            :imgSrc="
-              require('@/assets/images/forms-img/Mobile login-amico.png')
-            "
+            :imgSrc="require('@/assets/images/forms-img/Mobile login-amico.png')"
             :imgAlt="'Login-img'"
           />
         </v-row>
@@ -85,46 +92,68 @@
 </template>
 
 <script>
-import PageTitle from "@/components/Shared-Components/PageTitle";
+import PageTitle   from "@/components/Shared-Components/PageTitle";
 import FormDivider from "@/components/Shared-Components/FormDivider";
 import FormContent from "@/components/Shared-Components/FormContent";
+
 export default {
   name: "Login",
   layout: "form",
+  components: { PageTitle, FormDivider, FormContent },
+
   head() {
-    return {
-      title: this.$t("loginPage.loginPageTitle"),
-    };
+    return { title: this.$t("loginPage.loginPageTitle") };
   },
+
   data() {
     return {
-      valid: false,
-      show1: false,
-      // Required Validation
-      required(errorName) {
-        return (v) =>
-          (v && v.length > 0) || `${this.$t("errorNameText")} ${errorName}`;
-      },
-      // MinLength Validation
-      minLength(errorName, minNum) {
-        return (v) =>
-          (v && v.length >= minNum) ||
-          `${errorName} ${this.$t("minLengthError")} ${minNum} ${this.$t(
-            "characters"
-          )}`;
-      },
-      // Email Valodation That Check if the Email Is Valid Containes (@g)
-      emailRules(errorName) {
-        return (v) =>
-          /.@+./.test(v) || `${errorName} ${this.$t("emailRulesError")}`;
-      },
+      valid:      false,
+      loading:    false,
+      show1:      false,
+      email:      "",
+      password:   "",
+      errorMsg:   "",
+      successMsg: "",
     };
   },
-  props: ["titleText", "formTitle", "formDescription", "imgSrc", "imgAlt"],
-  components: {
-    PageTitle,
-    FormDivider,
-    FormContent,
+
+  methods: {
+    async handleLogin() {
+      if (!this.$refs.form.validate()) return;
+
+      this.loading  = true;
+      this.errorMsg = "";
+
+      try {
+        const res = await this.$axios.post("/auth/login", {
+          email:    this.email,
+          password: this.password,
+        });
+
+        if (res.data && res.data.success) {
+          const { token, user } = res.data.data;
+
+          // حفظ في Vuex + localStorage معاً
+          this.$store.dispatch('login', { token, user });
+
+          this.successMsg = "تم تسجيل الدخول بنجاح! جاري التحويل...";
+          setTimeout(() => {
+            this.$router.push(this.localePath("/account"));
+          }, 800);
+        }
+      } catch (err) {
+        const msg = err.response?.data?.message;
+        if (msg === "Invalid credentials") {
+          this.errorMsg = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+        } else if (msg === "Please verify your email first") {
+          this.errorMsg = "يرجى تفعيل حسابك أولاً من بريدك الإلكتروني";
+        } else {
+          this.errorMsg = msg || "حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى";
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 };
 </script>
@@ -134,7 +163,6 @@ export default {
   color: #9292b1 !important;
   margin-top: 35px;
 }
-
 .reset-btn span {
   font-family: "Cairo" !important;
 }

@@ -295,7 +295,7 @@
   },
   "AccountPage": {
     "pageTitle": "Page de compte",
-    "welcomeText": "Bienvenue, Mohamed Aleskandrany",
+    "welcomeText": "Bienvenue,",
     "AccountHeader": {
       "headerText": "Mon compte",
       "backText": "Dos"

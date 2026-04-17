@@ -1,4 +1,4 @@
-<!-- Start Of Edit Quiz Page -->
+<!-- Edit Quiz Page - Dynamic from API -->
 <template>
   <section class="d-flex align-center justify-center page-section">
     <section class="account-section d-flex align-center mx-auto w-100">
@@ -9,147 +9,161 @@
           <!-- Account Quizes Content -->
           <v-col cols="12" md="10" lg="9" class="account-section-container">
             <div class="account-section-content h-100">
-              <!-- AccountHeader Component -->
-              <AccountHeader
-                :headerText="headerContent.headerText"
-                :backLink="headerContent.backLink"
-                :backText="headerContent.backText"
-                :isActive="headerContent.isActive"
-              />
-              <!-- Edit Quiz Form -->
-              <v-form class="forms" v-model="valid">
-                <v-row>
-                  <v-col md="7" cols="12">
-                    <!-- Quiz Title Input -->
-                    <v-text-field
-                      outlined
-                      type="text"
-                      :value="quizTitle"
-                      :label="this.$t('addQuizPage.quizTitle')"
-                      :rules="[
-                        required($t('addQuizPage.quizTitle')),
-                        minLength($t('addQuizPage.quizTitle'), 8),
-                      ]"
-                      prepend-inner-icon="mdi-format-text"
-                    ></v-text-field>
-                    <!-- Quiz Type Input -->
-                    <v-select
-                      class="multi-selections"
-                      :value="selectedCategories"
-                      :items="categories"
-                      multiple
-                      :rules="[
-                        selected(this.$t('addQuizPage.categoriesError')),
-                      ]"
-                      :label="this.$t('addQuizPage.categoriesLabel')"
-                      outlined
-                      prepend-inner-icon="mdi-tag-text-outline"
-                      required
-                    ></v-select>
-                    <!-- Quiz Explanation Input -->
-                    <v-text-field
-                      outlined
-                      type="text"
-                      :value="quizDescription"
-                      :label="this.$t('addQuizPage.breifExplanation')"
-                      :rules="[
-                        required($t('addQuizPage.breifExplanationError')),
-                        minLength($t('addQuizPage.breifExplanationError'), 30),
-                      ]"
-                      prepend-inner-icon="mdi-text-short"
-                      required
-                    ></v-text-field>
-                    <!-- Quiz Detailed Explanation -->
-                    <v-textarea
-                      outlined
-                      :value="quizFullDescription"
-                      :label="this.$t('addQuizPage.detailedExplanation')"
-                      prepend-inner-icon="mdi-text-subject"
-                    >
-                    </v-textarea>
-                  </v-col>
-                  <v-col md="5" cols="12">
-                    <div
-                      class="quiz-creation-img w-100 d-flex align-center justify-center position-relative overflow-hidden"
-                    >
-                      <!-- Quiz Image -->
-                      <img
-                        class="w-100 h-100 added-img"
-                        v-if="imageUrl"
-                        :src="imageUrl"
+
+              <!-- Loading -->
+              <div v-if="loading" class="d-flex justify-center align-center" style="min-height:300px">
+                <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+              </div>
+
+              <template v-else>
+                <!-- AccountHeader Component -->
+                <AccountHeader
+                  :headerText="headerContent.headerText"
+                  :backLink="headerContent.backLink"
+                  :backText="headerContent.backText"
+                  :isActive="headerContent.isActive"
+                />
+
+                <!-- Success alert -->
+                <v-alert v-if="successMsg" type="success" dismissible class="mx-4">{{ successMsg }}</v-alert>
+                <!-- Error alert -->
+                <v-alert v-if="errorMsg" type="error" dismissible class="mx-4">{{ errorMsg }}</v-alert>
+
+                <!-- Edit Quiz Form -->
+                <v-form class="forms" v-model="valid" @submit.prevent="submitForm">
+                  <v-row>
+                    <v-col md="7" cols="12">
+                      <!-- Quiz Title Input -->
+                      <v-text-field
+                        outlined
+                        type="text"
+                        v-model="quizTitle"
+                        :label="$t('addQuizPage.quizTitle')"
+                        :rules="[
+                          required($t('addQuizPage.quizTitle')),
+                          minLength($t('addQuizPage.quizTitle'), 8),
+                        ]"
+                        prepend-inner-icon="mdi-format-text"
+                      ></v-text-field>
+
+                      <!-- Categories Select -->
+                      <v-select
+                        class="multi-selections"
+                        v-model="selectedCategories"
+                        :items="categoryItems"
+                        item-text="label"
+                        item-value="value"
+                        multiple
+                        :rules="[selected($t('addQuizPage.categoriesError'))]"
+                        :label="$t('addQuizPage.categoriesLabel')"
+                        outlined
+                        prepend-inner-icon="mdi-tag-text-outline"
+                        :loading="loadingCategories"
+                      ></v-select>
+
+                      <!-- Quiz Description -->
+                      <v-text-field
+                        outlined
+                        type="text"
+                        v-model="quizDescription"
+                        :label="$t('addQuizPage.breifExplanation')"
+                        :rules="[
+                          required($t('addQuizPage.breifExplanationError')),
+                          minLength($t('addQuizPage.breifExplanationError'), 10),
+                        ]"
+                        prepend-inner-icon="mdi-text-short"
+                      ></v-text-field>
+
+                      <!-- Quiz Detailed Description -->
+                      <v-textarea
+                        outlined
+                        v-model="quizFullDescription"
+                        :label="$t('addQuizPage.detailedExplanation')"
+                        prepend-inner-icon="mdi-text-subject"
+                        rows="4"
+                      ></v-textarea>
+                    </v-col>
+
+                    <v-col md="5" cols="12">
+                      <div class="quiz-creation-img w-100 d-flex align-center justify-center position-relative overflow-hidden">
+                        <!-- Quiz Image -->
+                        <img class="w-100 h-100 added-img" v-if="imageUrl" :src="imageUrl" />
+                        <!-- Placeholder -->
+                        <i class="far fa-image" v-else></i>
+                        <!-- Delete Image Icon -->
+                        <span
+                          v-if="imageUrl"
+                          class="clear-img position-absolute d-flex align-center justify-center"
+                          @click="clearImage"
+                          style="bottom:10px; left:10px"
+                        >
+                          <i class="fas fa-trash-alt"></i>
+                        </span>
+                      </div>
+
+                      <!-- File Input -->
+                      <v-file-input
+                        v-model="file"
+                        class="file-input"
+                        @change="onFileChange"
+                        @click:clear="clearImage"
+                        :show-size="1000"
+                        :label="$t('addQuizPage.chooseImg')"
+                        accept="image/*"
+                        outlined
+                        hide-details="auto"
+                        prepend-icon=""
+                        prepend-inner-icon="mdi-camera"
                       />
-                      <!-- Quiz Temporary Image -->
-                      <i class="far fa-image" v-else></i>
-                      <!-- Delete Quiz Image Icon -->
-                      <span
-                        v-if="imageUrl"
-                        class="clear-img position-absolute d-flex align-center justify-center"
-                        @click="clear"
-                        style="bottom: 10px; left: 10px"
+
+                      <!-- Language Select -->
+                      <v-select
+                        :items="languageItems"
+                        item-text="label"
+                        item-value="value"
+                        v-model="lang"
+                        :rules="[selected($t('addQuizPage.selectErrorText'))]"
+                        :label="$t('addQuizPage.quizLang')"
+                        outlined
+                        prepend-inner-icon="mdi-translate"
+                        class="mt-4"
+                      ></v-select>
+
+                      <!-- Difficulty Select -->
+                      <v-select
+                        :items="difficultyItems"
+                        item-text="label"
+                        item-value="value"
+                        v-model="difficulty"
+                        label="مستوى الصعوبة"
+                        outlined
+                        prepend-inner-icon="mdi-signal"
+                      ></v-select>
+
+                      <!-- Privacy Radio -->
+                      <v-radio-group v-model="visible" row class="radios-box">
+                        <label class="ma-0 radios-label">{{ $t("addQuizPage.privacyLabel") }}</label>
+                        <v-radio :label="$t('addQuizPage.publicRadio')"  class="radio-label" :value="true"></v-radio>
+                        <v-radio :label="$t('addQuizPage.privateRadio')" class="radio-label" :value="false"></v-radio>
+                      </v-radio-group>
+                    </v-col>
+
+                    <v-col cols="12" md="7" class="w-100 d-flex justify-content-end sub-btn-content">
+                      <v-btn
+                        class="white--text d-block title sub-btn"
+                        width="30%"
+                        height="auto"
+                        :disabled="!valid"
+                        :loading="saving"
+                        type="submit"
+                        color="primary"
                       >
-                        <i class="fas fa-trash-alt"></i>
-                      </span>
-                    </div>
-                    <!-- Choose Image for the Quiz Input -->
-                    <v-file-input
-                      v-model="file"
-                      class="file-input"
-                      @change="onFileChange"
-                      @click:clear="clear"
-                      :show-size="1000"
-                      :label="this.$t('addQuizPage.chooseImg')"
-                      accept="image/*"
-                      outlined
-                      hide-details="auto"
-                      prepend-icon=""
-                      prepend-inner-icon="mdi-camera"
-                    />
-                    <!-- Quiz Language Select -->
-                    <v-select
-                      :items="items"
-                      v-model="lang"
-                      :rules="[
-                        selected(this.$t('addQuizPage.selectErrorText')),
-                      ]"
-                      :label="this.$t('addQuizPage.quizLang')"
-                      outlined
-                      prepend-inner-icon="mdi-translate"
-                      required
-                    ></v-select>
-                    <!-- Quiz Privacy Radi Input -->
-                    <v-radio-group v-model="visible" row class="radios-box">
-                      <label class="ma-0 radios-label">
-                        {{ $t("addQuizPage.privacyLabel") }}
-                      </label>
-                      <v-radio
-                        :label="this.$t('addQuizPage.publicRadio')"
-                        class="radio-label"
-                        :value="true"
-                      ></v-radio>
-                      <v-radio
-                        :label="this.$t('addQuizPage.privateRadio')"
-                        class="radio-label"
-                        :value="false"
-                      ></v-radio>
-                    </v-radio-group>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    md="7"
-                    class="w-100 d-flex justify-content-end sub-btn-content"
-                  >
-                    <!-- Submit Button -->
-                    <v-btn
-                      class="white--text d-block title sub-btn"
-                      width="30%"
-                      height="auto"
-                      :disabled="!valid"
-                    >
-                      {{ $t("editQuizPage.pageTitle") }}
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-form>
+                        {{ $t("editQuizPage.pageTitle") }}
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </template>
             </div>
           </v-col>
         </v-row>
@@ -169,96 +183,152 @@ export default {
   },
   data() {
     return {
+      loading: true,
+      saving: false,
+      loadingCategories: false,
       valid: false,
-      show1: false,
       file: null,
-      // Quiz Image
-      imageUrl:
-        "https://res.cloudinary.com/dpmvrlnsv/image/upload/v1614245383/defaults/EQUIZATION.png",
-      // Quiz Languages Select Data
-      items: ["العربية", "English", "Français", "Turkçe"],
-      // Quiz Langauge Value
-      lang: "العربية",
-      // Categories Data For The Quiz Type Input
-      categories: [
-        this.$t("categoriesNames.publicInfoCategory"),
-        this.$t("categoriesNames.languagesCategory"),
-        this.$t("categoriesNames.educationCategory"),
-        this.$t("categoriesNames.scienceCategory"),
-        this.$t("categoriesNames.historyCategory"),
-        this.$t("categoriesNames.physicsCategory"),
-        this.$t("categoriesNames.artsCategory"),
-        this.$t("categoriesNames.chemistryCategory"),
-        this.$t("categoriesNames.mathematicsCategory"),
-        this.$t("categoriesNames.sportCategory"),
-        this.$t("categoriesNames.informationCategory"),
-      ],
-      // Quiz Type Value
-      selectedCategories: [
-        this.$t("categoriesNames.publicInfoCategory"),
-        this.$t("categoriesNames.languagesCategory"),
-      ],
-      // Data for the Quiz (title, description and detailed description)
-      quizTitle: "تجربة عنوان إختبار تجريبي",
-      quizDescription: "شرح مختصر للإختبار يشرح الإختبار بشكل مختصر جداً",
-      quizFullDescription:
-        "شرح مفصل للإختبار يشرح الإختبار بشكل أكثر تفصيلاً, أكثر من الشرح المختصر الذي يسبقه, هذا الشرح تجريبي فقط, ولا يعتد به بتاتاً, وإنما هو لغرض   هذا الشرح تجريبي فقط, ولا يعتد به بتاتاً, وإنما هو لغرض المعاينة فقط, ليس إلا, فلا يأخذ على محمل الجد إطلاقاًالمعاينة فقط, ليس إلا, فلا يأخذ على محمل الجد إطلاقاً ",
+      imageUrl: '',
+      quizTitle: '',
+      quizDescription: '',
+      quizFullDescription: '',
+      lang: 'ar',
+      difficulty: 'medium',
       visible: true,
-      // Required Validation
+      selectedCategories: [],
+      categoryItems: [],
+      successMsg: '',
+      errorMsg: '',
+      languageItems: [
+        { label: 'العربية',  value: 'ar' },
+        { label: 'English',  value: 'en' },
+        { label: 'Français', value: 'fr' },
+        { label: 'Turkçe',   value: 'tr' },
+      ],
+      difficultyItems: [
+        { label: 'سهل',    value: 'easy'   },
+        { label: 'متوسط',  value: 'medium' },
+        { label: 'صعب',    value: 'hard'   },
+      ],
+      // Validation functions
       required(errorName) {
-        return (v) =>
-          (v && v.length > 0) || `${this.$t("errorNameText")} ${errorName}`;
+        return (v) => (v && v.length > 0) || `${errorName} مطلوب`;
       },
-      // Minlength Validation
       minLength(errorName, minNum) {
-        return (v) =>
-          (v && v.length >= minNum) ||
-          `${errorName} ${this.$t("minLengthError")} ${minNum} ${this.$t(
-            "characters"
-          )}`;
+        return (v) => (v && v.length >= minNum) || `${errorName} يجب أن يكون على الأقل ${minNum} أحرف`;
       },
-      // Email Validation that Check if Email Contains (@(Letter))
-      emailRules(errorName) {
-        return (v) =>
-          /.@+./.test(v) || `${errorName} ${this.$t("emailRulesError")}`;
-      },
-      // Selected Validation For Select Only
       selected(errorName) {
-        return (v) => (v && v.length > 0) || `${errorName}`;
+        return (v) => (v && v.length > 0) || errorName;
       },
     };
   },
   computed: {
-    // Header Content
     headerContent() {
       return {
         headerText: this.$t("editQuizPage.pageTitle"),
-        backLink: "/",
+        backLink: "/quizes/my-quiz",
         backText: this.$t("AccountPage.AccountHeader.backText"),
         isActive: false,
       };
     },
   },
+  async mounted() {
+    await Promise.all([this.fetchCategories(), this.fetchQuiz()]);
+  },
   methods: {
-    // Change Quiz Image Function
+    async fetchCategories() {
+      this.loadingCategories = true;
+      try {
+        const res = await this.$axios.get('/categories');
+        const cats = res.data?.data?.categories || res.data?.data || [];
+        this.categoryItems = cats.map(c => ({
+          label: c.name && c.name[this.$i18n.locale] ? c.name[this.$i18n.locale] : (c.name?.ar || c.name),
+          value: c._id,
+        }));
+      } catch (e) {
+        console.error('Load categories error:', e);
+      } finally {
+        this.loadingCategories = false;
+      }
+    },
+    async fetchQuiz() {
+      this.loading = true;
+      try {
+        const quizId = this.$route.query.id
+          || (process.client ? sessionStorage.getItem('currentQuizId') : null);
+
+        if (!quizId) {
+          this.loading = false;
+          return;
+        }
+
+        const res  = await this.$axios.get(`/quizzes/${quizId}`);
+        const quiz = res.data?.data?.quiz || res.data?.data;
+
+        if (quiz) {
+          this.quizTitle           = quiz.title || '';
+          this.quizDescription     = quiz.description || '';
+          this.quizFullDescription = quiz.detailedDescription || '';
+          this.lang                = quiz.language || 'ar';
+          this.difficulty          = quiz.difficulty || 'medium';
+          this.visible             = quiz.isPublic !== false;
+          this.imageUrl            = quiz.coverImage || '';
+          this.selectedCategories  = (quiz.categories || []).map(c => c._id || c);
+        }
+      } catch (e) {
+        console.error('Fetch quiz error:', e);
+        this.errorMsg = 'فشل في تحميل بيانات الاختبار';
+      } finally {
+        this.loading = false;
+      }
+    },
     onFileChange() {
       if (this.file) {
-        let reader = new FileReader();
-        reader.onload = () => {
-          this.imageUrl = reader.result;
-        };
+        const reader = new FileReader();
+        reader.onload = () => { this.imageUrl = reader.result; };
         reader.readAsDataURL(this.file);
       }
     },
-    // Remove Quiz Image Function
-    clear() {
+    clearImage() {
       this.file = null;
-      this.imageUrl = "";
+      this.imageUrl = '';
+    },
+    async submitForm() {
+      if (!this.valid) return;
+      this.saving = true;
+      this.successMsg = '';
+      this.errorMsg = '';
+      try {
+        const quizId = this.$route.query.id
+          || (process.client ? sessionStorage.getItem('currentQuizId') : null);
+
+        if (!quizId) throw new Error('معرّف الاختبار غير موجود');
+
+        const payload = {
+          title:               this.quizTitle,
+          description:         this.quizDescription,
+          detailedDescription: this.quizFullDescription,
+          categories:          this.selectedCategories,
+          language:            this.lang,
+          difficulty:          this.difficulty,
+          isPublic:            this.visible,
+          ...(this.imageUrl ? { coverImage: this.imageUrl } : {}),
+        };
+
+        await this.$axios.put(`/quizzes/${quizId}`, payload);
+        this.successMsg = 'تم تحديث الاختبار بنجاح';
+        setTimeout(() => {
+          this.$router.push(this.localePath(`/quizes/my-quiz?id=${quizId}`));
+        }, 1200);
+      } catch (e) {
+        this.errorMsg = e.response?.data?.message || 'فشل في تحديث الاختبار';
+        console.error('Update quiz error:', e);
+      } finally {
+        this.saving = false;
+      }
     },
   },
-  components: {
-    SideMenu,
-  },
+  components: { SideMenu },
 };
 </script>
 
@@ -272,9 +342,21 @@ export default {
   color: #a4abbb !important;
 }
 
-img {
+.quiz-creation-img {
+  min-height: 220px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+}
+
+img.added-img {
   height: 100% !important;
   width: 100% !important;
   object-fit: cover !important;
+  border-radius: 8px;
+}
+
+.sub-btn {
+  border-radius: 10px;
+  min-height: 48px !important;
 }
 </style>

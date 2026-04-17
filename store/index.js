@@ -9,11 +9,9 @@ export const mutations = {
     state.user = user
     state.isAuthenticated = !!user
   },
-  
   SET_TOKEN(state, token) {
     state.token = token
   },
-  
   LOGOUT(state) {
     state.user = null
     state.token = null
@@ -22,99 +20,43 @@ export const mutations = {
 }
 
 export const actions = {
-  // Initialize auth state from cookies/localStorage
-  async nuxtServerInit({ commit }, { req, app }) {
-    const token = app.$cookies.get('token')
-    if (token) {
-      commit('SET_TOKEN', token)
-      try {
-        const { data } = await this.$api.auth.getMe()
-        commit('SET_USER', data.user)
-      } catch (error) {
-        commit('LOGOUT')
-        app.$cookies.remove('token')
-      }
-    }
-  },
-
-  // Login action
-  async login({ commit }, credentials) {
+  // تهيئة الـ auth من localStorage عند تحميل الصفحة
+  initAuth({ commit }) {
     try {
-      const { data } = await this.$api.auth.login(credentials)
-      
-      // Store token
-      this.$cookies.set('token', data.data.token, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30 // 30 days
-      })
-      
-      commit('SET_TOKEN', data.data.token)
-      commit('SET_USER', data.data.user)
-      
-      return { success: true, data: data.data }
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      const token = localStorage.getItem('token')
+      const userStr = localStorage.getItem('user')
+      if (token && userStr) {
+        const user = JSON.parse(userStr)
+        commit('SET_TOKEN', token)
+        commit('SET_USER', user)
       }
-    }
+    } catch (e) {}
   },
 
-  // Register action
-  async register({ commit }, userData) {
-    try {
-      const { data } = await this.$api.auth.register(userData)
-      
-      // Store token
-      this.$cookies.set('token', data.data.token, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30
-      })
-      
-      commit('SET_TOKEN', data.data.token)
-      commit('SET_USER', data.data.user)
-      
-      return { success: true, data: data.data }
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
-      }
-    }
+  // تسجيل الدخول
+  login({ commit }, { token, user }) {
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
+    commit('SET_TOKEN', token)
+    commit('SET_USER', user)
   },
 
-  // Logout action
+  // تحديث بيانات المستخدم (بعد تعديل الملف الشخصي)
+  updateUser({ commit }, user) {
+    localStorage.setItem('user', JSON.stringify(user))
+    commit('SET_USER', user)
+  },
+
+  // تسجيل الخروج
   logout({ commit }) {
-    commit('LOGOUT')
-    this.$cookies.remove('token')
     localStorage.removeItem('token')
-  },
-
-  // Update user details
-  async updateUser({ commit }, userData) {
-    try {
-      const { data } = await this.$api.auth.updateDetails(userData)
-      commit('SET_USER', data.data.user)
-      return { success: true, data: data.data }
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Update failed' 
-      }
-    }
+    localStorage.removeItem('user')
+    commit('LOGOUT')
   }
 }
 
 export const getters = {
-  isAuthenticated(state) {
-    return state.isAuthenticated
-  },
-  
-  user(state) {
-    return state.user
-  },
-  
-  token(state) {
-    return state.token
-  }
+  isAuthenticated: state => state.isAuthenticated,
+  user: state => state.user,
+  token: state => state.token
 }

@@ -14,9 +14,10 @@
     >
       <div class="card-head position-relative">
         <img
-          src="@/assets/images/Home-Page-Images/EQUIZATION.png"
+          :src="coverImage || require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
           class="card-img-top w-100"
           alt="test-img"
+          @error="$event.target.src = require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
         />
         <div class="test-description position-absolute">
           <p class="text-white">
@@ -25,6 +26,10 @@
           <p class="text-white">
             {{ playersNumbers }} {{ $t("quizesSection.player") }}
           </p>
+        </div>
+        <!-- Quiz Code Badge on card -->
+        <div v-if="quizCode" class="quiz-code-overlay position-absolute">
+          <span class="quiz-code-text">{{ quizCode }}</span>
         </div>
       </div>
       <h4 class="test-title text-center text-dark font-weight-bold">
@@ -53,6 +58,8 @@ export default {
     "categories",
     "categoryLink",
     "wowDelay",
+    "coverImage",
+    "quizCode",
   ],
 };
 </script>
@@ -85,6 +92,21 @@ h4,
   right: 3px;
 }
 
+.quiz-code-overlay {
+  top: 5px;
+  left: 8px;
+}
+
+.quiz-code-text {
+  background-color: rgba(58, 55, 152, 0.85);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
+
 p {
   background-color: rgba(255, 94, 148, 0.8);
   margin: 5px 0;
@@ -103,5 +125,10 @@ p {
 .ltr .test-description {
   right: auto !important;
   left: 3px;
+}
+
+.ltr .quiz-code-overlay {
+  left: auto !important;
+  right: 8px;
 }
 </style>

@@ -24,7 +24,7 @@
               <AccountCard />
 
               <div class="welcome text-center">
-                {{ $t("AccountPage.welcomeText") }}
+                {{ $t("AccountPage.welcomeText") }} <strong>{{ displayName }}</strong>
               </div>
 
               <v-row class="pa-0">
@@ -56,6 +56,7 @@ import SideMenu from "@/components/AccountComponents/SideMenu";
 import AccountHeader from "@/components/AccountComponents/AccountHeader";
 import AccountCard from "@/components/AccountComponents/AccountCard";
 import AccountInfoCards from "@/components/AccountComponents/AccountInfoCards";
+import { mapGetters } from 'vuex';
 export default {
   layout: "account",
   head() {
@@ -64,6 +65,13 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['user']),
+    // اسم المستخدم الديناميكي
+    displayName() {
+      if (!this.user) return '';
+      if (this.user.firstName) return `${this.user.firstName} ${this.user.lastName || ''}`.trim();
+      return this.user.username || '';
+    },
     // Header Content
     headerContent() {
       return {

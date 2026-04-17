@@ -27,99 +27,60 @@ const UserSchema = new mongoose.Schema({
     minlength: [8, 'Password must be at least 8 characters'],
     select: false
   },
-  firstName: {
-    type: String,
-    trim: true
-  },
-  lastName: {
-    type: String,
-    trim: true
-  },
+  firstName: { type: String, trim: true },
+  lastName:  { type: String, trim: true },
   avatar: {
     type: String,
     default: 'https://res.cloudinary.com/dpmvrlnsv/image/upload/v1614245383/defaults/default-avatar.png'
   },
-  bio: {
-    type: String,
-    maxlength: [500, 'Bio cannot exceed 500 characters']
-  },
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-  verificationToken: String,
+  bio: { type: String, maxlength: [500, 'Bio cannot exceed 500 characters'] },
+  isVerified: { type: Boolean, default: false },
+  verificationToken:       String,
   verificationTokenExpire: Date,
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  },
-  quizzes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Quiz'
-  }],
+  resetPasswordToken:      String,
+  resetPasswordExpire:     Date,
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  quizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }],
   statistics: {
-    quizzesCreated: {
-      type: Number,
-      default: 0
-    },
-    quizzesPlayed: {
-      type: Number,
-      default: 0
-    },
-    totalScore: {
-      type: Number,
-      default: 0
-    }
+    quizzesCreated: { type: Number, default: 0 },
+    quizzesPlayed:  { type: Number, default: 0 },
+    totalScore:     { type: Number, default: 0 }
   }
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
-// Encrypt password before saving
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-  
+// ── Encrypt password before saving ──────────────────────────────────────────
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-// Sign JWT and return
-UserSchema.methods.getSignedJwtToken = function() {
+// ── Instance methods ─────────────────────────────────────────────────────────
+UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign(
     { id: this._id, role: this.role },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
 };
 
-// Match user entered password to hashed password
-UserSchema.methods.matchPassword = async function(enteredPassword) {
+UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate verification token
-UserSchema.methods.getVerificationToken = function() {
-  const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-  
-  this.verificationToken = verificationToken;
-  this.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  
-  return verificationToken;
+UserSchema.methods.getVerificationToken = function () {
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
+  this.verificationToken       = token;
+  this.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
+  return token;
 };
 
-// Generate reset password token
-UserSchema.methods.getResetPasswordToken = function() {
-  const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
-  
-  this.resetPasswordToken = resetToken;
-  this.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 30 minutes
-  
-  return resetToken;
+UserSchema.methods.getResetPasswordToken = function () {
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
+  this.resetPasswordToken  = token;
+  this.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+  return token;
 };
 
 module.exports = mongoose.model('User', UserSchema);

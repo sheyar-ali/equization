@@ -1,18 +1,9 @@
 const mongoose = require('mongoose');
 
 const AnswerSchema = new mongoose.Schema({
-  text: {
-    type: String,
-    required: [true, 'Answer text is required'],
-    trim: true
-  },
-  image: {
-    type: String
-  },
-  isCorrect: {
-    type: Boolean,
-    default: false
-  }
+  text:      { type: String, trim: true },
+  image:     { type: String },
+  isCorrect: { type: Boolean, default: false }
 }, { _id: true });
 
 const QuestionSchema = new mongoose.Schema({
@@ -24,78 +15,41 @@ const QuestionSchema = new mongoose.Schema({
   questionText: {
     type: String,
     required: [true, 'Please provide question text'],
-    trim: true,
-    minlength: [10, 'Question must be at least 10 characters']
+    trim: true
   },
-  questionImage: {
-    type: String
-  },
+  questionImage: { type: String },
   questionType: {
     type: String,
-    enum: ['multiple-choice', 'true-false', 'checkbox'],
+    enum: ['multiple-choice', 'true-false', 'checkbox', 'no-answer'],
     default: 'multiple-choice'
   },
   answers: {
     type: [AnswerSchema],
     validate: {
-      validator: function(answers) {
-        // Must have at least 2 answers
-        if (answers.length < 2) return false;
-        
-        // Must have at least one correct answer
-        const correctAnswers = answers.filter(a => a.isCorrect);
-        if (correctAnswers.length === 0) return false;
-        
-        // For multiple-choice and true-false, only one correct answer
-        if (this.questionType !== 'checkbox' && correctAnswers.length > 1) {
-          return false;
-        }
-        
+      validator: function (answers) {
+        if (!answers || answers.length < 2) return false;
+        if (this.questionType === 'no-answer') return true;
+        const correct = answers.filter(a => a.isCorrect);
+        if (correct.length === 0) return false;
+        if (this.questionType !== 'checkbox' && correct.length > 1) return false;
         return true;
       },
       message: 'Invalid answers configuration'
     }
   },
-  points: {
-    type: Number,
-    default: 100
-  },
-  timeLimit: {
-    type: Number, // in seconds
-    default: 30
-  },
-  explanation: {
-    type: String,
-    maxlength: [500, 'Explanation cannot exceed 500 characters']
-  },
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'medium'
-  },
-  order: {
-    type: Number,
-    default: 0
-  },
+  points:     { type: Number, default: 100 },
+  timeLimit:  { type: Number, default: 30 }, // seconds
+  explanation:{ type: String, maxlength: [1000, 'Explanation too long'] },
+  source:     { type: String, maxlength: [200, 'Source too long'] },
+  difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
+  order:      { type: Number, default: 0 },
   statistics: {
-    totalAttempts: {
-      type: Number,
-      default: 0
-    },
-    correctAttempts: {
-      type: Number,
-      default: 0
-    },
-    averageTime: {
-      type: Number,
-      default: 0
-    }
+    totalAttempts:   { type: Number, default: 0 },
+    correctAttempts: { type: Number, default: 0 },
+    averageTime:     { type: Number, default: 0 }
   }
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
-// Index for quiz questions
 QuestionSchema.index({ quiz: 1, order: 1 });
 
 module.exports = mongoose.model('Question', QuestionSchema);

@@ -15,12 +15,13 @@
             @click="selectAnswer(i)"
             type="radio"
             name="radio"
-            :id="`radioAnswers-${i}`"
+            :id="`radioAnswers-${_uid}-${i}`"
             style="visibility: hidden; width: 0"
           />
           <label
-            :for="`radioAnswers-${i}`"
-            class="d-block h-100 w-100 answer-label normal"
+            :for="`radioAnswers-${_uid}-${i}`"
+            class="d-block h-100 w-100 answer-label"
+            :class="getLabelClass(i)"
           >
             <div
               class="answer-content h-100 w-100 d-flex justify-center align-center"
@@ -56,40 +57,40 @@
 <script>
 export default {
   name: "QuestionAnwers",
-  props: ["answersData", "enabled"],
+  props: ["answersData", "enabled", "showCorrect"],
   data() {
     return {
-      isSelected: false,
+      selectedIndex: -1,
     };
   },
   methods: {
-    selectAnswer(i) {
-      if (!this.enabled) {
-        return;
-      }
-      if (this.isSelected) {
-        return;
-      }
-      if (process.browser) {
-        const answersList = document.querySelectorAll(".answer-label");
-        // set selected
-        answersList[i].classList.remove("normal");
-        answersList[i].classList.add("selected");
-        setTimeout(() => {
-          // show correct
-          this.answersData.forEach((ans, index) => {
-            answersList[index].classList.remove("normal");
-            answersList[index].classList.remove("selected");
+    getLabelClass(i) {
+      const answer = this.answersData[i];
 
-            if (ans.isCorrect) {
-              answersList[index].classList.add("correct");
-            } else {
-              answersList[index].classList.add("incorrect");
-            }
-          });
-        }, 500);
+      // ── showCorrect mode (host scoreboard / after results:shown) ──
+      // Only show correct/incorrect when explicitly told to reveal answers
+      if (this.showCorrect) {
+        return answer.isCorrect ? 'correct' : 'incorrect';
       }
-      this.isSelected = true;
+
+      // ── Player has selected an answer ──
+      if (this.selectedIndex === i) {
+        // Selected item → just show as "selected" (purple)
+        // Don't reveal correct/incorrect until showCorrect is true
+        return 'selected';
+      }
+
+      // ── No selection yet, or other answers after selection ──
+      // Only show correct/incorrect for non-selected answers if showCorrect is active
+      // (which is handled above). Otherwise just show normal.
+      return 'normal';
+    },
+
+    selectAnswer(i) {
+      if (!this.enabled) return;
+      if (this.selectedIndex !== -1) return;
+      this.selectedIndex = i;
+      this.$emit("answer-selected", this.answersData[i]);
     },
   },
 };

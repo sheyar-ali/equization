@@ -1,25 +1,28 @@
 const rateLimit = require('express-rate-limit');
 
-// General API rate limiter
-exports.apiLimiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: 'Too many requests from this IP, please try again later',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Auth endpoints rate limiter (stricter)
-exports.authLimiter = rateLimit({
+// ── General API limiter ───────────────────────────────────────────────────────
+exports.generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 requests per window
-  skipSuccessfulRequests: true,
-  message: 'Too many authentication attempts, please try again later'
+  max:      200,
+  message: { success: false, message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders:   false
 });
 
-// Email sending rate limiter
+// ── Auth endpoints limiter (stricter) ─────────────────────────────────────────
+exports.authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max:      10,
+  message: { success: false, message: 'Too many authentication attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders:   false
+});
+
+// ── Email sending limiter ─────────────────────────────────────────────────────
 exports.emailLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 emails per hour
-  message: 'Too many email requests, please try again later'
+  max:      5,
+  message: { success: false, message: 'Too many email requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders:   false
 });

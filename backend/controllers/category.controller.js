@@ -1,126 +1,75 @@
 const Category = require('../models/Category.model');
 const { successResponse, errorResponse } = require('../utils/response.util');
 
-// @desc    Get all categories
-// @route   GET /api/v1/categories
-// @access  Public
+// ── Get all categories ────────────────────────────────────────────────────────
+// GET /api/v1/categories
 exports.getAllCategories = async (req, res, next) => {
   try {
-    const { isActive = true } = req.query;
-
-    const query = isActive !== 'all' ? { isActive: isActive === 'true' } : {};
-
-    const categories = await Category.find(query).sort({ 'name.en': 1 });
-
-    successResponse(res, 200, 'Categories retrieved successfully', { categories });
-  } catch (error) {
-    next(error);
-  }
+    const categories = await Category.find({ isActive: true }).sort({ quizCount: -1 });
+    return successResponse(res, 200, 'Categories retrieved successfully', { categories });
+  } catch (err) { next(err); }
 };
 
-// @desc    Get category by ID or slug
-// @route   GET /api/v1/categories/:identifier
-// @access  Public
+// ── Get popular categories ────────────────────────────────────────────────────
+// GET /api/v1/categories/popular
+exports.getPopularCategories = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const categories = await Category.find({ isActive: true, quizCount: { $gt: 0 } })
+      .sort({ quizCount: -1 })
+      .limit(limit);
+    return successResponse(res, 200, 'Popular categories retrieved', { categories });
+  } catch (err) { next(err); }
+};
+
+// ── Get category by ID or slug ────────────────────────────────────────────────
+// GET /api/v1/categories/:identifier
 exports.getCategoryByIdentifier = async (req, res, next) => {
   try {
     const { identifier } = req.params;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+    const category = isObjectId
+      ? await Category.findById(identifier)
+      : await Category.findOne({ slug: identifier });
 
-    // Try to find by ID first, then by slug
-    let category = await Category.findById(identifier);
-
-    if (!category) {
-      category = await Category.findOne({ slug: identifier });
-    }
-
-    if (!category) {
-      return errorResponse(res, 404, 'Category not found');
-    }
-
-    successResponse(res, 200, 'Category retrieved successfully', { category });
-  } catch (error) {
-    next(error);
-  }
+    if (!category) return errorResponse(res, 404, 'Category not found');
+    return successResponse(res, 200, 'Category retrieved', { category });
+  } catch (err) { next(err); }
 };
 
-// @desc    Create new category
-// @route   POST /api/v1/categories
-// @access  Private (Admin only)
+// ── Create category (Admin) ───────────────────────────────────────────────────
+// POST /api/v1/categories
 exports.createCategory = async (req, res, next) => {
   try {
     const { name, slug, description, icon, color } = req.body;
 
-    const category = await Category.create({
-      name,
-      slug,
-      description,
-      icon,
-      color
-    });
+    const existing = await Category.findOne({ slug: slug.toLowerCase() });
+    if (existing) return errorResponse(res, 400, 'Category with this slug already exists');
 
-    successResponse(res, 201, 'Category created successfully', { category });
-  } catch (error) {
-    next(error);
-  }
+    const category = await Category.create({ name, slug, description, icon, color });
+    return successResponse(res, 201, 'Category created successfully', { category });
+  } catch (err) { next(err); }
 };
 
-// @desc    Update category
-// @route   PUT /api/v1/categories/:id
-// @access  Private (Admin only)
+// ── Update category (Admin) ───────────────────────────────────────────────────
+// PUT /api/v1/categories/:id
 exports.updateCategory = async (req, res, next) => {
   try {
-    let category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return errorResponse(res, 404, 'Category not found');
-    }
-
-    category = await Category.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
-
-    successResponse(res, 200, 'Category updated successfully', { category });
-  } catch (error) {
-    next(error);
-  }
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, runValidators: true
+    });
+    if (!category) return errorResponse(res, 404, 'Category not found');
+    return successResponse(res, 200, 'Category updated successfully', { category });
+  } catch (err) { next(err); }
 };
 
-// @desc    Delete category
-// @route   DELETE /api/v1/categories/:id
-// @access  Private (Admin only)
+// ── Delete category (Admin) ───────────────────────────────────────────────────
+// DELETE /api/v1/categories/:id
 exports.deleteCategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-
-    if (!category) {
-      return errorResponse(res, 404, 'Category not found');
-    }
-
+    if (!category) return errorResponse(res, 404, 'Category not found');
     await category.deleteOne();
-
-    successResponse(res, 200, 'Category deleted successfully');
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get popular categories (with most quizzes)
-// @route   GET /api/v1/categories/popular
-// @access  Public
-exports.getPopularCategories = async (req, res, next) => {
-  try {
-    const limit = parseInt(req.query.limit) || 10;
-
-    const categories = await Category.find({ isActive: true })
-      .sort({ quizCount: -1 })
-      .limit(limit);
-
-    successResponse(res, 200, 'Popular categories retrieved successfully', { categories });
-  } catch (error) {
-    next(error);
-  }
+    return successResponse(res, 200, 'Category deleted successfully');
+  } catch (err) { next(err); }
 };

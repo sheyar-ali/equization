@@ -6,7 +6,15 @@ import tr from "./locales/tr.json";
 
 export default {
   // Target: https://go.nuxtjs.dev/config-target
+  // Using spa mode to reduce memory usage during build
+  ssr: false,
   target: "static",
+
+  // Server configuration - listen on all interfaces for sandbox access
+  server: {
+    host: '0.0.0.0',
+    port: 3000
+  },
 
   router: {
     // base: process.env.NODE_ENV === "dev" ? "/" : "/demo/equization/",
@@ -107,6 +115,7 @@ export default {
     { src: "~/plugins/TiptapVuetify", ssr: false },
     { src: "~/plugins/axios.js" },
     { src: "~/plugins/api.js" },
+    { src: "~/plugins/auth.client.js", mode: 'client' },
     { src: "~/plugins/socket.client.js", mode: 'client' },
   ],
 
@@ -159,10 +168,17 @@ export default {
     },
   },
 
+  // تعريف متغيرات البيئة المتاحة للـ client
+  env: {
+    API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:5000',
+  },
+
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
-    credentials: true,
+    browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    credentials: false,
     headers: {
       common: {
         'Accept': 'application/json',
@@ -220,5 +236,8 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify"],
+    parallel: false,
+    cache: false,
+    hardSource: false,
   },
 };
