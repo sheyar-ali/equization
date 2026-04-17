@@ -1,8 +1,10 @@
-.DS_Store
-node_modules
-/dist
-.nuxt
-
+.env
+.env.local
+backend/.env
+backend/data/
+node_modules/
+dist/
+.nuxt/
 
 # local env files
 .env.local
