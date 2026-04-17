@@ -35,7 +35,9 @@ export default {
   mounted() {
     if (!process.client) return;
     const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-    this.quizTitle = gs.quizTitle || '';
+    this.quizTitle   = gs.quizTitle   || '';
+    // Init from join ack so the count is correct immediately
+    this.playersCount = gs.playerCount || 1;
 
     // تأكد من اتصال الـ socket
     if (this.$socket) {
@@ -67,10 +69,17 @@ export default {
 
       socket.on('player:joined', (data) => {
         this.playersCount = data.totalPlayers || this.playersCount;
+        // Persist so refreshed pages see the right count
+        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.playerCount = this.playersCount;
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
       });
 
       socket.on('player:left', (data) => {
         this.playersCount = data.totalPlayers || this.playersCount;
+        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.playerCount = this.playersCount;
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
       });
 
       socket.on('game:started', (data) => {
@@ -90,6 +99,7 @@ export default {
         gs.timer          = data.timeLimit || 30;
         gs.questionId     = data.questionId;
         gs.answers        = data.answers || [];
+        gs.startedAt      = data.startedAt || Date.now(); // تزامن التوقيت
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
       });

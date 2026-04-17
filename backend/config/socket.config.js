@@ -277,6 +277,8 @@ module.exports = (io) => {
           isCorrect: a.isCorrect || false
         }));
 
+        const questionStartedAt = Date.now(); // server timestamp for sync
+
         const questionDataForPlayers = {
           questionIndex,
           totalQuestions:  session.quiz.questions.length,
@@ -286,7 +288,8 @@ module.exports = (io) => {
           questionType:    question.questionType,
           answers:         sanitizedAnswers,
           timeLimit:       question.timeLimit,
-          points:          question.points
+          points:          question.points,
+          startedAt:       questionStartedAt  // توقيت بداية السؤال للتزامن
         };
 
         // Broadcast to players (without isCorrect)

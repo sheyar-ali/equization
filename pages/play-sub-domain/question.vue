@@ -15,9 +15,9 @@
             <img :src="questionImage" alt="question-img" />
           </div>
 
-          <!-- Answer feedback badge (shown after answering) -->
-          <div v-if="answered && !resultsReceived" class="answered-badge text-center mb-2">
-            <template v-if="timeExpired && lastPoints === 0 && !lastCorrect">
+          <!-- Answer feedback badge (shown ONLY after server callback received) -->
+          <div v-if="answerSubmitted && !resultsReceived" class="answered-badge text-center mb-2">
+            <template v-if="timeExpired">
               <v-chip color="orange" dark large class="px-6">
                 <v-icon left>mdi-clock-alert-outline</v-icon>
                 انتهى الوقت! في انتظار النتائج...
@@ -62,7 +62,7 @@ export default {
       questionIndex: 0, totalQuestions: 0,
       questionText: '', questionImage: '', isMulti: false,
       answers: [], seconds: 30, timerValue: 100, score: 0,
-      answered: false, lastCorrect: false, lastPoints: 0,
+      answered: false, answerSubmitted: false, lastCorrect: false, lastPoints: 0,
       timeExpired: false, resultsReceived: false,
       interval: null, answerStartTime: 0,
     };
@@ -76,21 +76,41 @@ export default {
     this.totalQuestions  = gs.totalQuestions  || 0;
     this.questionText    = gs.questionText    || '';
     this.questionImage   = gs.questionImage   || '';
-    this.seconds         = gs.timer           || 30;
     this.score           = gs.score           || 0;
     this.questionId      = gs.questionId      || '';
     this.answers = (gs.answers || []).map(a => ({ ansText: a.text || '', imageUrl: a.image || '', _id: a._id, isCorrect: false, points: 0 }));
+
+    // ── حساب الوقت المتبقي الفعلي (تزامن مع المستضيف) ──────────────────────
+    // startedAt = timestamp بداية السؤال من السيرفر
+    // host/standby = 5 ثواني عد تنازلي ثم ينتقل لسؤال المستضيف
+    // عادل: لحظة بداية السؤال = startedAt + 5000ms
+    const rawTimer   = gs.timer || 30;
+    const startedAt  = gs.startedAt || 0;
+    const STANDBY_MS = 5000;
+    let effectiveSeconds = rawTimer;
+    if (startedAt > 0) {
+      const questionBeganAt = startedAt + STANDBY_MS; // توقيت بداية السؤال الفعلي
+      const elapsed = Math.max(0, Date.now() - questionBeganAt);
+      effectiveSeconds = Math.max(1, rawTimer - Math.floor(elapsed / 1000));
+    }
+    this.seconds = effectiveSeconds;
+    this.timerValue = (effectiveSeconds / rawTimer) * 100;
     this.answerStartTime = Date.now();
 
+    // الـ interval يتناقص بناءً على rawTimer الأصلي وليس الـ seconds المُعدَّلة
+    const tickStep = 100 / (rawTimer * 5); // كل 200ms
     this.interval = setInterval(() => {
       if (this.timerValue > 0) {
-        this.timerValue -= 100 / (this.seconds * 5);
+        this.timerValue = Math.max(0, this.timerValue - tickStep);
+        // تحديث seconds للعرض بناءً على timerValue
+        this.seconds = Math.ceil((this.timerValue / 100) * rawTimer);
       } else {
         clearInterval(this.interval);
         // انتهى الوقت - انتظر النتائج من المستضيف (results:shown)
         // لا تنتقل مباشرة، بل انتظر 5 ثواني كحد أقصى
         if (!this.answered) {
-          this.answered = true; // امنع الإجابة
+          this.answered = true;
+          this.answerSubmitted = true; // انتهى الوقت → أظهر badge فوراً
           this.timeExpired = true;
           setTimeout(() => {
             // إذا لم يصل results:shown بعد 5 ثواني، انتقل للنتائج
@@ -155,11 +175,15 @@ export default {
       const selectedAnswers = Array.isArray(selected) ? selected.map(a => a._id) : [selected._id];
       this.$socket?.submitAnswer({ sessionCode: this.sessionCode, questionId: this.questionId, selectedAnswers, timeSpent }, (res) => {
         if (res?.success) {
-          this.lastCorrect = res.isCorrect; this.lastPoints = res.points || 0; this.score = res.totalScore || this.score;
+          this.lastCorrect = res.isCorrect;
+          this.lastPoints  = res.points || 0;
+          this.score       = res.totalScore || this.score;
           const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
           s.score = this.score;
           sessionStorage.setItem('playerGameState', JSON.stringify(s));
         }
+        // Show badge AFTER server confirms (no flash of wrong color)
+        this.answerSubmitted = true;
       });
     },
   },

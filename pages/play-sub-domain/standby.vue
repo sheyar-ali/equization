@@ -37,10 +37,37 @@ export default {
     this.timer          = gs.timer          || 30;
     this.score          = gs.score          || 0;
 
+    // ── تحديد وقت العد التنازلي بناءً على startedAt من الـ server ──────────
+    // المستضيف يبدأ عداد 5 ثوانٍ ثم ينتقل لصفحة السؤال
+    // اللاعب يجب أن ينتقل في نفس اللحظة التي ينتقل فيها المستضيف
+    // نستخدم startedAt (timestamp من server) + 5000ms كنقطة الانتقال
+    const STANDBY_DURATION = 5000; // 5 ثوانٍ كما في host/standby.vue
+    const startedAt = gs.startedAt || 0;
+    let countdownMs = STANDBY_DURATION;
+
+    if (startedAt > 0) {
+      const elapsed = Date.now() - startedAt;
+      countdownMs = Math.max(0, STANDBY_DURATION - elapsed);
+    }
+
+    // حساب الثواني المتبقية (للعرض فقط)
+    this.seconds = Math.ceil(countdownMs / 1000);
+    if (this.seconds < 1) {
+      // وقت العد التنازلي انقضى → انتقل فوراً
+      this.$router.push(this.localePath('/play-sub-domain/question'));
+      return;
+    }
+
     this.interval = setInterval(() => {
       if (this.seconds > 0) { this.seconds -= 1; }
       else { clearInterval(this.interval); this.$router.push(this.localePath('/play-sub-domain/question')); }
     }, 1000);
+
+    // انتقل بدقة عند انتهاء الوقت الفعلي (وليس بالثواني الكاملة فقط)
+    setTimeout(() => {
+      if (this.interval) { clearInterval(this.interval); }
+      this.$router.push(this.localePath('/play-sub-domain/question'));
+    }, countdownMs);
   },
   beforeDestroy() { if (this.interval) clearInterval(this.interval); },
   components: { QuestionHeader },

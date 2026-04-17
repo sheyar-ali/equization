@@ -112,6 +112,7 @@ export default {
               totalQuestions: 0,
               score:          0,
               quizTitle:      res.quizTitle || '',
+              playerCount:    res.playerCount || 1,
             }));
 
             // Listen for game events (will be cleaned up in beforeDestroy)
@@ -133,6 +134,7 @@ export default {
               gs.timer          = data.timeLimit || 30;
               gs.questionId     = data.questionId;
               gs.answers        = data.answers || [];
+              gs.startedAt      = data.startedAt || Date.now(); // تزامن التوقيت
               sessionStorage.setItem('playerGameState', JSON.stringify(gs));
               this.$router.push(this.localePath('/play-sub-domain/standby'));
             });
