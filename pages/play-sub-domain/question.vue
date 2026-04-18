@@ -156,6 +156,8 @@ export default {
         s.questionIndex = data.questionIndex; s.questionText = data.questionText;
         s.questionImage = data.questionImage || ''; s.timer = data.timeLimit || 30;
         s.questionId = data.questionId; s.answers = data.answers || [];
+        s.startedAt = data.startedAt || Date.now();  // ✅ تزامن مع المستضيف
+        s.totalQuestions = data.totalQuestions || s.totalQuestions;
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
       });

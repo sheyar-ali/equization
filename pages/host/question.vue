@@ -4,7 +4,7 @@
     <v-container fluid>
       <div class="play-page-container">
         <QuestionHostHeader
-          :timer="timer"
+          :timer="seconds"
           :QuestionOrder="questionIndex + 1"
           :Questions="totalQuestions"
           :answers="answeredCount"
@@ -62,10 +62,12 @@ export default {
       answers:        [],
       timer:          30,
       timerValue:     100,
+      seconds:        30,  // الثواني المعروضة
       answeredCount:  0,
       playersCount:   0,
       interval:       null,
       resultsShowing: false,  // منع استدعاء showResults مرتين
+      questionEndsAt: 0,      // توقيت نهاية السؤال (startedAt + STANDBY_MS + timer*1000)
     };
   },
 
@@ -80,6 +82,7 @@ export default {
     this.questionText    = gameState.questionText    || '';
     this.questionImage   = gameState.questionImage   || '';
     this.timer           = gameState.timer           || 30;
+    this.seconds         = this.timer;
     this.playersCount    = gameState.playersCount    || 0;
 
     // Format answers for display
@@ -93,28 +96,42 @@ export default {
       points:    a.isCorrect ? 100 : 0,
     }));
 
-    // Timer countdown - عند الانتهاء يُظهر النتائج تلقائياً
-    this.interval = setInterval(() => {
-      if (this.timerValue > 0) {
-        this.timerValue -= 100 / (this.timer * 5);
-      } else {
-        clearInterval(this.interval);
-        // انتظر ثانية ثم أظهر النتائج تلقائياً
-        setTimeout(() => this.showResults(), 1000);
-      }
-    }, 200);
+    // ── حساب نهاية السؤال بشكل متزامن مع اللاعبين ──
+    // startedAt = توقيت إرسال السؤال من السيرفر
+    // نهاية السؤال = startedAt + STANDBY_MS (5s) + timer*1000
+    const STANDBY_MS = 5000;
+    const startedAt  = gameState.startedAt || Date.now();
+    this.questionEndsAt = startedAt + STANDBY_MS + (this.timer * 1000);
+
+    // اضبط timerValue و seconds بناءً على الوقت المتبقي الفعلي
+    const remainingMs = Math.max(0, this.questionEndsAt - Date.now());
+    this.seconds      = Math.max(0, Math.ceil(remainingMs / 1000));
+    this.timerValue   = (remainingMs / (this.timer * 1000)) * 100;
 
     // ── إذا أجاب الجميع أثناء standby (allAnsweredEarly flag) → عرض النتائج فوراً ──
     if (gameState.allAnsweredEarly) {
       // امسح الـ flag لئلا يتكرر في الأسئلة التالية
       gameState.allAnsweredEarly = false;
       sessionStorage.setItem('gameState', JSON.stringify(gameState));
-      clearInterval(this.interval);
       this.timerValue = 0;
+      this.seconds    = 0;
       // انتظر نصف ثانية لضمان تحميل الصفحة كاملاً ثم أظهر النتائج
       setTimeout(() => this.showResults(), 500);
       return; // لا حاجة لإعداد مستمعي السوكيت للحالة العادية
     }
+
+    // Timer countdown متزامن — يعتمد على Date.now() - questionEndsAt
+    this.interval = setInterval(() => {
+      const r = Math.max(0, this.questionEndsAt - Date.now());
+      this.seconds    = Math.max(0, Math.ceil(r / 1000));
+      this.timerValue = (r / (this.timer * 1000)) * 100;
+      if (r <= 0) {
+        clearInterval(this.interval);
+        this.timerValue = 0;
+        // انتظر ثانية ثم أظهر النتائج تلقائياً
+        setTimeout(() => this.showResults(), 1000);
+      }
+    }, 200);
 
     // Listen for player answers
     const socket = this.$socket?.getSocket?.();
@@ -131,6 +148,7 @@ export default {
         this.playersCount  = data.totalPlayers  || this.playersCount;
         clearInterval(this.interval);  // أوقف العداد
         this.timerValue = 0;           // أظهر الشريط فارغاً
+        this.seconds    = 0;
         // استدعِ showResults فوراً بدون انتظار العداد
         this.showResults();
       });
