@@ -27,6 +27,12 @@ module.exports = (io) => {
   // socketId → { sessionCode, playerId, role: 'host'|'player' }
   const socketMeta = new Map();
 
+  // ✅ Fix #2: playerId → { timer, sessionCode, socketId } — grace period before marking inactive
+  const disconnectTimers = new Map();
+  // ✅ Fix #3: sessionCode → setTimeout ID — server-side question timeout
+  const questionTimers = new Map();
+  const RECONNECT_GRACE_MS = 15000; // 15 seconds grace period
+
   // ────────────────────────────────────────────────────────────────────────────
   io.on('connection', (socket) => {
     console.log(`[Socket] ✅ Connected: ${socket.id}`);
@@ -207,8 +213,14 @@ module.exports = (io) => {
     socket.on('host:start-game', async ({ sessionCode } = {}, ack) => {
       try {
         const code    = sessionCode?.toUpperCase();
-        const session = await GameSession.findOne({ sessionCode: code });
+        const mem     = activeSessions.get(code);
 
+        // ✅ Fix #5: Host Ownership Check
+        if (!mem || mem.hostSocketId !== socket.id) {
+          return ack?.({ success: false, message: 'Unauthorized: Only the host can start the game' });
+        }
+
+        const session = await GameSession.findOne({ sessionCode: code });
         if (!session)
           return ack?.({ success: false, message: 'Session not found' });
 
@@ -219,7 +231,6 @@ module.exports = (io) => {
         session.startedAt = new Date();
         await session.save();
 
-        const mem = activeSessions.get(code);
         if (mem) mem.answeredCount = 0;
 
         // ✅ إرسال startedAt حتى يتزامن المستضيف واللاعبين في الانتقال لأول سؤال
@@ -245,6 +256,11 @@ module.exports = (io) => {
       try {
         const code = sessionCode?.toUpperCase();
         const mem  = activeSessions.get(code);
+
+        // ✅ Fix #5: Host Ownership Check
+        if (!mem || mem.hostSocketId !== socket.id) {
+          return ack?.({ success: false, message: 'Unauthorized: Only the host can send questions' });
+        }
 
         const session = await GameSession.findOne({ sessionCode: code })
           .populate({ path: 'quiz', populate: { path: 'questions', options: { sort: { order: 1 } } } });
@@ -281,6 +297,15 @@ module.exports = (io) => {
 
         const questionStartedAt = Date.now(); // server timestamp for sync
 
+        // ✅ Fix #3: Server-side question timeout
+        // Automatically trigger results if no one answers within timeLimit + buffer
+        if (questionTimers.has(code)) clearTimeout(questionTimers.get(code));
+        const timerId = setTimeout(() => {
+          console.log(`[Socket] ⏰ Question timeout in ${code} — auto-notifying host`);
+          socket.emit('question:timeout', { questionIndex });
+        }, (question.timeLimit * 1000) + 2000); // 2s buffer
+        questionTimers.set(code, timerId);
+
         const questionDataForPlayers = {
           questionIndex,
           totalQuestions:  session.quiz.questions.length,
@@ -314,99 +339,101 @@ module.exports = (io) => {
     // ── 5. PLAYER: Submit answer ──────────────────────────────────────────────
     // Emit: player:submit-answer { sessionCode, questionId, selectedAnswers[], timeSpent }
     // ACK:  { success, isCorrect, points, totalScore }
-    socket.on('player:submit-answer', async ({ sessionCode, questionId, selectedAnswers, timeSpent } = {}, ack) => {
+    socket.on('player:submit-answer', async ({ questionId, selectedAnswers, timeSpent } = {}, ack) => {
       try {
-        const code    = sessionCode?.toUpperCase();
-        const meta    = socketMeta.get(socket.id);
-        if (!meta || !meta.playerId)
-          return ack?.({ success: false, message: 'Player not found in session' });
+        const meta = socketMeta.get(socket.id);
+        if (!meta || !meta.sessionCode) {
+          return ack?.({ success: false, message: 'Session meta not found' });
+        }
+
+        const code = meta.sessionCode;
+        const mem  = activeSessions.get(code);
+        if (!mem) return ack?.({ success: false, message: 'Session not active' });
 
         const session = await GameSession.findOne({ sessionCode: code })
           .populate({ path: 'quiz', populate: { path: 'questions' } });
 
-        if (!session)
-          return ack?.({ success: false, message: 'Session not found' });
+        if (!session) return ack?.({ success: false, message: 'Session not found' });
 
         const player = session.players.id(meta.playerId);
-        if (!player)
-          return ack?.({ success: false, message: 'Player record not found' });
+        if (!player) return ack?.({ success: false, message: 'Player record not found' });
 
         // Prevent duplicate answer for same question
-        const alreadyAnswered = player.answers.some(
-          a => a.question?.toString() === questionId
-        );
-        if (alreadyAnswered)
-          return ack?.({ success: false, message: 'Already answered this question' });
+        const alreadyAnswered = player.answers.some(a => a.question?.toString() === questionId);
+        if (alreadyAnswered) return ack?.({ success: false, message: 'Already answered this question' });
 
-        // Find question
         const question = session.quiz.questions.find(q => q._id.toString() === questionId);
-        if (!question)
-          return ack?.({ success: false, message: 'Question not found' });
+        if (!question) return ack?.({ success: false, message: 'Question not found' });
 
-        // ── Score calculation ─────────────────────────────────────────────────
+        // ✅ Fix #7: Clamp timeSpent
+        const maxTimeMs = question.timeLimit * 1000;
+        const clampedTimeSpent = Math.max(0, Math.min(timeSpent || 0, maxTimeMs));
+
+        // Calculate points
         const correctIds  = question.answers.filter(a => a.isCorrect).map(a => a._id.toString());
         const selectedIds = (selectedAnswers || []).map(id => id.toString());
 
-        const isCorrect =
-          correctIds.length === selectedIds.length &&
-          correctIds.every(id => selectedIds.includes(id));
+        const isCorrect = correctIds.length === selectedIds.length &&
+                          correctIds.every(id => selectedIds.includes(id));
 
         let points = 0;
         if (isCorrect) {
-          // Time bonus: faster → more points (min 50% of question points)
-          const timeLimitMs    = question.timeLimit * 1000;
-          const elapsed        = Math.min(timeSpent, timeLimitMs);
-          const timeRatio      = 1 - (elapsed / timeLimitMs) * 0.5;
-          points               = Math.round(question.points * timeRatio);
-          player.score        += points;
+          const timeRatio = 1 - (clampedTimeSpent / maxTimeMs) * 0.5;
+          points = Math.round(question.points * timeRatio);
         }
 
-        player.answers.push({
-          question:        question._id,
-          selectedAnswers: selectedAnswers || [],
+        // ✅ Fix #8: Atomic DB Update
+        await GameSession.updateOne(
+          { sessionCode: code, "players.socketId": socket.id },
+          {
+            $push: {
+              "players.$.answers": {
+                question: questionId,
+                selectedAnswers: selectedAnswers || [],
+                isCorrect,
+                timeSpent: clampedTimeSpent,
+                points,
+                answeredAt: new Date()
+              }
+            },
+            $inc: { "players.$.score": points }
+          }
+        );
+
+        // Update in-memory answeredCount
+        mem.answeredCount = (mem.answeredCount || 0) + 1;
+
+        // Notify host about progress
+        const activePlayers = session.players.filter(p => p.isActive).length;
+        io.to(mem.hostSocketId).emit('player:answered', {
+          playerId:      player._id,
+          playerName:    player.name,
           isCorrect,
-          timeSpent,
           points,
-          answeredAt: new Date()
+          totalScore:    player.score + points,
+          answeredCount: mem.answeredCount,
+          totalPlayers:  activePlayers
         });
 
-        await session.save();
-
-        // ── Track answered count, notify host ─────────────────────────────────
-        const mem = activeSessions.get(code);
-        if (mem) {
-          mem.answeredCount = (mem.answeredCount || 0) + 1;
-          const activePlayers = session.players.filter(p => p.isActive).length;
-
-          // Notify host about this answer
-          io.to(mem.hostSocketId).emit('player:answered', {
-            playerId:      player._id,
-            playerName:    player.name,
-            isCorrect,
-            points,
-            totalScore:    player.score,
+        // ✅ Fix #3: If all active players answered, clear timeout and notify host
+        if (mem.answeredCount >= activePlayers && activePlayers > 0) {
+          if (questionTimers.has(code)) {
+            clearTimeout(questionTimers.get(code));
+            questionTimers.delete(code);
+          }
+          console.log(`[Socket] ✅ All ${activePlayers} players answered in ${code} — triggering auto show-results`);
+          io.to(mem.hostSocketId).emit('all:answered', {
+            sessionCode:   code,
             answeredCount: mem.answeredCount,
             totalPlayers:  activePlayers
           });
-
-          // ── Auto show results when ALL active players have answered ──────────
-          if (mem.answeredCount >= activePlayers && activePlayers > 0) {
-            console.log(`[Socket] ✅ All ${activePlayers} players answered in ${code} — triggering auto show-results`);
-            io.to(mem.hostSocketId).emit('all:answered', {
-              sessionCode:   code,
-              answeredCount: mem.answeredCount,
-              totalPlayers:  activePlayers
-            });
-          }
         }
-
-        console.log(`[Socket] ✏️ ${player.name} answered Q${session.currentQuestionIndex + 1} → ${isCorrect ? '✅' : '❌'} ${points}pts`);
 
         ack?.({
           success:    true,
           isCorrect,
           points,
-          totalScore: player.score
+          totalScore: player.score + points
         });
 
       } catch (err) {
@@ -421,6 +448,19 @@ module.exports = (io) => {
     socket.on('host:show-results', async ({ sessionCode, questionIndex } = {}, ack) => {
       try {
         const code    = sessionCode?.toUpperCase();
+        const mem     = activeSessions.get(code);
+
+        // ✅ Fix #5: Host Ownership Check
+        if (!mem || mem.hostSocketId !== socket.id) {
+          return ack?.({ success: false, message: 'Unauthorized: Only the host can show results' });
+        }
+
+        // ✅ Fix #3: Clear server-side timer if manual results shown
+        if (questionTimers.has(code)) {
+          clearTimeout(questionTimers.get(code));
+          questionTimers.delete(code);
+        }
+
         const session = await GameSession.findOne({ sessionCode: code })
           .populate({ path: 'quiz', populate: { path: 'questions', options: { sort: { order: 1 } } } });
 
@@ -468,14 +508,30 @@ module.exports = (io) => {
     socket.on('host:end-game', async ({ sessionCode } = {}, ack) => {
       try {
         const code    = sessionCode?.toUpperCase();
-        const session = await GameSession.findOne({ sessionCode: code });
+        const mem     = activeSessions.get(code);
 
+        // ✅ Fix #5: Host Ownership Check
+        if (!mem || mem.hostSocketId !== socket.id) {
+          return ack?.({ success: false, message: 'Unauthorized: Only the host can end the game' });
+        }
+
+        const session = await GameSession.findOne({ sessionCode: code });
         if (!session)
           return ack?.({ success: false, message: 'Session not found' });
 
         session.status      = 'completed';
         session.completedAt = new Date();
         await session.save();
+
+        // ✅ Fix #10: Memory Cleanup
+        for (const [sid, meta] of socketMeta.entries()) {
+          if (meta.sessionCode === code) socketMeta.delete(sid);
+        }
+        activeSessions.delete(code);
+        if (questionTimers.has(code)) {
+          clearTimeout(questionTimers.get(code));
+          questionTimers.delete(code);
+        }
 
         // ── Save play history for each player ─────────────────────────────────
         const historyPromises = session.players.map(player => {
@@ -555,6 +611,13 @@ module.exports = (io) => {
     socket.on('host:kick-player', async ({ sessionCode, playerId } = {}, ack) => {
       try {
         const code    = sessionCode?.toUpperCase();
+        const mem     = activeSessions.get(code);
+
+        // ✅ Fix #5: Host Ownership Check
+        if (!mem || mem.hostSocketId !== socket.id) {
+          return ack?.({ success: false, message: 'Unauthorized' });
+        }
+
         const session = await GameSession.findOne({ sessionCode: code });
         if (!session) return ack?.({ success: false, message: 'Session not found' });
 
@@ -582,43 +645,76 @@ module.exports = (io) => {
     });
 
     // ── Disconnection handler ─────────────────────────────────────────────────
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', () => {
       console.log(`[Socket] ❌ Disconnected: ${socket.id}`);
+
       const meta = socketMeta.get(socket.id);
       if (!meta) return;
 
-      const { sessionCode, playerId, role } = meta;
-      socketMeta.delete(socket.id);
-
-      if (!sessionCode) return;
-      const code = sessionCode.toUpperCase();
-
-      if (role === 'player') {
-        try {
-          const session = await GameSession.findOne({ sessionCode: code });
-          if (!session || session.status === 'completed') return;
-
-          const player = session.players.id(playerId);
-          if (player) {
-            player.isActive = false;
-            await session.save();
-
-            io.to(`session:${code}`).emit('player:left', {
-              playerId,
-              playerName:   player.name,
-              totalPlayers: session.players.filter(p => p.isActive).length
-            });
-          }
-        } catch (err) {
-          console.error('[Socket] disconnect player cleanup error:', err.message);
-        }
-      }
+      const { sessionCode, role, playerId } = meta;
 
       if (role === 'host') {
-        // Notify all players the host disconnected
-        io.to(`session:${code}`).emit('host:disconnected', {
-          message: 'Host has disconnected. The game may be paused.'
-        });
+        console.warn(`[Socket] ⚠️  Host disconnected from session ${sessionCode}`);
+      } else {
+        // ✅ Fix #2: Player Reconnection (Grace Period)
+        const mem = activeSessions.get(sessionCode);
+        if (mem) {
+          io.to(mem.hostSocketId).emit('player:temporarily-disconnected', { playerId });
+        }
+
+        const timer = setTimeout(async () => {
+          try {
+            await GameSession.updateOne(
+              { sessionCode, "players.socketId": socket.id },
+              { $set: { "players.$.isActive": false } }
+            );
+
+            if (mem) {
+              mem.playerCount = Math.max(0, (mem.playerCount || 1) - 1);
+              io.to(mem.hostSocketId).emit('player:left', { playerId });
+            }
+            disconnectTimers.delete(playerId);
+            socketMeta.delete(socket.id);
+          } catch (err) {
+            console.error('[Socket] disconnect grace period error:', err.message);
+          }
+        }, RECONNECT_GRACE_MS);
+
+        disconnectTimers.set(playerId, { timer, sessionCode, socketId: socket.id });
+      }
+    });
+
+    // ✅ Fix #2: Handle explicit player reconnection
+    socket.on('player:reconnect', async ({ sessionCode, playerId } = {}, ack) => {
+      try {
+        if (!sessionCode || !playerId) return ack?.({ success: false });
+
+        const disconnectData = disconnectTimers.get(playerId);
+        if (disconnectData && disconnectData.sessionCode === sessionCode) {
+          clearTimeout(disconnectData.timer);
+          disconnectTimers.delete(playerId);
+
+          socket.join(`session:${sessionCode}`);
+          socketMeta.set(socket.id, { sessionCode, playerId, role: 'player' });
+
+          await GameSession.updateOne(
+            { sessionCode, "players._id": playerId },
+            { $set: { "players.$.socketId": socket.id, "players.$.isActive": true } }
+          );
+
+          const mem = activeSessions.get(sessionCode);
+          if (mem) {
+            mem.playerCount = (mem.playerCount || 0) + 1;
+            io.to(mem.hostSocketId).emit('player:reconnected', { playerId, socketId: socket.id });
+          }
+
+          console.log(`[Socket] ♻️  Player ${playerId} reconnected successfully`);
+          ack?.({ success: true });
+        } else {
+          ack?.({ success: false, message: 'Grace period expired' });
+        }
+      } catch (err) {
+        ack?.({ success: false });
       }
     });
 
