@@ -244,12 +244,6 @@ export default {
         const code = this.session.sessionCode;
         const socket = this.$socket?.getSocket?.();
 
-        if (socket) {
-          socket.emit('host:start-game', { sessionCode: code }, (ack) => {
-            console.log('[Host] start-game ack:', ack);
-          });
-        }
-
         // حفظ بيانات الجلسة الكاملة في gameState
         const gameState = {
           sessionCode:    code,
@@ -263,11 +257,28 @@ export default {
           questionImage:  '',
           answers:        [],
           leaderboard:    [],
+          // ⬇️ علامة مهمة: host/standby سيُرسل السؤال الأول بنفسه
+          // (عند next-question من scoreboard ستكون false)
+          shouldSendQuestion: true,
         };
         sessionStorage.setItem('sessionCode', code);
         sessionStorage.setItem('gameState',   JSON.stringify(gameState));
 
-        this.$router.push(this.localePath('/host/standby'));
+        // ── استدعاء host:start-game ثم الانتقال بعد التأكد من النجاح ──
+        if (socket) {
+          socket.emit('host:start-game', { sessionCode: code }, (ack) => {
+            console.log('[Host] start-game ack:', ack);
+            if (ack?.success) {
+              this.$router.push(this.localePath('/host/standby'));
+            } else {
+              console.error('[Host] Failed to start game:', ack?.message);
+              this.error = ack?.message || 'فشل في بدء اللعبة';
+            }
+          });
+        } else {
+          // fallback إذا لم يوجد socket
+          this.$router.push(this.localePath('/host/standby'));
+        }
       } catch (e) {
         console.error('Start game error:', e);
       }

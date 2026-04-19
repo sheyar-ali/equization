@@ -198,7 +198,9 @@ export default {
         return;
       }
 
-      // Send next question via socket
+      // Send next question via socket, thumme navigate to standby.
+      // standby will NOT resend (shouldSendQuestion=false) because السيرفر
+      // قد أصدر بالفعل question:received لجميع أعضاء الغرفة.
       const socket = this.$socket?.getSocket?.();
       if (socket) {
         socket.emit('host:send-question',
@@ -207,14 +209,19 @@ export default {
             if (res?.success && res.question) {
               const q = res.question;
               const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-              gameState.questionIndex  = nextIndex;
-              gameState.questionText   = q.questionText;
-              gameState.questionImage  = q.questionImage || '';
-              gameState.timer          = q.timeLimit || 30;
-              gameState.answers        = q.answers || [];
-              gameState.fullAnswers    = q.fullAnswers || q.answers || [];
-              gameState.leaderboard    = [];
-              gameState.correctAnswers = [];
+              gameState.questionIndex      = nextIndex;
+              gameState.questionText       = q.questionText;
+              gameState.questionImage      = q.questionImage || '';
+              gameState.timer              = q.timeLimit || 30;
+              gameState.answers            = q.answers || [];
+              gameState.fullAnswers        = q.fullAnswers || q.answers || [];
+              gameState.questionId         = q.questionId || '';
+              gameState.startedAt          = q.startedAt || Date.now();
+              gameState.leaderboard        = [];
+              gameState.correctAnswers     = [];
+              gameState.allAnsweredEarly   = false;
+              // ⬇️ المستضيف أرسل السؤال هنا، لذا standby يجب ألا يُعيد إرساله
+              gameState.shouldSendQuestion = false;
               sessionStorage.setItem('gameState', JSON.stringify(gameState));
               this.$router.push(this.localePath('/host/standby'));
             } else {

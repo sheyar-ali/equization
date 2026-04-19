@@ -1,4 +1,4 @@
-<!-- Host Standby - Send question then countdown before question page -->
+<!-- Host Standby - Send question (if needed) then countdown synchronized with players -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>
@@ -40,12 +40,17 @@
 <script>
 import QuestionHostHeader from "@/components/PlayComponents/QuestionHostHeader";
 
+// ── ثابت مشترك بين المستضيف واللاعبين ──
+// مدة شاشة "Get Ready" قبل ظهور السؤال (بالميلي ثانية)
+const STANDBY_DURATION_MS = 5000;
+
 export default {
   layout: "play",
   head() { return { title: this.$t("ready.title") }; },
 
   data() {
     return {
+      sessionCode:     '',
       questionText:    '',
       seconds:         5,
       timer:           30,
@@ -55,27 +60,72 @@ export default {
       playersCount:    0,
       loadingQuestion: false,
       interval:        null,
+      exitTimeout:     null,
       allAnswered:     false,  // flag: جميع اللاعبين أجابوا أثناء العد التنازلي
+      navigated:       false,  // منع الانتقال المزدوج
     };
   },
 
   mounted() {
     if (!process.client) return;
 
-    const sessionCode = sessionStorage.getItem('sessionCode') || '';
-    const gameState   = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+    this.sessionCode   = sessionStorage.getItem('sessionCode') || '';
+    const gameState    = JSON.parse(sessionStorage.getItem('gameState') || '{}');
 
     this.questionIndex  = gameState.questionIndex  || 0;
     this.totalQuestions = gameState.totalQuestions || 0;
     this.timer          = gameState.timer          || 30;
     this.playersCount   = gameState.playersCount   || 0;
 
-    // إرسال السؤال عبر socket ← هذا هو الإصلاح الرئيسي
-    this.sendQuestion(sessionCode, this.questionIndex);
+    // ── إعداد المستمعين للـ socket قبل أي إرسال ──
+    this._setupSocketListeners();
 
-    // الاستماع لإجابات اللاعبين
-    const socket = this.$socket?.getSocket?.();
-    if (socket) {
+    // ── منطق محوري: المستضيف يُرسل السؤال فقط إذا كان `shouldSendQuestion = true` ──
+    // (من host/index.vue عند البدء، أو من host/scoreboard.vue عند "السؤال التالي")
+    if (gameState.shouldSendQuestion) {
+      // أزل العلامة لئلا يُرسَل مرتين
+      gameState.shouldSendQuestion = false;
+      sessionStorage.setItem('gameState', JSON.stringify(gameState));
+      this.sendQuestion(this.sessionCode, this.questionIndex);
+    } else {
+      // السؤال أُرسل مسبقاً (من scoreboard) — ابدأ العد التنازلي المتزامن
+      this._startSyncedCountdown(gameState.startedAt || Date.now());
+    }
+  },
+
+  methods: {
+    // ── إعداد المستمعين: question:received + all:answered ────────────────────
+    _setupSocketListeners() {
+      const socket = this.$socket?.getSocket?.();
+      if (!socket) return;
+
+      // ملاحظة: المستضيف أيضاً يستلم question:received من السيرفر
+      // لأنه عضو في نفس الغرفة. نستخدم startedAt منه للتزامن.
+      socket.off('question:received');
+      socket.off('player:answered');
+      socket.off('all:answered');
+
+      socket.on('question:received', (data) => {
+        console.log('[Host Standby] question:received', data);
+        const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+        gs.questionIndex  = data.questionIndex;
+        gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
+        gs.questionText   = data.questionText;
+        gs.questionImage  = data.questionImage || '';
+        gs.timer          = data.timeLimit || 30;
+        gs.questionId     = data.questionId;
+        gs.answers        = data.answers || [];        // للاعبين (بدون isCorrect) — احتياطياً
+        gs.startedAt      = data.startedAt || Date.now();
+        sessionStorage.setItem('gameState', JSON.stringify(gs));
+
+        this.questionText  = data.questionText;
+        this.questionIndex = data.questionIndex;
+        this.timer         = data.timeLimit || 30;
+
+        // ابدأ العد التنازلي المتزامن من نفس startedAt الذي يستخدمه اللاعبون
+        this._startSyncedCountdown(gs.startedAt);
+      });
+
       socket.on('player:answered', (data) => {
         this.answeredCount = data.answeredCount || 0;
         this.playersCount  = data.totalPlayers  || this.playersCount;
@@ -83,32 +133,30 @@ export default {
 
       // ── إذا أجاب جميع اللاعبين أثناء العد التنازلي → تخطّ إلى النتائج فوراً ──
       socket.on('all:answered', (data) => {
-        console.log('[Host Standby] All players answered — skipping countdown, going to question page immediately');
+        console.log('[Host Standby] All players answered — skipping countdown');
         this.allAnswered   = true;
         this.answeredCount = data.answeredCount || this.answeredCount;
         this.playersCount  = data.totalPlayers  || this.playersCount;
         // احفظ flag في sessionStorage ليلتقطها host/question.vue
-        const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-        gameState.allAnsweredEarly = true;
-        sessionStorage.setItem('gameState', JSON.stringify(gameState));
-        // أوقف العد التنازلي وانتقل فوراً لصفحة السؤال (التي ستعرض النتائج مباشرة)
-        clearInterval(this.interval);
-        this.$router.push(this.localePath('/host/question'));
+        const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+        gs.allAnsweredEarly = true;
+        sessionStorage.setItem('gameState', JSON.stringify(gs));
+        // أوقف العد التنازلي وانتقل فوراً لصفحة السؤال
+        this._goToQuestionPage();
       });
-    }
-  },
+    },
 
-  methods: {
+    // ── إرسال السؤال — يستخدم فقط إذا كان hostIndex بدأ اللعبة ────────────────
     sendQuestion(sessionCode, questionIndex) {
       if (!sessionCode) {
-        // لا يوجد sessionCode، ابدأ العد التنازلي مباشرة
-        this.startCountdown();
+        // لا يوجد sessionCode، ابدأ العد التنازلي محلياً
+        this._startSyncedCountdown(Date.now());
         return;
       }
 
       const socket = this.$socket?.getSocket?.();
       if (!socket) {
-        this.startCountdown();
+        this._startSyncedCountdown(Date.now());
         return;
       }
 
@@ -122,44 +170,77 @@ export default {
 
           if (res?.success && res.question) {
             const q = res.question;
-            // حفظ بيانات السؤال في gameState
-            const gameState = JSON.parse(sessionStorage.getItem('gameState') || '{}');
-            gameState.questionIndex  = questionIndex;
-            gameState.questionText   = q.questionText;
-            gameState.questionImage  = q.questionImage || '';
-            gameState.timer          = q.timeLimit     || 30;
-            gameState.answers        = q.answers       || [];         // للاعبين (بدون isCorrect)
-            gameState.fullAnswers    = q.fullAnswers   || q.answers || []; // للمستضيف (مع isCorrect)
-            gameState.questionId     = q.questionId    || '';
-            sessionStorage.setItem('gameState', JSON.stringify(gameState));
+            // حفظ بيانات السؤال في gameState (المستضيف يحتاج fullAnswers)
+            const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+            gs.questionIndex  = questionIndex;
+            gs.questionText   = q.questionText;
+            gs.questionImage  = q.questionImage || '';
+            gs.timer          = q.timeLimit     || 30;
+            gs.answers        = q.answers       || [];           // للاعبين (بدون isCorrect)
+            gs.fullAnswers    = q.fullAnswers   || q.answers || []; // للمستضيف (مع isCorrect)
+            gs.questionId     = q.questionId    || '';
+            gs.startedAt      = q.startedAt     || Date.now();   // التوقيت من السيرفر
+            sessionStorage.setItem('gameState', JSON.stringify(gs));
 
             this.questionText = q.questionText;
             this.timer        = q.timeLimit || 30;
+
+            // ابدأ العد التنازلي المتزامن
+            this._startSyncedCountdown(gs.startedAt);
           } else {
             console.warn('[Host Standby] send-question failed:', res?.message);
+            // fallback
+            this._startSyncedCountdown(Date.now());
           }
-
-          this.startCountdown();
         }
       );
     },
 
-    startCountdown() {
+    // ── العد التنازلي المتزامن — مطابق للاعبين ────────────────────────────────
+    // يستخدم startedAt (timestamp من السيرفر) + STANDBY_DURATION_MS كنقطة الانتقال
+    _startSyncedCountdown(startedAt) {
+      if (this.interval) clearInterval(this.interval);
+      if (this.exitTimeout) clearTimeout(this.exitTimeout);
+
+      const elapsed      = Math.max(0, Date.now() - startedAt);
+      const remainingMs  = Math.max(0, STANDBY_DURATION_MS - elapsed);
+      this.seconds       = Math.max(1, Math.ceil(remainingMs / 1000));
+
+      if (remainingMs <= 0) {
+        this._goToQuestionPage();
+        return;
+      }
+
       this.interval = setInterval(() => {
-        if (this.seconds > 0) {
-          this.seconds -= 1;
-        } else {
+        const e = Math.max(0, Date.now() - startedAt);
+        const r = Math.max(0, STANDBY_DURATION_MS - e);
+        this.seconds = Math.max(0, Math.ceil(r / 1000));
+        if (r <= 0) {
           clearInterval(this.interval);
-          this.$router.push(this.localePath('/host/question'));
         }
-      }, 1000);
+      }, 250);
+
+      // انتقل بدقة عند انتهاء الوقت الفعلي (وليس الثواني الكاملة فقط)
+      this.exitTimeout = setTimeout(() => {
+        this._goToQuestionPage();
+      }, remainingMs);
+    },
+
+    _goToQuestionPage() {
+      if (this.navigated) return;
+      this.navigated = true;
+      if (this.interval) clearInterval(this.interval);
+      if (this.exitTimeout) clearTimeout(this.exitTimeout);
+      this.$router.push(this.localePath('/host/question'));
     },
   },
 
   beforeDestroy() {
     if (this.interval) clearInterval(this.interval);
+    if (this.exitTimeout) clearTimeout(this.exitTimeout);
     const socket = this.$socket?.getSocket?.();
     if (socket) {
+      socket.off('question:received');
       socket.off('player:answered');
       socket.off('all:answered');
     }
