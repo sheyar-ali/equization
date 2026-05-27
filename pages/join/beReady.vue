@@ -1,4 +1,4 @@
-<!-- play-sub-domain/beReady.vue - Waiting lobby after joining -->
+<!-- join/beReady.vue - Waiting lobby after joining -->
 <template>
   <section class="play-page">
     <v-container fluid class="w-100 h-100">
@@ -86,7 +86,7 @@ export default {
         gs.answers        = data.answers || [];
         gs.startedAt      = data.startedAt || Date.now();
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-        this.$router.push(this.localePath('/play-sub-domain/standby'));
+        this.$router.push(this.localePath('/join/standby'));
       };
 
       // swapOn ensures only one handler per event exists — safe across Vue page transitions

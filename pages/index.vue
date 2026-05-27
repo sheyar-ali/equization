@@ -17,7 +17,7 @@
           <nuxt-link :to="localePath('/quizes/add')" class="wow zoomIn text-center text-white" data-wow-delay=".6s">
             {{ $t("homeSection.homeBtns.firstBtn") }}
           </nuxt-link>
-          <nuxt-link :to="localePath('/play-sub-domain')" class="wow zoomIn text-center text-white" data-wow-delay=".8s">
+          <nuxt-link :to="localePath('/join')" class="wow zoomIn text-center text-white" data-wow-delay=".8s">
             {{ $t("homeSection.homeBtns.secondBtn") }}
           </nuxt-link>
         </v-row>

@@ -121,6 +121,7 @@
 import PlayHeader from "@/components/PlayComponents/PlayHeader";
 
 export default {
+  middleware: ['auth'],
   layout: "play",
   head() { return { title: this.$t("host.options.title") }; },
   data() {
@@ -150,7 +151,7 @@ export default {
     await this.createSession(quizId);
 
     const origin = window.location.origin;
-    const path   = this.localePath ? this.localePath('/play-sub-domain') : '/play-sub-domain';
+    const path   = this.localePath ? this.localePath('/join') : '/join';
     this.playLink = `${origin}${path}`;
   },
   methods: {

@@ -188,6 +188,7 @@ import Editor from "@/components/AccountComponents/Editor";
 import TextAnswers from "@/components/AccountComponents/AnswersComponents/TextAnswers";
 import ImageAnswers from "@/components/AccountComponents/AnswersComponents/ImageAnswers";
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {

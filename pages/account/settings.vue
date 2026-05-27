@@ -148,6 +148,7 @@ import { mapGetters } from 'vuex';
 import SideMenu from "@/components/AccountComponents/SideMenu";
 
 export default {
+  middleware: ['auth'],
   layout: "account",
   components: { SideMenu },
   head() {

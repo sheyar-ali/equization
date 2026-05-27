@@ -1,4 +1,4 @@
-<!-- play-sub-domain/name.vue - Enter player name and join session -->
+<!-- join/name.vue - Enter player name and join session -->
 <template>
   <section class="play-page">
     <v-container fluid class="w-100 h-100">
@@ -132,12 +132,12 @@ export default {
               gs.answers        = data.answers || [];
               gs.startedAt      = data.startedAt || Date.now();
               sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-              this.$router.push(this.localePath('/play-sub-domain/standby'));
+              this.$router.push(this.localePath('/join/standby'));
             };
             this.$socket.swapOn('game:started',      this._onGameStarted);
             this.$socket.swapOn('question:received', this._onQuestionReceived);
 
-            this.$router.push(this.localePath('/play-sub-domain/beReady'));
+            this.$router.push(this.localePath('/join/beReady'));
           } else {
             this.error = res?.message || 'فشل الانضمام للجلسة';
           }

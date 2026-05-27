@@ -1,4 +1,4 @@
-<!-- play-sub-domain/question.vue - Player answers the question -->
+<!-- join/question.vue - Player answers the question -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>
@@ -115,7 +115,7 @@ export default {
           setTimeout(() => {
             // إذا لم يصل results:shown بعد 5 ثواني، انتقل للنتائج
             if (!this.resultsReceived) {
-              this.$router.push(this.localePath('/play-sub-domain/scoreBoard'));
+              this.$router.push(this.localePath('/join/scoreboard'));
             }
           }, 5000);
         }
@@ -138,13 +138,13 @@ export default {
         s.correctAnswers = data.correctAnswers || [];
         s.leaderboard    = data.leaderboard    || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 1500);
+        setTimeout(() => this.$router.push(this.localePath('/join/scoreboard')), 1500);
       };
       this._onGameEnded = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.finalResults = data.finalResults || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        this.$router.push(this.localePath('/play-sub-domain/totalscores'));
+        this.$router.push(this.localePath('/join/totalscores'));
       };
       this._onQuestionReceived = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
@@ -154,7 +154,7 @@ export default {
         s.startedAt      = data.startedAt || Date.now();
         s.totalQuestions = data.totalQuestions || s.totalQuestions;
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        this.$router.push(this.localePath('/play-sub-domain/standby'));
+        this.$router.push(this.localePath('/join/standby'));
       };
 
       this.$socket.swapOn('results:shown',    this._onResultsShown);

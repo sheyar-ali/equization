@@ -175,6 +175,7 @@
 <script>
 import SideMenu from "@/components/AccountComponents/SideMenu";
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {

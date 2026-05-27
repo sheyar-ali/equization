@@ -1,4 +1,4 @@
-<!-- play-sub-domain/scoreBoard.vue - After question results -->
+<!-- join/scoreboard.vue - After question results -->
 <template>
   <section class="play-page play-quiz quiz-scoreboard">
     <v-container fluid>
@@ -101,13 +101,13 @@ export default {
         s.startedAt      = data.startedAt || Date.now();
         s.totalQuestions = data.totalQuestions || s.totalQuestions;
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        this.$router.push(this.localePath('/play-sub-domain/standby'));
+        this.$router.push(this.localePath('/join/standby'));
       };
       this._onGameEnded = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.finalResults = data.finalResults || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        this.$router.push(this.localePath('/play-sub-domain/totalscores'));
+        this.$router.push(this.localePath('/join/totalscores'));
       };
 
       this.$socket.swapOn('results:shown',    this._onResultsShown);

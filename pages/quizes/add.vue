@@ -181,6 +181,7 @@
 import SideMenu from "@/components/AccountComponents/SideMenu";
 import AccountHeader from "@/components/AccountComponents/AccountHeader";
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {
