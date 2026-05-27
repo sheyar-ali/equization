@@ -58,6 +58,7 @@ import AccountCard from "@/components/AccountComponents/AccountCard";
 import AccountInfoCards from "@/components/AccountComponents/AccountInfoCards";
 import { mapGetters } from 'vuex';
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {

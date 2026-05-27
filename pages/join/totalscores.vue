@@ -1,4 +1,4 @@
-<!-- play-sub-domain/totalscores.vue - Final results for player -->
+<!-- join/totalscores.vue - Final results for player -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>

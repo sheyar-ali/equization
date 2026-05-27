@@ -1,4 +1,4 @@
-<!-- play-sub-domain/standby.vue - Countdown before question shows -->
+<!-- join/standby.vue - Countdown before question shows -->
 <template>
   <section class="play-page play-quiz">
     <v-container fluid>
@@ -54,19 +54,19 @@ export default {
     this.seconds = Math.ceil(countdownMs / 1000);
     if (this.seconds < 1) {
       // وقت العد التنازلي انقضى → انتقل فوراً
-      this.$router.push(this.localePath('/play-sub-domain/question'));
+      this.$router.push(this.localePath('/join/question'));
       return;
     }
 
     this.interval = setInterval(() => {
       if (this.seconds > 0) { this.seconds -= 1; }
-      else { clearInterval(this.interval); this.$router.push(this.localePath('/play-sub-domain/question')); }
+      else { clearInterval(this.interval); this.$router.push(this.localePath('/join/question')); }
     }, 1000);
 
     // انتقل بدقة عند انتهاء الوقت الفعلي (وليس بالثواني الكاملة فقط)
     setTimeout(() => {
       if (this.interval) { clearInterval(this.interval); }
-      this.$router.push(this.localePath('/play-sub-domain/question'));
+      this.$router.push(this.localePath('/join/question'));
     }, countdownMs);
   },
   beforeDestroy() { if (this.interval) clearInterval(this.interval); },

@@ -1,4 +1,4 @@
-<!-- play-sub-domain/index.vue - Enter session code -->
+<!-- join/index.vue - Enter session code -->
 <template>
   <section class="play-page">
     <v-container fluid class="w-100 h-100">
@@ -52,7 +52,7 @@ export default {
     goToName() {
       if (this.sessionCode && process.client) {
         sessionStorage.setItem('joinSessionCode', this.sessionCode);
-        this.$router.push(this.localePath('/play-sub-domain/name'));
+        this.$router.push(this.localePath('/join/name'));
       }
     },
   },

@@ -24,6 +24,7 @@
 <script>
 import PlayHeader from "@/components/PlayComponents/PlayHeader";
 export default {
+  middleware: ['auth'],
   layout: "play",
   head() {
     return {

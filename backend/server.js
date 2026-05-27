@@ -76,7 +76,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(generalLimiter);
 
 // ── Static files ───────────────────────────────────────────────────────────────
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), { maxAge: '30d' }));
 
 // ── API Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/v1/auth',       authRoutes);

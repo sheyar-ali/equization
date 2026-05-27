@@ -193,10 +193,9 @@ module.exports = (io) => {
 
         console.log(`[Socket] 👤 Player "${playerName}" joined session ${code}`);
 
-        const quiz = await Quiz.findById(session.quiz).select('title');
         ack?.({
           success:      true,
-          quizTitle:    quiz?.title || '',
+          quizTitle:    mem?.quiz?.title || '',
           playerCount:  session.players.length,
           playerId
         });
@@ -262,23 +261,18 @@ module.exports = (io) => {
           return ack?.({ success: false, message: 'Unauthorized: Only the host can send questions' });
         }
 
-        const session = await GameSession.findOne({ sessionCode: code })
-          .populate({ path: 'quiz', populate: { path: 'questions', options: { sort: { order: 1 } } } });
-
-        if (!session)
-          return ack?.({ success: false, message: 'Session not found' });
-
-        const question = session.quiz.questions[questionIndex];
+        // Use cached quiz — no DB populate needed
+        const question = mem.quiz?.questions?.[questionIndex];
         if (!question)
           return ack?.({ success: false, message: 'Question not found' });
 
-        session.currentQuestionIndex = questionIndex;
-        session.status               = 'question-active';
-        session.questionStartedAt    = new Date();
-        await session.save();
+        await GameSession.updateOne(
+          { sessionCode: code },
+          { currentQuestionIndex: questionIndex, status: 'question-active', questionStartedAt: new Date() }
+        );
 
         // Reset per-question answered counter
-        if (mem) mem.answeredCount = 0;
+        mem.answeredCount = 0;
 
         // Sanitized answers for players (no isCorrect)
         const sanitizedAnswers = question.answers.map(a => ({
@@ -311,7 +305,7 @@ module.exports = (io) => {
 
         const questionDataForPlayers = {
           questionIndex,
-          totalQuestions:  session.quiz.questions.length,
+          totalQuestions:  mem.quiz.questions.length,
           questionId:      question._id,
           questionText:    question.questionText,
           questionImage:   question.questionImage,
@@ -325,7 +319,7 @@ module.exports = (io) => {
         // Broadcast to players (without isCorrect)
         io.to(`session:${code}`).emit('question:received', questionDataForPlayers);
 
-        console.log(`[Socket] ❓ Question ${questionIndex + 1}/${session.quiz.questions.length} → ${code}`);
+        console.log(`[Socket] ❓ Question ${questionIndex + 1}/${mem.quiz.questions.length} → ${code}`);
 
         // ACK to host includes full answers with isCorrect
         ack?.({
@@ -464,17 +458,21 @@ module.exports = (io) => {
           questionTimers.delete(code);
         }
 
+        // Use cached quiz for question/answer data; lean fetch for player scores only
+        const question = mem.quiz?.questions?.[questionIndex];
+        if (!question)
+          return ack?.({ success: false, message: 'Question not found' });
+
         const session = await GameSession.findOne({ sessionCode: code })
-          .populate({ path: 'quiz', populate: { path: 'questions', options: { sort: { order: 1 } } } });
+          .select('players')
+          .lean();
 
         if (!session)
           return ack?.({ success: false, message: 'Session not found' });
 
-        session.status = 'showing-results';
-        await session.save();
+        await GameSession.updateOne({ sessionCode: code }, { status: 'showing-results' });
 
-        const question    = session.quiz.questions[questionIndex];
-        const correctAnswers = question?.answers
+        const correctAnswers = question.answers
           .filter(a => a.isCorrect)
           .map(a => ({ _id: a._id, text: a.text, image: a.image }));
 
@@ -485,7 +483,7 @@ module.exports = (io) => {
             id:    p._id,
             name:  p.name,
             score: p.score,
-            lastAnswer: p.answers.find(a => a.question?.toString() === question?._id.toString())
+            lastAnswer: p.answers.find(a => a.question?.toString() === question._id.toString())
           }))
           .sort((a, b) => b.score - a.score)
           .map((p, i) => ({ ...p, rank: i + 1 }));

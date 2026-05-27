@@ -118,6 +118,7 @@ import Question from "@/components/AccountComponents/Question";
 import EmptyData from "@/components/AccountComponents/EmptyData";
 
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {

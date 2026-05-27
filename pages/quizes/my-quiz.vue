@@ -289,6 +289,7 @@ import QuizInfo from "@/components/Quiz-Page-Components/QuizInfo";
 import Categories from "@/components/Quiz-Page-Components/Categories";
 
 export default {
+  middleware: ['auth'],
   layout: "account",
   head() {
     return {
