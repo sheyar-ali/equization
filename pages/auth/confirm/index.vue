@@ -11,7 +11,7 @@
               :alertDescription="
                 $t('emailConfirmedPage.alertDescriptionText')
               "
-              :link="'/signin'"
+              :link="localePath('/signin')"
               :linkText="$t('emailConfirmedPage.alertButtonText')"
             />
           </v-col>

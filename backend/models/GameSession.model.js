@@ -38,11 +38,7 @@ const GameSessionSchema = new mongoose.Schema({
     type: String,
     unique: true,
     uppercase: true,
-    default: () => {
-      let code = '';
-      for (let i = 0; i < 6; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
-      return code;
-    }
+    // No default — the pre-save hook generates a collision-free code (D9)
   },
   players:              { type: [PlayerSchema], default: [] },
   currentQuestionIndex: { type: Number, default: -1 },

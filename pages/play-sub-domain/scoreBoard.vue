@@ -81,8 +81,7 @@ export default {
 
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      // إذا وصل results:shown هنا (حالة التأخر)
-      socket.on('results:shown', (data) => {
+      this._onResultsShown = (data) => {
         this.correctAnswers = data.correctAnswers || [];
         if (data.leaderboard) {
           this.leaderboard = data.leaderboard.slice(0, 10);
@@ -93,28 +92,36 @@ export default {
         s.correctAnswers = data.correctAnswers || [];
         s.leaderboard    = data.leaderboard    || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-      });
-      socket.on('question:received', (data) => {
+      };
+      this._onQuestionReceived = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        s.questionIndex = data.questionIndex; s.questionText = data.questionText;
-        s.questionImage = data.questionImage || ''; s.timer = data.timeLimit || 30;
-        s.questionId = data.questionId; s.answers = data.answers || [];
-        s.startedAt = data.startedAt || Date.now();  // ✅ تزامن مع المستضيف
+        s.questionIndex  = data.questionIndex;  s.questionText = data.questionText;
+        s.questionImage  = data.questionImage || '';  s.timer = data.timeLimit || 30;
+        s.questionId     = data.questionId;     s.answers = data.answers || [];
+        s.startedAt      = data.startedAt || Date.now();
         s.totalQuestions = data.totalQuestions || s.totalQuestions;
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
-      });
-      socket.on('game:ended', (data) => {
+      };
+      this._onGameEnded = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.finalResults = data.finalResults || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
         this.$router.push(this.localePath('/play-sub-domain/totalscores'));
-      });
+      };
+
+      this.$socket.swapOn('results:shown',    this._onResultsShown);
+      this.$socket.swapOn('question:received', this._onQuestionReceived);
+      this.$socket.swapOn('game:ended',       this._onGameEnded);
     }
   },
   beforeDestroy() {
     const socket = this.$socket?.getSocket?.();
-    if (socket) { socket.off('results:shown'); socket.off('question:received'); socket.off('game:ended'); }
+    if (socket) {
+      socket.off('results:shown',    this._onResultsShown);
+      socket.off('question:received', this._onQuestionReceived);
+      socket.off('game:ended',       this._onGameEnded);
+    }
   },
   components: { QuestionHeader },
 };

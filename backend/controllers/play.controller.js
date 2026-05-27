@@ -278,9 +278,12 @@ exports.getQuizResult = async (req, res, next) => {
       return errorResponse(res, 404, 'Result not found');
     }
 
-    // Check if user has permission to view
-    if (req.user && result.player && result.player.toString() !== req.user.id) {
-      return errorResponse(res, 403, 'You do not have permission to view this result');
+    // Results tied to a registered player require authentication (C1)
+    if (result.player) {
+      if (!req.user) return errorResponse(res, 401, 'Authentication required to view this result');
+      if (result.player.toString() !== req.user.id) {
+        return errorResponse(res, 403, 'You do not have permission to view this result');
+      }
     }
 
     successResponse(res, 200, 'Result retrieved successfully', { result });

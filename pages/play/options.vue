@@ -55,7 +55,7 @@ export default {
     }
 
     // Check if user is logged in
-    const user = this.$store?.state?.auth?.user || null;
+    const user = this.$store?.state?.user || null;
     if (user) {
       this.playerName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.username;
       await this.startGame();
@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     async startGame() {
-      if (!this.playerName && !this.$store?.state?.auth?.user) return;
+      if (!this.playerName && !this.$store?.state?.user) return;
 
       const quizId = sessionStorage.getItem('currentQuizId');
       if (!quizId) { this.error = 'لم يتم تحديد اختبار'; return; }

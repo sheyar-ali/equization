@@ -28,7 +28,7 @@
                 v-model="email"
                 :rules="[
                   v => !!v || $t('errorNameText') + ' ' + $t('loginPage.emailInputText'),
-                  v => /.@+./.test(v) || $t('loginPage.emailInputText') + ' ' + $t('emailRulesError'),
+                  v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || $t('loginPage.emailInputText') + ' ' + $t('emailRulesError'),
                 ]"
                 required
                 prepend-inner-icon="mdi-email"
