@@ -133,25 +133,23 @@ export default {
       }
     }, 200);
 
-    // Listen for player answers
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.on('player:answered', (data) => {
+      this._onPlayerAnswered = (data) => {
         this.answeredCount = data.answeredCount || 0;
         this.playersCount  = data.totalPlayers  || this.playersCount;
-      });
-
-      // ── عند إجابة كل اللاعبين → عرض النتائج تلقائياً فوراً ──────────────────
-      socket.on('all:answered', (data) => {
-        console.log('[Host] All players answered — auto show results');
+      };
+      this._onAllAnswered = (data) => {
         this.answeredCount = data.answeredCount || this.answeredCount;
         this.playersCount  = data.totalPlayers  || this.playersCount;
-        clearInterval(this.interval);  // أوقف العداد
-        this.timerValue = 0;           // أظهر الشريط فارغاً
+        clearInterval(this.interval);
+        this.timerValue = 0;
         this.seconds    = 0;
-        // استدعِ showResults فوراً بدون انتظار العداد
         this.showResults();
-      });
+      };
+
+      this.$socket.swapOn('player:answered', this._onPlayerAnswered);
+      this.$socket.swapOn('all:answered',    this._onAllAnswered);
     }
   },
 
@@ -159,8 +157,8 @@ export default {
     if (this.interval) clearInterval(this.interval);
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.off('player:answered');
-      socket.off('all:answered');
+      socket.off('player:answered', this._onPlayerAnswered);
+      socket.off('all:answered',    this._onAllAnswered);
     }
   },
 

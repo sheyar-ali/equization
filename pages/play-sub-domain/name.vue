@@ -60,11 +60,10 @@ export default {
   },
 
   beforeDestroy() {
-    // Clean up socket listeners set up in this component
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.off('game:started');
-      socket.off('question:received');
+      socket.off('game:started',       this._onGameStarted);
+      socket.off('question:received',  this._onQuestionReceived);
     }
   },
 
@@ -115,17 +114,14 @@ export default {
               playerCount:    res.playerCount || 1,
             }));
 
-            // Listen for game events (will be cleaned up in beforeDestroy)
-            socket.off('game:started');
-            socket.off('question:received');
+            sessionStorage.setItem('socketRole', 'player');
 
-            socket.on('game:started', (data) => {
+            this._onGameStarted = (data) => {
               const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
               gs.totalQuestions = data.questionCount || 0;
               sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-            });
-
-            socket.on('question:received', (data) => {
+            };
+            this._onQuestionReceived = (data) => {
               const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
               gs.questionIndex  = data.questionIndex;
               gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
@@ -134,10 +130,12 @@ export default {
               gs.timer          = data.timeLimit || 30;
               gs.questionId     = data.questionId;
               gs.answers        = data.answers || [];
-              gs.startedAt      = data.startedAt || Date.now(); // تزامن التوقيت
+              gs.startedAt      = data.startedAt || Date.now();
               sessionStorage.setItem('playerGameState', JSON.stringify(gs));
               this.$router.push(this.localePath('/play-sub-domain/standby'));
-            });
+            };
+            this.$socket.swapOn('game:started',      this._onGameStarted);
+            this.$socket.swapOn('question:received', this._onQuestionReceived);
 
             this.$router.push(this.localePath('/play-sub-domain/beReady'));
           } else {

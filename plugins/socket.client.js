@@ -10,16 +10,35 @@ export default ({ app, store }, inject) => {
 
   let socket = null
 
+  // Re-register host/player session after a socket reconnect.
+  // Called every time the 'connect' event fires (initial + every reconnect).
+  function _onConnectRestore() {
+    try {
+      const role        = sessionStorage.getItem('socketRole')
+      const sessionCode = sessionStorage.getItem('sessionCode')
+      const playerId    = sessionStorage.getItem('playerId')
+
+      if (role === 'host' && sessionCode) {
+        socket.emit('host:register-session', { sessionCode }, (ack) => {
+          if (ack?.success) console.log('[Socket] 🔄 Host re-registered:', sessionCode)
+          else console.warn('[Socket] Host re-register failed:', ack?.message)
+        })
+      } else if (role === 'player' && sessionCode && playerId) {
+        socket.emit('player:reconnect', { sessionCode, playerId }, (ack) => {
+          if (ack?.success) console.log('[Socket] 🔄 Player reconnected:', playerId)
+        })
+      }
+    } catch (e) {}
+  }
+
   const socketService = {
     // Initialize or reuse socket connection
     connect() {
       if (socket && socket.connected) {
-        // Already connected – return existing socket
         return socket
       }
 
       if (socket && !socket.connected) {
-        // Socket exists but disconnected – try to reconnect
         socket.connect()
         return socket
       }
@@ -36,6 +55,7 @@ export default ({ app, store }, inject) => {
 
       socket.on('connect', () => {
         console.log('[Socket] ✅ Connected:', socket.id)
+        _onConnectRestore()
       })
       socket.on('disconnect', (reason) => {
         console.log('[Socket] ❌ Disconnected:', reason)
@@ -148,6 +168,17 @@ export default ({ app, store }, inject) => {
 
     off(event, callback) {
       if (socket) socket.off(event, callback)
+    },
+
+    // Drop all existing listeners for `event`, then register `handler` as the sole listener.
+    // Use this for navigation-critical events to prevent double-fire during Vue page transitions
+    // (Vue mounts the incoming page before destroying the outgoing one, so without this guard
+    // both pages would have active listeners simultaneously).
+    swapOn(event, handler) {
+      if (socket) {
+        socket.off(event)
+        socket.on(event, handler)
+      }
     },
 
     emit(event, data, callback) {

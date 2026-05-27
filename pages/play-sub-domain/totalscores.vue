@@ -94,6 +94,7 @@ export default {
     sessionStorage.removeItem('playerName');
     sessionStorage.removeItem('playerGameState');
     sessionStorage.removeItem('joinSessionCode');
+    sessionStorage.removeItem('socketRole');
   },
   methods: {
     goHome() { this.$router.push(this.localePath('/explore')); },

@@ -5,8 +5,7 @@ export default function ({ $axios }, inject) {
     auth: {
       register: (data) => $axios.post('/auth/register', data),
       login: (data) => $axios.post('/auth/login', data),
-      logout: () => $axios.post('/auth/logout'),
-      verifyEmail: (token) => $axios.post('/auth/verify-email', { token }),
+verifyEmail: (token) => $axios.post('/auth/verify-email', { token }),
       forgotPassword: (email) => $axios.post('/auth/forgot-password', { email }),
       resetPassword: (data) => $axios.post('/auth/reset-password', data),
       getMe: () => $axios.get('/auth/me'),

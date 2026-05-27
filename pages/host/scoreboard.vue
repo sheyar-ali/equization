@@ -168,11 +168,9 @@ export default {
       this.correctAnswerText = correctAns?.text || correctAns?.ansText || '';
     }
 
-    // Listen for live updates
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.on('results:shown', (data) => {
-        // Update leaderboard live if needed
+      this._onResultsShown = (data) => {
         if (data.leaderboard) {
           this.leaderboard = data.leaderboard.slice(0, 10).map(p => ({
             id:         p.id || p._id,
@@ -181,13 +179,14 @@ export default {
             lastPoints: p.lastAnswer?.points || 0,
           }));
         }
-      });
+      };
+      this.$socket.swapOn('results:shown', this._onResultsShown);
     }
   },
 
   beforeDestroy() {
     const socket = this.$socket?.getSocket?.();
-    if (socket) socket.off('results:shown');
+    if (socket) socket.off('results:shown', this._onResultsShown);
   },
 
   methods: {

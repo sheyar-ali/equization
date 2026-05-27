@@ -42,9 +42,12 @@ export default function ({ $axios, store, redirect, route }) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
       }
-      // Prevent redirect loop if already on signin page
+      // Prevent redirect loop if already on signin page.
+      // Preserve locale prefix for non-default locales (nuxt-i18n prefix_except_default).
       if (route && route.path && !route.path.includes('/signin')) {
-        redirect('/signin')
+        const segments = route.path.split('/').filter(Boolean);
+        const prefix = ['en', 'fr', 'tr'].includes(segments[0]) ? `/${segments[0]}` : '';
+        redirect(`${prefix}/signin`);
       }
     }
     return Promise.reject(error)

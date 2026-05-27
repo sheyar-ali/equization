@@ -99,14 +99,7 @@ export default {
       const socket = this.$socket?.getSocket?.();
       if (!socket) return;
 
-      // ملاحظة: المستضيف أيضاً يستلم question:received من السيرفر
-      // لأنه عضو في نفس الغرفة. نستخدم startedAt منه للتزامن.
-      socket.off('question:received');
-      socket.off('player:answered');
-      socket.off('all:answered');
-
-      socket.on('question:received', (data) => {
-        console.log('[Host Standby] question:received', data);
+      this._onQuestionReceived = (data) => {
         const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
         gs.questionIndex  = data.questionIndex;
         gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
@@ -114,36 +107,31 @@ export default {
         gs.questionImage  = data.questionImage || '';
         gs.timer          = data.timeLimit || 30;
         gs.questionId     = data.questionId;
-        gs.answers        = data.answers || [];        // للاعبين (بدون isCorrect) — احتياطياً
+        gs.answers        = data.answers || [];
         gs.startedAt      = data.startedAt || Date.now();
         sessionStorage.setItem('gameState', JSON.stringify(gs));
-
         this.questionText  = data.questionText;
         this.questionIndex = data.questionIndex;
         this.timer         = data.timeLimit || 30;
-
-        // ابدأ العد التنازلي المتزامن من نفس startedAt الذي يستخدمه اللاعبون
         this._startSyncedCountdown(gs.startedAt);
-      });
-
-      socket.on('player:answered', (data) => {
+      };
+      this._onPlayerAnswered = (data) => {
         this.answeredCount = data.answeredCount || 0;
         this.playersCount  = data.totalPlayers  || this.playersCount;
-      });
-
-      // ── إذا أجاب جميع اللاعبين أثناء العد التنازلي → تخطّ إلى النتائج فوراً ──
-      socket.on('all:answered', (data) => {
-        console.log('[Host Standby] All players answered — skipping countdown');
+      };
+      this._onAllAnswered = (data) => {
         this.allAnswered   = true;
         this.answeredCount = data.answeredCount || this.answeredCount;
         this.playersCount  = data.totalPlayers  || this.playersCount;
-        // احفظ flag في sessionStorage ليلتقطها host/question.vue
         const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
         gs.allAnsweredEarly = true;
         sessionStorage.setItem('gameState', JSON.stringify(gs));
-        // أوقف العد التنازلي وانتقل فوراً لصفحة السؤال
         this._goToQuestionPage();
-      });
+      };
+
+      this.$socket.swapOn('question:received', this._onQuestionReceived);
+      this.$socket.swapOn('player:answered',   this._onPlayerAnswered);
+      this.$socket.swapOn('all:answered',      this._onAllAnswered);
     },
 
     // ── إرسال السؤال — يستخدم فقط إذا كان hostIndex بدأ اللعبة ────────────────
@@ -240,9 +228,9 @@ export default {
     if (this.exitTimeout) clearTimeout(this.exitTimeout);
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.off('question:received');
-      socket.off('player:answered');
-      socket.off('all:answered');
+      socket.off('question:received', this._onQuestionReceived);
+      socket.off('player:answered',   this._onPlayerAnswered);
+      socket.off('all:answered',      this._onAllAnswered);
     }
   },
 

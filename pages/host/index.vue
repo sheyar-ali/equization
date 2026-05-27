@@ -227,7 +227,9 @@ export default {
         this.players = this.players.filter(p => p.playerId !== data.playerId);
       });
 
-      // ── سجّل المستضيف في الجلسة الموجودة (المُنشأة عبر REST) ──
+      // Mark role so the socket plugin can auto-re-register after reconnect (D4)
+      sessionStorage.setItem('socketRole', 'host');
+
       socket.emit('host:register-session',
         { sessionCode: this.session.sessionCode },
         (ack) => {

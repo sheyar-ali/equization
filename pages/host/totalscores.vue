@@ -87,6 +87,7 @@ export default {
     sessionStorage.removeItem('sessionCode');
     sessionStorage.removeItem('gameState');
     sessionStorage.removeItem('currentQuizId');
+    sessionStorage.removeItem('socketRole');
   },
 
   methods: {

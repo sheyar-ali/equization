@@ -54,43 +54,28 @@ export default {
     _setupSocketListeners() {
       const socket = this.$socket?.getSocket?.();
       if (!socket) {
-        // أعد المحاولة بعد 500ms
         setTimeout(() => this._setupSocketListeners(), 500);
         return;
       }
 
-      console.log('[BeReady] Socket connected:', socket.connected, 'id:', socket.id);
-
-      // Remove any existing listeners first to prevent duplicates
-      socket.off('player:joined');
-      socket.off('player:left');
-      socket.off('game:started');
-      socket.off('question:received');
-
-      socket.on('player:joined', (data) => {
-        this.playersCount = data.totalPlayers || this.playersCount;
-        // Persist so refreshed pages see the right count
-        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        gs.playerCount = this.playersCount;
-        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-      });
-
-      socket.on('player:left', (data) => {
+      this._onPlayerJoined = (data) => {
         this.playersCount = data.totalPlayers || this.playersCount;
         const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         gs.playerCount = this.playersCount;
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-      });
-
-      socket.on('game:started', (data) => {
+      };
+      this._onPlayerLeft = (data) => {
+        this.playersCount = data.totalPlayers || this.playersCount;
+        const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
+        gs.playerCount = this.playersCount;
+        sessionStorage.setItem('playerGameState', JSON.stringify(gs));
+      };
+      this._onGameStarted = (data) => {
         const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         gs.totalQuestions = data.questionCount || 0;
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
-        console.log('[BeReady] game:started received, totalQuestions:', gs.totalQuestions);
-      });
-
-      socket.on('question:received', (data) => {
-        console.log('[BeReady] question:received!', data.questionText);
+      };
+      this._onQuestionReceived = (data) => {
         const gs = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         gs.questionIndex  = data.questionIndex;
         gs.totalQuestions = data.totalQuestions || gs.totalQuestions;
@@ -99,21 +84,28 @@ export default {
         gs.timer          = data.timeLimit || 30;
         gs.questionId     = data.questionId;
         gs.answers        = data.answers || [];
-        gs.startedAt      = data.startedAt || Date.now(); // تزامن التوقيت
+        gs.startedAt      = data.startedAt || Date.now();
         sessionStorage.setItem('playerGameState', JSON.stringify(gs));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
-      });
+      };
+
+      // swapOn ensures only one handler per event exists — safe across Vue page transitions
+      this.$socket.swapOn('player:joined',     this._onPlayerJoined);
+      this.$socket.swapOn('player:left',       this._onPlayerLeft);
+      this.$socket.swapOn('game:started',      this._onGameStarted);
+      this.$socket.swapOn('question:received', this._onQuestionReceived);
     },
   },
 
   beforeDestroy() {
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.off('player:joined');
-      socket.off('player:left');
-      socket.off('game:started');
-      // Do NOT remove question:received here - play-sub-domain/question.vue needs it
-      // It will be removed in question.vue's beforeDestroy
+      // Targeted removal — only removes this page's handlers.
+      // If the incoming page already called swapOn for the same event, its handler survives.
+      socket.off('player:joined',    this._onPlayerJoined);
+      socket.off('player:left',      this._onPlayerLeft);
+      socket.off('game:started',     this._onGameStarted);
+      socket.off('question:received', this._onQuestionReceived);
     }
   },
 };

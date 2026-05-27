@@ -124,12 +124,9 @@ export default {
 
     const socket = this.$socket?.getSocket?.();
     if (socket) {
-      socket.on('results:shown', (data) => {
-        console.log('[Player] results:shown received', data);
+      this._onResultsShown = (data) => {
         this.resultsReceived = true;
         clearInterval(this.interval);
-
-        // Mark correct answers so the UI can highlight them
         if (data.correctAnswers && data.correctAnswers.length > 0) {
           const correctIds = data.correctAnswers.map(a => String(a._id));
           this.answers = this.answers.map(a => ({
@@ -137,36 +134,42 @@ export default {
             isCorrect: correctIds.includes(String(a._id)),
           }));
         }
-
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.correctAnswers = data.correctAnswers || [];
         s.leaderboard    = data.leaderboard    || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
-        // Show correct answers briefly before navigating
         setTimeout(() => this.$router.push(this.localePath('/play-sub-domain/scoreBoard')), 1500);
-      });
-      socket.on('game:ended', (data) => {
+      };
+      this._onGameEnded = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
         s.finalResults = data.finalResults || [];
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
         this.$router.push(this.localePath('/play-sub-domain/totalscores'));
-      });
-      socket.on('question:received', (data) => {
+      };
+      this._onQuestionReceived = (data) => {
         const s = JSON.parse(sessionStorage.getItem('playerGameState') || '{}');
-        s.questionIndex = data.questionIndex; s.questionText = data.questionText;
-        s.questionImage = data.questionImage || ''; s.timer = data.timeLimit || 30;
-        s.questionId = data.questionId; s.answers = data.answers || [];
-        s.startedAt = data.startedAt || Date.now();  // ✅ تزامن مع المستضيف
+        s.questionIndex  = data.questionIndex;  s.questionText = data.questionText;
+        s.questionImage  = data.questionImage || '';  s.timer = data.timeLimit || 30;
+        s.questionId     = data.questionId;     s.answers = data.answers || [];
+        s.startedAt      = data.startedAt || Date.now();
         s.totalQuestions = data.totalQuestions || s.totalQuestions;
         sessionStorage.setItem('playerGameState', JSON.stringify(s));
         this.$router.push(this.localePath('/play-sub-domain/standby'));
-      });
+      };
+
+      this.$socket.swapOn('results:shown',    this._onResultsShown);
+      this.$socket.swapOn('game:ended',       this._onGameEnded);
+      this.$socket.swapOn('question:received', this._onQuestionReceived);
     }
   },
   beforeDestroy() {
     if (this.interval) clearInterval(this.interval);
     const socket = this.$socket?.getSocket?.();
-    if (socket) { socket.off('results:shown'); socket.off('game:ended'); socket.off('question:received'); }
+    if (socket) {
+      socket.off('results:shown',    this._onResultsShown);
+      socket.off('game:ended',       this._onGameEnded);
+      socket.off('question:received', this._onQuestionReceived);
+    }
   },
   methods: {
     submitAnswer(selected) {

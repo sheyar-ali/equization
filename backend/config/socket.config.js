@@ -297,13 +297,16 @@ module.exports = (io) => {
 
         const questionStartedAt = Date.now(); // server timestamp for sync
 
-        // ✅ Fix #3: Server-side question timeout
-        // Automatically trigger results if no one answers within timeLimit + buffer
+        // Server-side question timeout — fires after standby period + question timer + 2s buffer.
+        // Uses activeSessions to resolve the current host socket at callback time (D1, D2).
         if (questionTimers.has(code)) clearTimeout(questionTimers.get(code));
+        const STANDBY_DURATION_MS = 5000;
         const timerId = setTimeout(() => {
+          const sessionMem = activeSessions.get(code);
+          if (!sessionMem) return;
           console.log(`[Socket] ⏰ Question timeout in ${code} — auto-notifying host`);
-          socket.emit('question:timeout', { questionIndex });
-        }, (question.timeLimit * 1000) + 2000); // 2s buffer
+          io.to(sessionMem.hostSocketId).emit('question:timeout', { questionIndex });
+        }, STANDBY_DURATION_MS + (question.timeLimit * 1000) + 2000);
         questionTimers.set(code, timerId);
 
         const questionDataForPlayers = {
@@ -662,6 +665,12 @@ module.exports = (io) => {
           io.to(mem.hostSocketId).emit('player:temporarily-disconnected', { playerId });
         }
 
+        // Clear any pre-existing grace timer for this player before creating a new one (D8)
+        if (disconnectTimers.has(playerId)) {
+          clearTimeout(disconnectTimers.get(playerId).timer);
+          disconnectTimers.delete(playerId);
+        }
+
         const timer = setTimeout(async () => {
           try {
             await GameSession.updateOne(
@@ -669,9 +678,10 @@ module.exports = (io) => {
               { $set: { "players.$.isActive": false } }
             );
 
-            if (mem) {
-              mem.playerCount = Math.max(0, (mem.playerCount || 1) - 1);
-              io.to(mem.hostSocketId).emit('player:left', { playerId });
+            const currentMem = activeSessions.get(sessionCode);
+            if (currentMem) {
+              currentMem.playerCount = Math.max(0, (currentMem.playerCount || 1) - 1);
+              io.to(currentMem.hostSocketId).emit('player:left', { playerId });
             }
             disconnectTimers.delete(playerId);
             socketMeta.delete(socket.id);
