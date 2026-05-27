@@ -39,9 +39,8 @@ exports.startIndividualQuiz = async (req, res, next) => {
       return questionObj;
     });
 
-    // Update quiz views
-    quiz.statistics.views += 1;
-    await quiz.save();
+    // Increment views atomically (fire-and-forget, non-critical)
+    Quiz.findByIdAndUpdate(quizId, { $inc: { 'statistics.views': 1 } }).exec();
 
     successResponse(res, 200, 'Quiz started successfully', {
       quiz: {
@@ -110,19 +109,9 @@ exports.submitQuizAnswers = async (req, res, next) => {
         points = Math.round(question.points * (1 - timePercentage * 0.5));
         totalScore += points;
         correctAnswers++;
-
-        // Update question statistics
-        question.statistics.correctAttempts += 1;
       } else {
         wrongAnswers++;
       }
-
-      // Update question statistics
-      question.statistics.totalAttempts += 1;
-      const avgTime = question.statistics.averageTime || 0;
-      question.statistics.averageTime = 
-        (avgTime * (question.statistics.totalAttempts - 1) + answer.timeSpent) / 
-        question.statistics.totalAttempts;
 
       return {
         question: question._id,
@@ -133,17 +122,54 @@ exports.submitQuizAnswers = async (req, res, next) => {
       };
     });
 
-    // Save question statistics
-    await Promise.all(quiz.questions.map(q => q.save()));
+    // Atomic per-question stats update — only touched questions, uses clamped timeSpent (C2, C3)
+    const bulkOps = processedAnswers
+      .filter(a => a.question)
+      .map(a => ({
+        updateOne: {
+          filter: { _id: a.question },
+          update: [{
+            $set: {
+              'statistics.averageTime': {
+                $cond: {
+                  if:   { $eq: ['$statistics.totalAttempts', 0] },
+                  then: a.timeSpent,
+                  else: {
+                    $divide: [
+                      { $add: [{ $multiply: ['$statistics.averageTime', '$statistics.totalAttempts'] }, a.timeSpent] },
+                      { $add: ['$statistics.totalAttempts', 1] }
+                    ]
+                  }
+                }
+              },
+              'statistics.totalAttempts':   { $add: ['$statistics.totalAttempts', 1] },
+              'statistics.correctAttempts': { $add: ['$statistics.correctAttempts', a.isCorrect ? 1 : 0] }
+            }
+          }]
+        }
+      }));
 
-    // Update quiz statistics
-    quiz.statistics.totalPlays += 1;
-    quiz.statistics.totalPlayers += 1;
-    const avgScore = quiz.statistics.averageScore || 0;
-    quiz.statistics.averageScore = 
-      (avgScore * (quiz.statistics.totalPlays - 1) + totalScore) / 
-      quiz.statistics.totalPlays;
-    await quiz.save();
+    if (bulkOps.length) await Question.bulkWrite(bulkOps);
+
+    // Atomic quiz statistics update — no lost updates under concurrent submissions (C4)
+    await Quiz.findByIdAndUpdate(quizId, [{
+      $set: {
+        'statistics.averageScore': {
+          $cond: {
+            if:   { $eq: ['$statistics.totalPlays', 0] },
+            then: totalScore,
+            else: {
+              $divide: [
+                { $add: [{ $multiply: ['$statistics.averageScore', '$statistics.totalPlays'] }, totalScore] },
+                { $add: ['$statistics.totalPlays', 1] }
+              ]
+            }
+          }
+        },
+        'statistics.totalPlays':   { $add: ['$statistics.totalPlays', 1] },
+        'statistics.totalPlayers': { $add: ['$statistics.totalPlayers', 1] }
+      }
+    }]);
 
     // Save play history
     const playHistory = await PlayHistory.create({
@@ -210,7 +236,8 @@ exports.getQuizLeaderboard = async (req, res, next) => {
       .sort({ score: -1, timeSpent: 1 })
       .limit(parseInt(limit))
       .populate('player', 'username avatar')
-      .select('playerName score correctAnswers totalQuestions timeSpent completedAt player');
+      .select('playerName score correctAnswers totalQuestions timeSpent completedAt player')
+      .lean();
 
     const leaderboardWithRank = leaderboard.map((entry, index) => ({
       rank: index + 1,
@@ -246,7 +273,8 @@ exports.getPlayHistory = async (req, res, next) => {
       .populate('quiz', 'title coverImage')
       .sort({ completedAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
 
     successResponse(res, 200, 'Play history retrieved successfully', {
       history,

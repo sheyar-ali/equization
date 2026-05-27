@@ -135,19 +135,14 @@ exports.getAllQuizzes = async (req, res, next) => {
       .populate('creator', 'username avatar')
       .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
       .skip(skip)
-      .limit(safeLimit);
-
-    // Add questionCount to each quiz in list
-    const quizzesWithCount = quizzes.map(q => {
-      const obj = q.toObject({ virtuals: true });
-      return obj;
-    });
+      .limit(safeLimit)
+      .lean({ virtuals: true });
 
     paginatedResponse(
       res,
       200,
       'Quizzes retrieved successfully',
-      quizzesWithCount,
+      quizzes,
       page,
       limit,
       total
@@ -180,9 +175,8 @@ exports.getQuizById = async (req, res, next) => {
       return errorResponse(res, 403, 'You do not have permission to access this quiz');
     }
 
-    // Increment views
-    quiz.statistics.views += 1;
-    await quiz.save();
+    // Increment views atomically (fire-and-forget, non-critical)
+    Quiz.findByIdAndUpdate(req.params.id, { $inc: { 'statistics.views': 1 } }).exec();
 
     successResponse(res, 200, 'Quiz retrieved successfully', { quiz });
   } catch (error) {
@@ -325,15 +319,14 @@ exports.getMyQuizzes = async (req, res, next) => {
       .populate('categories', 'name slug icon color')
       .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
       .skip(skip)
-      .limit(parseInt(limit));
-
-    const quizzesWithCount = quizzes.map(q => q.toObject({ virtuals: true }));
+      .limit(parseInt(limit))
+      .lean({ virtuals: true });
 
     paginatedResponse(
       res,
       200,
       'Your quizzes retrieved successfully',
-      quizzesWithCount,
+      quizzes,
       page,
       limit,
       total
@@ -357,10 +350,10 @@ exports.getFeaturedQuizzes = async (req, res, next) => {
       .populate('categories', 'name slug icon color')
       .populate('creator', 'username avatar')
       .sort({ 'statistics.totalPlays': -1, 'statistics.views': -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean({ virtuals: true });
 
-    const quizzesWithCount = quizzes.map(q => q.toObject({ virtuals: true }));
-    successResponse(res, 200, 'Featured quizzes retrieved successfully', { quizzes: quizzesWithCount });
+    successResponse(res, 200, 'Featured quizzes retrieved successfully', { quizzes });
   } catch (error) {
     next(error);
   }

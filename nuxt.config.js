@@ -96,13 +96,6 @@ export default {
         rel: "stylesheet",
         href: "https://use.fontawesome.com/releases/v5.12.1/css/all.css",
       },
-      // Calling Of The Bootstrap Library
-      {
-        rel: "stylesheet",
-        type: "text/css",
-        href:
-          "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css",
-      },
     ],
   },
 
@@ -236,8 +229,8 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify"],
-    parallel: false,
-    cache: false,
-    hardSource: false,
+    parallel: true,
+    cache: true,
+    hardSource: true,
   },
 };
