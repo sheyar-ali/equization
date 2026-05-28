@@ -19,15 +19,13 @@ export default {
 
 <style scoped>
 a.menu-link {
-  width: 280px;
-  padding: 13px 18px 13px 16px;
-  margin-bottom: 18px;
-  border-radius: 50px;
-  display: flex !important;
-  align-items: center;
-  gap: 14px;
+  width: 265px;
+  padding: 10px 60px 10px 16px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  position: relative;
+  display: block !important;
   background: #fff;
-  border: none;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
   text-decoration: none;
@@ -35,18 +33,22 @@ a.menu-link {
 
 a.menu-link:hover {
   transform: translateX(-10px);
-  box-shadow: 0 8px 30px rgba(255, 94, 148, 0.35);
+  box-shadow: 0 8px 30px rgba(255, 94, 148, 0.3);
 }
 
-/* Icon circle */
+/* Icon — absolute, flush to the right edge, slightly outside the pill */
 i {
-  flex-shrink: 0;
-  font-size: 20px;
+  position: absolute;
+  top: 50%;
+  right: -3px;
+  transform: translateY(-50%);
+  font-size: 22px;
   color: #fff;
   background: linear-gradient(135deg, #ff5e94, #ff3d7f);
-  box-shadow: 0 4px 12px rgba(255, 94, 148, 0.45);
-  width: 46px;
-  height: 46px;
+  box-shadow: 0 4px 14px rgba(255, 94, 148, 0.5);
+  width: 50px;
+  height: 50px;
+  display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
@@ -54,8 +56,8 @@ i {
 }
 
 a.menu-link:hover i {
-  box-shadow: 0 6px 20px rgba(255, 94, 148, 0.7);
-  transform: scale(1.1);
+  box-shadow: 0 6px 22px rgba(255, 94, 148, 0.75);
+  transform: translateY(-50%) scale(1.1);
 }
 
 span {
@@ -63,6 +65,7 @@ span {
   color: #2d2a8e;
   font-weight: 700;
   font-family: 'Almarai', sans-serif;
+  display: block;
   transition: color 0.3s ease;
 }
 
