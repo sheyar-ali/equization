@@ -4,11 +4,18 @@
   <nav id="nav" class="top-navbar navbar position-fixed w-100">
     <div class="container-fluid position-relative">
       <div class="nav-icon d-flex align-center justify-center text-right">
-        <i class="fas fa-bars" @click="showMenu"></i>
+        <button
+          type="button"
+          class="hamburger-btn"
+          :aria-label="$t('nav.openMenu') || 'فتح القائمة'"
+          @click="showMenu"
+        >
+          <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
         <div class="my-account overflow-hidden">
           <nuxt-link :to="localePath('/signin')" class="d-flex align-center">
             <i class="far fa-user-circle"></i>
-            <span>{{ this.$t("loginPage.formContentTitle") }}</span>
+            <span>{{ $t("loginPage.formContentTitle") }}</span>
           </nuxt-link>
         </div>
       </div>
@@ -101,5 +108,13 @@ export default {
 
 .scroll-navbar .my-account {
   border-color: transparent !important;
+}
+
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  line-height: 1;
 }
 </style>

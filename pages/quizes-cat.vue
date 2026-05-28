@@ -79,10 +79,12 @@
 </template>
 
 <script>
-import PageTitle from "@/components/Shared-Components/PageTitle";
+import PageTitle     from "@/components/Shared-Components/PageTitle";
 import QuizComponent from "@/components/Shared-Components/QuizComponent";
+import quizHelpers   from "@/mixins/quizHelpers";
 
 export default {
+  mixins: [quizHelpers],
   layout: "form",
   head() {
     return { title: this.pageTitle };
@@ -181,13 +183,7 @@ export default {
       return cat.name || '';
     },
 
-    formatCategories(cats) {
-      if (!cats || !cats.length) return [];
-      return cats.map(cat => ({
-        categoryName: this.getCatName(cat),
-        categoryLink: this.localePath(`/quizes-cat?cat=${cat.slug || cat._id}`),
-      }));
-    },
+    // formatCategories provided by quizHelpers mixin
   },
 
   components: { PageTitle, QuizComponent },

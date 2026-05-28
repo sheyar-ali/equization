@@ -19,7 +19,7 @@
       class="side-menu-link w-100 d-flex overflow-hidden"
       @click="signOut = true"
     >
-      <button class="d-flex align-center w-100">
+      <button type="button" class="d-flex align-center w-100">
         <i class="fas fa-sign-out-alt"></i>
         <span class="font-weight-bold">{{
           $t("AccountPage.sideMenuLinks.last")
@@ -44,6 +44,7 @@
               color="white"
               class="w-100"
               style="height: 50px; min-width: 150px !important; width: auto !important; background-color: #ff5e94; border: none !important; font-size: 18px;"
+              @click="handleSignOut"
             >
               <v-icon class="mx-2">
                 mdi-logout
@@ -51,6 +52,17 @@
               <span style="font-family: 'Almarai'">
                 {{ $t("singOutDialog.title") }}
               </span>
+            </v-btn>
+          </v-col>
+          <v-col class="pa-2 d-flex align-center justify-center">
+            <v-btn
+              outlined
+              color="grey"
+              class="w-100"
+              style="height: 50px;"
+              @click="signOut = false"
+            >
+              {{ $t("singOutDialog.cancel") || $t("cancel") || "إلغاء" }}
             </v-btn>
           </v-col>
         </v-row>
@@ -65,7 +77,14 @@ export default {
   data() {
     return {
       signOut: false,
-    }
+    };
+  },
+  methods: {
+    handleSignOut() {
+      this.$store.dispatch("logout");
+      this.signOut = false;
+      this.$router.push(this.localePath("/"));
+    },
   },
   computed: {
     menuLinks() {

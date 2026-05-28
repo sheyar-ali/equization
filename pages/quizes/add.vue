@@ -26,7 +26,7 @@
                       outlined
                       type="text"
                       v-model="quizTitle"
-                      :label="this.$t('addQuizPage.quizTitle')"
+                      :label="$t('addQuizPage.quizTitle')"
                       :rules="[
                         required($t('addQuizPage.quizTitle')),
                         minLength($t('addQuizPage.quizTitle'), 8),
@@ -42,9 +42,9 @@
                       item-value="value"
                       multiple
                       :rules="[
-                        selected(this.$t('addQuizPage.categoriesError')),
+                        selected($t('addQuizPage.categoriesError')),
                       ]"
-                      :label="this.$t('addQuizPage.categoriesLabel')"
+                      :label="$t('addQuizPage.categoriesLabel')"
                       outlined
                       prepend-inner-icon="mdi-tag-text-outline"
                       :loading="loadingCategories"
@@ -55,7 +55,7 @@
                       outlined
                       type="text"
                       v-model="quizDescription"
-                      :label="this.$t('addQuizPage.breifExplanation')"
+                      :label="$t('addQuizPage.breifExplanation')"
                       :rules="[
                         required($t('addQuizPage.breifExplanationError')),
                         minLength($t('addQuizPage.breifExplanationError'), 10),
@@ -67,7 +67,7 @@
                     <v-textarea
                       outlined
                       v-model="quizFullDescription"
-                      :label="this.$t('addQuizPage.detailedExplanation')"
+                      :label="$t('addQuizPage.detailedExplanation')"
                       prepend-inner-icon="mdi-text-subject"
                       rows="4"
                     ></v-textarea>
@@ -101,7 +101,7 @@
                       @change="onFileChange"
                       @click:clear="clear"
                       :show-size="1000"
-                      :label="this.$t('addQuizPage.chooseImg')"
+                      :label="$t('addQuizPage.chooseImg')"
                       accept="image/*"
                       outlined
                       hide-details="auto"
@@ -115,9 +115,9 @@
                       item-value="value"
                       v-model="lang"
                       :rules="[
-                        selected(this.$t('addQuizPage.selectErrorText')),
+                        selected($t('addQuizPage.selectErrorText')),
                       ]"
-                      :label="this.$t('addQuizPage.quizLang')"
+                      :label="$t('addQuizPage.quizLang')"
                       outlined
                       prepend-inner-icon="mdi-translate"
                       required
@@ -138,12 +138,12 @@
                         {{ $t("addQuizPage.privacyLabel") }}
                       </label>
                       <v-radio
-                        :label="this.$t('addQuizPage.publicRadio')"
+                        :label="$t('addQuizPage.publicRadio')"
                         class="radio-label"
                         :value="true"
                       ></v-radio>
                       <v-radio
-                        :label="this.$t('addQuizPage.privateRadio')"
+                        :label="$t('addQuizPage.privateRadio')"
                         class="radio-label"
                         :value="false"
                       ></v-radio>

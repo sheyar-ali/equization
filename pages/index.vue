@@ -70,7 +70,7 @@
 
         <!-- Loading state -->
         <v-row v-if="loadingQuizzes" class="justify-center my-8">
-          <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+          <AppLoader />
         </v-row>
 
         <!-- Quizzes from API -->
@@ -83,7 +83,7 @@
             :playersNumbers="quiz.statistics ? quiz.statistics.totalPlayers : 0"
             :quizTitle="quiz.title"
             :categories="formatCategories(quiz.categories)"
-            :wowDelay="getDelay(idx)"
+            :wowDelay="getWowDelay(idx)"
             :coverImage="quiz.coverImage"
             :quizCode="quiz.quizCode"
           />
@@ -115,8 +115,10 @@ import SectionTitle     from "@/components/Home-Page-Components/SectionTitle.vue
 import WhyUsComponent   from "@/components/Home-Page-Components/WhyUsComponent.vue";
 import QuizComponent    from "@/components/Shared-Components/QuizComponent";
 import HowSection       from "@/components/Home-Page-Components/HowSection.vue";
+import quizHelpers      from "@/mixins/quizHelpers";
 
 export default {
+  mixins: [quizHelpers],
   name: "Home",
   layout: "default",
   head() {
@@ -215,19 +217,9 @@ export default {
         this.apiStats = { totalQuizzes: 0, totalQuestions: 0, totalPlayers: 0 };
       }
     },
-    formatCategories(categories) {
-      if (!categories || !categories.length) return [];
-      return categories.map(cat => ({
-        categoryName: typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || cat.slug || ''),
-        categoryLink: `/quizes-cat?cat=${cat.slug || cat._id}`,
-      }));
-    },
-    getDelay(idx) {
-      const delays = ["0s", "0.1s", ".2s", ".3s", ".4s", ".5s", ".6s", ".7s"];
-      return delays[idx % delays.length];
-    },
+    // formatCategories and getWowDelay provided by quizHelpers mixin
   },
-  components: { MenuComponent, NumbersComponent, SectionTitle, WhyUsComponent, QuizComponent, HowSection },
+  components: { MenuComponent, NumbersComponent, SectionTitle, WhyUsComponent, QuizComponent, HowSection, AppLoader: () => import("@/components/Shared-Components/AppLoader") },
 };
 </script>
 

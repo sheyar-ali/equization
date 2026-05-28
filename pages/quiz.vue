@@ -3,9 +3,7 @@
     <PageTitle :titleText="$t('quizPage.pageTitle')" />
 
     <!-- Loading -->
-    <div v-if="loading" class="d-flex justify-center align-center" style="min-height:60vh">
-      <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
-    </div>
+    <AppLoader v-if="loading" :fullpage="true" />
 
     <!-- Error -->
     <div v-else-if="error" class="text-center py-16">
@@ -323,7 +321,7 @@ export default {
       this.$router.push(this.localePath('/host/options'));
     },
   },
-  components: { PageTitle, PlayersDetails, QuizInfo, Categories },
+  components: { PageTitle, PlayersDetails, QuizInfo, Categories, AppLoader: () => import("@/components/Shared-Components/AppLoader") },
 };
 </script>
 

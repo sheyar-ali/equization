@@ -15,7 +15,7 @@
 
               <!-- Loading -->
               <div v-if="loading" class="d-flex justify-center py-10">
-                <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+                <AppLoader :fullpage="false" />
               </div>
 
               <!-- Quizzes from API -->
@@ -62,8 +62,10 @@ import SideMenu      from "@/components/AccountComponents/SideMenu";
 import AccountHeader from "@/components/AccountComponents/AccountHeader";
 import QuizComponent from "@/components/Shared-Components/QuizComponent";
 import EmptyData     from "@/components/AccountComponents/EmptyData";
+import quizHelpers   from "@/mixins/quizHelpers";
 
 export default {
+  mixins: [quizHelpers],
   layout: "account",
   middleware: ['auth'],
   head() { return { title: this.$t("myQuizzesPage.AccountHeader.headerText") }; },
@@ -88,14 +90,8 @@ export default {
       }
     },
     changePage(p) { this.page = p; this.fetchMyQuizzes(); },
-    formatCategories(cats) {
-      if (!cats || !cats.length) return [];
-      return cats.map(c => ({
-        categoryName: typeof c.name === 'object' ? (c.name.ar || c.name.en || '') : (c.name || ''),
-        categoryLink: `/quizes-cat?cat=${c.slug || c._id}`,
-      }));
-    },
+    // formatCategories provided by quizHelpers mixin
   },
-  components: { SideMenu, AccountHeader, QuizComponent, EmptyData },
+  components: { SideMenu, AccountHeader, QuizComponent, EmptyData, AppLoader: () => import("@/components/Shared-Components/AppLoader") },
 };
 </script>
