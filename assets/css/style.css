@@ -3,6 +3,18 @@
   font-family: "Cairo";
 }
 
+/* Bootstrap-compatible utility classes missing from Vuetify */
+.text-white  { color: #fff !important; }
+.text-dark   { color: rgba(0, 0, 0, 0.87) !important; }
+.text-muted  { color: #6c757d !important; }
+.text-justify { text-align: justify !important; }
+
+.list-unstyled {
+  list-style: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* Public Styles Of The Navbar */
 .navbar {
   padding: 15px 1rem;
@@ -111,8 +123,7 @@ h3,
 h4,
 h5,
 h6,
-p,
-ul {
+p {
   margin-bottom: 0;
 }
 

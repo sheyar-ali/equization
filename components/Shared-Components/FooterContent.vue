@@ -2,7 +2,7 @@
   <li>
     <nuxt-link
       :to="localePath(linkPath)"
-      class="font-weight-bold d-d-flex w-100"
+      class="font-weight-bold d-flex w-100"
     >
       <i class="fas fa-angle-left"></i>
       <span class="text-white">{{ linkContent }}</span>
