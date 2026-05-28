@@ -39,21 +39,37 @@ export default {
               offset: 0,
             }).init();
           });
-          // Scrolling event
+          // Toggling Between Top Navbar and Scroll Navbar When Scrolling
+          var navbar = document.getElementById("nav");
+          var menuLinks = document.querySelector(".menu-links");
+          var homeSectionImg = document.querySelector(".home-content img");
+
+          if (!homeSectionImg) {
+            // Not on the home page — always use white navbar with visible logo
+            if (navbar) navbar.classList.add("scroll-navbar");
+            if (menuLinks) menuLinks.classList.remove("top-menu-links");
+            window.onscroll = null;
+            return;
+          }
+
+          // Home page — reset to transparent state then set up scroll toggle
+          navbar.classList.remove("scroll-navbar");
+          menuLinks.classList.add("top-menu-links");
+          homeSectionImg.style.visibility = "visible";
+
           window.onscroll = function () {
             try {
-              // Toggling Between Top Navbar and Scroll Navbar When Scrolling
-              var navbar = document.getElementById("nav"),
-                homeSectionImg = document.querySelector(".home-content img"),
-                menuLinks = document.querySelector(".menu-links");
-              if (this.scrollY >= homeSectionImg.offsetTop + navbar.offsetTop) {
-                navbar.classList.add("scroll-navbar");
-                menuLinks.classList.remove("top-menu-links");
-                homeSectionImg.style.visibility = "hidden";
+              var nav = document.getElementById("nav"),
+                img = document.querySelector(".home-content img"),
+                links = document.querySelector(".menu-links");
+              if (window.scrollY >= img.offsetTop + nav.offsetTop) {
+                nav.classList.add("scroll-navbar");
+                links.classList.remove("top-menu-links");
+                img.style.visibility = "hidden";
               } else {
-                navbar.classList.remove("scroll-navbar");
-                menuLinks.classList.add("top-menu-links");
-                homeSectionImg.style.visibility = "visible";
+                nav.classList.remove("scroll-navbar");
+                links.classList.add("top-menu-links");
+                img.style.visibility = "visible";
               }
             } catch (error) {}
           };
