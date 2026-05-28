@@ -194,11 +194,9 @@ export default {
   height: 100%;
   padding: 18px 65px 18px 20px;
   background: linear-gradient(135deg,
-    rgba(30, 27, 75, 0.92) 0%,
-    rgba(54, 57, 153, 0.88) 50%,
-    rgba(108, 99, 255, 0.82) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+    rgba(30, 27, 75, 0.72) 0%,
+    rgba(54, 57, 153, 0.68) 50%,
+    rgba(108, 99, 255, 0.62) 100%);
   z-index: 9999999;
   display: none;
 }
