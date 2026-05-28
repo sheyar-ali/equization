@@ -20,26 +20,22 @@ export default {
 <style scoped>
 a.menu-link {
   width: 280px;
-  padding: 14px 20px 14px 18px;
-  margin-bottom: 16px;
+  padding: 13px 18px 13px 16px;
+  margin-bottom: 18px;
   border-radius: 50px;
-  position: relative;
   display: flex !important;
   align-items: center;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), background 0.3s ease, box-shadow 0.3s ease;
+  gap: 14px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
   text-decoration: none;
 }
 
 a.menu-link:hover {
-  transform: translateX(-8px);
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(255, 94, 148, 0.3);
-  border-color: rgba(255, 94, 148, 0.5);
+  transform: translateX(-10px);
+  box-shadow: 0 8px 30px rgba(255, 94, 148, 0.35);
 }
 
 /* Icon circle */
@@ -48,9 +44,9 @@ i {
   font-size: 20px;
   color: #fff;
   background: linear-gradient(135deg, #ff5e94, #ff3d7f);
-  box-shadow: 0 4px 14px rgba(255, 94, 148, 0.5);
-  width: 44px;
-  height: 44px;
+  box-shadow: 0 4px 12px rgba(255, 94, 148, 0.45);
+  width: 46px;
+  height: 46px;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
@@ -58,20 +54,19 @@ i {
 }
 
 a.menu-link:hover i {
-  box-shadow: 0 6px 20px rgba(255, 94, 148, 0.8);
-  transform: scale(1.12);
+  box-shadow: 0 6px 20px rgba(255, 94, 148, 0.7);
+  transform: scale(1.1);
 }
 
 span {
-  font-size: 17px;
-  color: #fff;
+  font-size: 18px;
+  color: #2d2a8e;
   font-weight: 700;
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  font-family: 'Almarai', sans-serif;
   transition: color 0.3s ease;
 }
 
-a.menu-link:hover span { color: #ffc961; }
+a.menu-link:hover span { color: #ff3d7f; }
 
 /* Staircase offset — RTL */
 li:first-of-type  { margin-right: 160px; }
