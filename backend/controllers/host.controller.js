@@ -4,7 +4,7 @@ const PlayHistory = require('../models/PlayHistory.model');
 const { successResponse, errorResponse } = require('../utils/response.util');
 
 // @desc    Create game session
-// @route   POST /api/v1/host/create-session
+// @route   POST /api/v1/host/create-session  (was incorrectly POST / in old routes)
 // @access  Private
 exports.createGameSession = async (req, res, next) => {
   try {

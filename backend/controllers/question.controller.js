@@ -80,7 +80,26 @@ exports.updateQuestion = async (req, res, next) => {
     if (question.quiz.creator.toString() !== req.user.id && req.user.role !== 'admin')
       return errorResponse(res, 403, 'Not authorized');
 
-    question = await Question.findByIdAndUpdate(req.params.id, req.body, {
+    // Whitelist allowed fields — prevent Mass Assignment (e.g. overwriting quiz, statistics)
+    const {
+      questionText, questionImage, questionType,
+      answers, points, timeLimit, explanation, source, difficulty, order
+    } = req.body;
+
+    const allowedUpdate = {
+      ...(questionText  !== undefined && { questionText }),
+      ...(questionImage !== undefined && { questionImage }),
+      ...(questionType  !== undefined && { questionType }),
+      ...(answers       !== undefined && { answers }),
+      ...(points        !== undefined && { points }),
+      ...(timeLimit     !== undefined && { timeLimit }),
+      ...(explanation   !== undefined && { explanation }),
+      ...(source        !== undefined && { source }),
+      ...(difficulty    !== undefined && { difficulty }),
+      ...(order         !== undefined && { order })
+    };
+
+    question = await Question.findByIdAndUpdate(req.params.id, allowedUpdate, {
       new: true, runValidators: true
     });
 

@@ -1,7 +1,7 @@
 const User        = require('../models/User.model');
 const Quiz        = require('../models/Quiz.model');
 const PlayHistory = require('../models/PlayHistory.model');
-const { successResponse, errorResponse } = require('../utils/response.util');
+const { successResponse, errorResponse, paginatedResponse } = require('../utils/response.util');
 
 // ── Get user public profile ───────────────────────────────────────────────────
 // GET /api/v1/users/:id
@@ -29,11 +29,7 @@ exports.getUserQuizzes = async (req, res, next) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    return res.status(200).json({
-      success: true, message: 'Quizzes retrieved',
-      data: quizzes,
-      pagination: { page: +page, limit: +limit, total, pages: Math.ceil(total / limit) }
-    });
+    return paginatedResponse(res, 200, 'Quizzes retrieved', quizzes, page, limit, total);
   } catch (err) { next(err); }
 };
 
@@ -69,7 +65,8 @@ exports.searchUsers = async (req, res, next) => {
 // GET /api/v1/users/top-creators
 exports.getTopCreators = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    // Cap limit to 50 to prevent unbounded data dumps
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const creators = await User.find({ 'statistics.quizzesCreated': { $gt: 0 } })
       .select('username firstName lastName avatar statistics.quizzesCreated statistics.quizzesPlayed')
       .sort({ 'statistics.quizzesCreated': -1 })
@@ -85,6 +82,16 @@ exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatarUrl } = req.body;
     if (!avatarUrl) return errorResponse(res, 400, 'Please provide an avatar URL');
+
+    // Validate URL format to prevent XSS or non-URL values being stored
+    try {
+      const parsed = new URL(avatarUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return errorResponse(res, 400, 'Avatar URL must use http or https');
+      }
+    } catch {
+      return errorResponse(res, 400, 'Please provide a valid URL for the avatar');
+    }
 
     const user = await User.findByIdAndUpdate(
       req.user.id, { avatar: avatarUrl }, { new: true }
