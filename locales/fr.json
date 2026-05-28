@@ -159,7 +159,11 @@
     "buttonText": "Connexion",
     "forgetPasswordText": "Mot de passe oublié ?",
     "formDividerText": "Vous n'avez pas de compte?",
-    "formDividerLink": "Enregistrer un nouveau compte"
+    "formDividerLink": "Enregistrer un nouveau compte",
+    "successMsg": "Connexion réussie ! Redirection...",
+    "errorInvalidCredentials": "Email ou mot de passe incorrect",
+    "errorNotVerified": "Veuillez d'abord vérifier votre compte depuis votre email",
+    "errorGeneric": "Une erreur s'est produite lors de la connexion, veuillez réessayer"
   },
   "confirmEmailPage": {
     "pageTitle": "Vérifiez votre e-mail",
@@ -190,7 +194,11 @@
     "formDividerText": "Vous avez déjà un compte?",
     "formDividerLink": "s'identifier",
     "formContentTitle": "Enregistrer un nouveau compte",
-    "formContentDescription": "Créez un nouveau compte maintenant et profitez des fonctionnalités et services de la plateforme"
+    "formContentDescription": "Créez un nouveau compte maintenant et profitez des fonctionnalités et services de la plateforme",
+    "successMsg": "Compte créé avec succès ! Veuillez vérifier votre email.",
+    "errorDuplicate": "Cet email ou nom d'utilisateur est déjà utilisé",
+    "errorRateLimit": "Trop de demandes, veuillez patienter un moment et réessayer",
+    "errorGeneric": "Une erreur s'est produite lors de la création du compte, veuillez réessayer"
   },
   "emailConfirmedPage": {
     "pageTitle": "Vérifiez votre e-mail",
@@ -240,7 +248,11 @@
     "quiz": "quiz"
   },
   "quizesCatPage": {
-    "pageTitle": "Catégories: Chimie"
+    "pageTitle": "Catégories: Chimie",
+    "allCategories": "Tout",
+    "errorLoading": "Échec du chargement des quiz",
+    "emptyState": "Aucun quiz dans cette catégorie",
+    "retry": "Réessayer"
   },
   "categoriesNames": {
     "allCategories": "Tout",
@@ -273,7 +285,15 @@
     "playersInfoTitle": "Nombre de joueurs",
     "quizDetails": {
       "title": "Essayez un test de titre de démonstration"
-    }
+    },
+    "errorNoQuiz": "Aucun quiz spécifié",
+    "errorLoading": "Une erreur s'est produite lors du chargement du quiz",
+    "errorInvalidCode": "Code de quiz invalide",
+    "codeCopied": "Code copié !",
+    "codeCopiedAlert": "Code copié : ",
+    "quizCodeLabel": "Code du quiz : ",
+    "copyCode": "Copier le code",
+    "backToQuizzes": "Retour aux quiz"
   },
   "myQuizPage": {
     "deleteBtn": "Effacer"
@@ -348,7 +368,13 @@
     "publicRadio": "Public",
     "privateRadio": "Privé",
     "selectErrorText": "La langue du quiz doit être choisie",
-    "subBtn": "Créer un quiz"
+    "subBtn": "Créer un quiz",
+    "difficultyLabel": "Niveau de difficulté",
+    "difficultyEasy": "Facile",
+    "difficultyMedium": "Moyen",
+    "difficultyHard": "Difficile",
+    "successMsg": "Quiz créé avec succès !",
+    "errorMsg": "Échec de la création du quiz"
   },
   "profilePage": {
     "pageTitle": "Paramètres du compte",

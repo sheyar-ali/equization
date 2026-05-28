@@ -128,7 +128,7 @@
                       item-text="label"
                       item-value="value"
                       v-model="difficulty"
-                      label="مستوى الصعوبة"
+                      :label="$t('addQuizPage.difficultyLabel')"
                       outlined
                       prepend-inner-icon="mdi-signal"
                     ></v-select>
@@ -212,9 +212,9 @@ export default {
         { label: 'Turkçe',   value: 'tr' },
       ],
       difficultyItems: [
-        { label: 'سهل',    value: 'easy'   },
-        { label: 'متوسط',  value: 'medium' },
-        { label: 'صعب',    value: 'hard'   },
+        { label: this.$t('addQuizPage.difficultyEasy'),   value: 'easy'   },
+        { label: this.$t('addQuizPage.difficultyMedium'), value: 'medium' },
+        { label: this.$t('addQuizPage.difficultyHard'),   value: 'hard'   },
       ],
       // Required Validation
       required(errorName) {
@@ -296,7 +296,7 @@ export default {
         };
         const res = await this.$axios.post('/quizzes', payload);
         const quiz = res.data?.data?.quiz || res.data?.data;
-        this.successMsg = 'تم إنشاء الاختبار بنجاح!';
+        this.successMsg = this.$t('addQuizPage.successMsg');
         if (quiz && quiz._id) {
           if (process.client) sessionStorage.setItem('currentQuizId', quiz._id);
           setTimeout(() => {
@@ -304,7 +304,7 @@ export default {
           }, 1000);
         }
       } catch (e) {
-        this.errorMsg = e.response?.data?.message || 'فشل في إنشاء الاختبار';
+        this.errorMsg = e.response?.data?.message || this.$t('addQuizPage.errorMsg');
         console.error('Create quiz error:', e);
       } finally {
         this.saving = false;

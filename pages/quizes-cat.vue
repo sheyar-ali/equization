@@ -9,7 +9,7 @@
         <v-row v-if="categories.length" class="mb-4">
           <v-col cols="12">
             <v-chip-group v-model="selectedCategorySlug" active-class="primary--text" column>
-              <v-chip value="" outlined>{{ $t('explore.allCategories') || 'الكل' }}</v-chip>
+              <v-chip value="" outlined>{{ $t('quizesCatPage.allCategories') }}</v-chip>
               <v-chip
                 v-for="cat in categories"
                 :key="cat._id"
@@ -34,7 +34,7 @@
           <v-col cols="12" class="text-center py-10">
             <v-icon size="60" color="grey">mdi-alert-circle-outline</v-icon>
             <p class="title grey--text mt-4">{{ error }}</p>
-            <v-btn outlined color="primary" @click="fetchQuizzes">إعادة المحاولة</v-btn>
+            <v-btn outlined color="primary" @click="fetchQuizzes">{{ $t('quizesCatPage.retry') }}</v-btn>
           </v-col>
         </v-row>
 
@@ -58,7 +58,7 @@
         <v-row v-else>
           <v-col cols="12" class="text-center py-10">
             <v-icon size="60" color="grey">mdi-magnify</v-icon>
-            <p class="title grey--text mt-4">لا توجد اختبارات في هذه الفئة</p>
+            <p class="title grey--text mt-4">{{ $t('quizesCatPage.emptyState') }}</p>
           </v-col>
         </v-row>
 
@@ -168,7 +168,7 @@ export default {
           }
         }
       } catch (e) {
-        this.error = 'فشل في تحميل الاختبارات';
+        this.error = this.$t('quizesCatPage.errorLoading');
         console.error('Failed to fetch quizzes:', e);
       } finally {
         this.loading = false;

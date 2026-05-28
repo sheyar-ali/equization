@@ -9,7 +9,7 @@
     <div v-else-if="error" class="text-center py-16">
       <v-icon size="80" color="grey">mdi-alert-circle-outline</v-icon>
       <p class="title mt-4 grey--text">{{ error }}</p>
-      <v-btn color="primary" @click="$router.push(localePath('/explore'))">العودة للاختبارات</v-btn>
+      <v-btn color="primary" @click="$router.push(localePath('/explore'))">{{ $t("quizPage.backToQuizzes") }}</v-btn>
     </div>
 
     <!-- Quiz Details -->
@@ -59,9 +59,9 @@
                   <div v-if="quiz.quizCode" class="quiz-code-badge d-flex align-center mb-3">
                     <v-chip color="primary" text-color="white" class="font-weight-bold" label>
                       <v-icon left small>mdi-key-variant</v-icon>
-                      كود الكويز: {{ quiz.quizCode }}
+                      {{ $t("quizPage.quizCodeLabel") }}{{ quiz.quizCode }}
                     </v-chip>
-                    <v-btn icon x-small class="mx-2" @click="copyCode(quiz.quizCode)" title="نسخ الكود">
+                    <v-btn icon x-small class="mx-2" @click="copyCode(quiz.quizCode)" :title="$t('quizPage.copyCode')">
                       <v-icon small>mdi-content-copy</v-icon>
                     </v-btn>
                   </div>
@@ -250,7 +250,7 @@ export default {
     } else if (code) {
       await this.fetchQuizByCode(code);
     } else {
-      this.error   = 'لم يتم تحديد اختبار';
+      this.error   = this.$t('quizPage.errorNoQuiz');
       this.loading = false;
     }
     // Build share URL
@@ -275,7 +275,7 @@ export default {
         const res = await this.$axios.get(`/quizzes/${id}`);
         this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
-        this.error = e.response?.data?.message || 'حدث خطأ في تحميل الاختبار';
+        this.error = e.response?.data?.message || this.$t('quizPage.errorLoading');
       } finally {
         this.loading = false;
       }
@@ -286,7 +286,7 @@ export default {
         const res = await this.$axios.get(`/quizzes/code/${code}`);
         this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
-        this.error = 'كود الاختبار غير صحيح';
+        this.error = this.$t('quizPage.errorInvalidCode');
       } finally {
         this.loading = false;
       }
@@ -297,7 +297,7 @@ export default {
     copyCode(code) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(code).then(() => {
-          this.$toast?.success?.('تم نسخ الكود!') || alert('تم نسخ الكود: ' + code);
+          this.$toast?.success?.(this.$t('quizPage.codeCopied')) || alert(this.$t('quizPage.codeCopiedAlert') + code);
         });
       } else {
         const el = document.createElement('input');
@@ -306,7 +306,7 @@ export default {
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
-        alert('تم نسخ الكود: ' + code);
+        alert(this.$t('quizPage.codeCopiedAlert') + code);
       }
     },
     startIndividual() {

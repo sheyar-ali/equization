@@ -174,7 +174,7 @@ export default {
           // Save token & user so /verify can call resend-verification (protected route)
           this.$store.dispatch('login', { token, user });
 
-          this.successMsg = "تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.";
+          this.successMsg = this.$t("createAccountPage.successMsg");
           setTimeout(() => {
             this.$router.push(this.localePath("/verify"));
           }, 1500);
@@ -182,11 +182,11 @@ export default {
       } catch (err) {
         const msg = err.response?.data?.message;
         if (msg && (msg.includes("duplicate") || msg.includes("already"))) {
-          this.errorMsg = "هذا البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل";
+          this.errorMsg = this.$t("createAccountPage.errorDuplicate");
         } else if (err.response?.status === 429) {
-          this.errorMsg = "طلبات كثيرة جداً، يرجى الانتظار قليلاً ثم المحاولة مرة أخرى";
+          this.errorMsg = this.$t("createAccountPage.errorRateLimit");
         } else {
-          this.errorMsg = msg || "حدث خطأ أثناء إنشاء الحساب، حاول مرة أخرى";
+          this.errorMsg = msg || this.$t("createAccountPage.errorGeneric");
         }
       } finally {
         this.loading = false;
