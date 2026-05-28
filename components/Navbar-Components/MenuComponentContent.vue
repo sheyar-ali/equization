@@ -21,38 +21,45 @@ export default {
 a {
   width: 265px;
   padding: 10px;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
   border-radius: 20px;
   position: relative;
-  transition: transform 0.2s ease-in-out;
-  -webkit-transition: transform 0.2s ease-in-out;
-  -moz-transition: transform 0.2s ease-in-out;
-  -ms-transition: transform 0.2s ease-in-out;
-  -o-transition: transform 0.2s ease-in-out;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), background 0.3s ease;
 }
 
 a:hover {
   transform: translateX(-10px);
+  background: rgba(255,255,255,0.07);
 }
 
+/* Icon pill with gradient */
 i {
   position: absolute;
   top: -2px;
   right: -3px;
-  font-size: 28px;
-  background-color: #ff5e94;
+  font-size: 26px;
+  background: linear-gradient(135deg, #ff5e94, #ff3d7f);
+  box-shadow: 0 4px 16px rgba(255, 94, 148, 0.5);
   width: 50px;
   height: 50px;
   justify-content: center;
   border-radius: 50%;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+a:hover i {
+  box-shadow: 0 6px 24px rgba(255, 94, 148, 0.8);
+  transform: scale(1.1);
 }
 
 span {
   font-size: 18px;
   margin-right: 15px;
-  color: rgba(58, 55, 152, 0.9);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: color 0.3s ease;
 }
+a:hover span { color: #ffc961; }
 
 .top-menu-links i.close-icon {
   color: #ffc961 !important;

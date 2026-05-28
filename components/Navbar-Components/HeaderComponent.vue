@@ -69,13 +69,11 @@ export default {
 
 <style scoped>
 .top-navbar {
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  -ms-box-shadow: none;
-  -o-box-shadow: none;
   box-shadow: none;
+  background: transparent;
 }
 
+/* Logo hidden on home (transparent state), visible once scrolled */
 .top-navbar .logo {
   display: none;
 }
@@ -84,37 +82,39 @@ export default {
   display: block;
 }
 
+/* Glassmorphism scroll state — also overridden in global style.css */
 .scroll-navbar {
-  background-color: #fff !important;
-  -webkit-box-shadow: 1.5px 1.5px 15px rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 1.5px 1.5px 15px rgba(0, 0, 0, 0.15);
-  -ms-box-shadow: 1.5px 1.5px 15px rgba(0, 0, 0, 0.15);
-  -o-box-shadow: 1.5px 1.5px 15px rgba(0, 0, 0, 0.15);
-  box-shadow: 1.5px 1.5px 15px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 4px 32px rgba(54, 57, 153, 0.12) !important;
+  border-bottom: 1px solid rgba(108, 99, 255, 0.10) !important;
+}
+
+/* Logo glow on scroll state */
+.scroll-navbar .logo a img {
+  filter: drop-shadow(0 2px 12px rgba(54, 57, 153, 0.25));
+  transition: filter 0.3s ease;
 }
 
 .top-navbar .my-account {
   background-color: transparent !important;
-  /* border: 2px solid #ffc961; */
 }
+.top-navbar .my-account a span { font-size: 18px !important; }
+.top-navbar .my-account a i   { font-size: 30px !important; }
+.scroll-navbar .my-account { border-color: transparent !important; }
 
-.top-navbar .my-account a span {
-  font-size: 18px !important;
-}
-
-.top-navbar .my-account a i {
-  font-size: 30px !important;
-}
-
-.scroll-navbar .my-account {
-  border-color: transparent !important;
-}
-
+/* Hamburger button */
 .hamburger-btn {
   background: transparent;
   border: none;
-  padding: 4px;
+  padding: 6px;
   cursor: pointer;
   line-height: 1;
+  border-radius: 10px;
+  transition: background 0.25s ease;
+}
+.hamburger-btn:hover {
+  background: rgba(255, 94, 148, 0.1);
 }
 </style>

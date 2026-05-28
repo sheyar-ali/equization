@@ -22,35 +22,42 @@ export default {
 
 <style scoped>
 h1 {
-  color: #3a3798;
-  margin-bottom: 20px;
-  font-size: 46px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #363999 40%, #6c63ff 70%, #ff5e94 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 18px;
+  font-size: 48px;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
 p {
   margin-bottom: 50px;
 }
 
+/* Animated rainbow underline */
 span {
   height: 5px;
   width: 25%;
-  background-color: #ffc961;
+  background: linear-gradient(90deg, #363999, #6c63ff, #ff5e94, #ffc961, #363999);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
   border-radius: 10px;
 }
 
-@media only screen and (max-width: 600px) {
-  .section-title h1 {
-    font-size: 30px !important;
-  }
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
 
-  .section-title span {
-    width: 50% !important;
-  }
+@media only screen and (max-width: 600px) {
+  .section-title h1  { font-size: 28px !important; }
+  .section-title span { width: 50% !important; }
 }
 
 @media only screen and (min-width: 600px) and (max-width: 992px) {
-  .section-title span {
-    width: 50%;
-  }
+  .section-title h1  { font-size: 38px !important; }
+  .section-title span { width: 40%; }
 }
 </style>
