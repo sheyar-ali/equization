@@ -159,7 +159,11 @@
     "buttonText": "تسجيل دخول",
     "forgetPasswordText": "نسيت كلمة المرور ؟",
     "formDividerText": "لا تمتلك حساب ؟",
-    "formDividerLink": "تسجيل حساب جديد"
+    "formDividerLink": "تسجيل حساب جديد",
+    "successMsg": "تم تسجيل الدخول بنجاح! جاري التحويل...",
+    "errorInvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "errorNotVerified": "يرجى تفعيل حسابك أولاً من بريدك الإلكتروني",
+    "errorGeneric": "حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى"
   },
   "confirmEmailPage": {
     "pageTitle": "تأكيد البريد الإلكترونى",
@@ -190,7 +194,11 @@
     "formDividerText": "لديك حساب بالفعل ؟",
     "formDividerLink": "تسجيل الدخول",
     "formContentTitle": "تسجيل حساب جديد",
-    "formContentDescription": "قم الآن بتسجيل حساب جديد و استمتع بمميزات وخدمات المنصة"
+    "formContentDescription": "قم الآن بتسجيل حساب جديد و استمتع بمميزات وخدمات المنصة",
+    "successMsg": "تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.",
+    "errorDuplicate": "هذا البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل",
+    "errorRateLimit": "طلبات كثيرة جداً، يرجى الانتظار قليلاً ثم المحاولة مرة أخرى",
+    "errorGeneric": "حدث خطأ أثناء إنشاء الحساب، حاول مرة أخرى"
   },
   "emailConfirmedPage": {
     "pageTitle": "تأكيد البريد الإلكترونى",
@@ -240,7 +248,11 @@
     "quiz": "إختبار"
   },
   "quizesCatPage": {
-    "pageTitle": "التصنيفات: كيمياء"
+    "pageTitle": "التصنيفات: كيمياء",
+    "allCategories": "الكل",
+    "errorLoading": "فشل في تحميل الاختبارات",
+    "emptyState": "لا توجد اختبارات في هذه الفئة",
+    "retry": "إعادة المحاولة"
   },
   "categoriesNames": {
     "allCategories": "الكل",
@@ -273,7 +285,15 @@
     "playersInfoTitle": "عدد اللاعبين",
     "quizDetails": {
       "title": "تجربة عنوان إختبار تجريبي"
-    }
+    },
+    "errorNoQuiz": "لم يتم تحديد اختبار",
+    "errorLoading": "حدث خطأ في تحميل الاختبار",
+    "errorInvalidCode": "كود الاختبار غير صحيح",
+    "codeCopied": "تم نسخ الكود!",
+    "codeCopiedAlert": "تم نسخ الكود: ",
+    "quizCodeLabel": "كود الكويز: ",
+    "copyCode": "نسخ الكود",
+    "backToQuizzes": "العودة للاختبارات"
   },
   "myQuizPage": {
     "deleteBtn": "حذف"
@@ -348,7 +368,13 @@
     "publicRadio": "عام",
     "privateRadio": "خاص",
     "selectErrorText": "يجب إختيار لغة الإختبار",
-    "subBtn": "إنشاء الإختبار"
+    "subBtn": "إنشاء الإختبار",
+    "difficultyLabel": "مستوى الصعوبة",
+    "difficultyEasy": "سهل",
+    "difficultyMedium": "متوسط",
+    "difficultyHard": "صعب",
+    "successMsg": "تم إنشاء الاختبار بنجاح!",
+    "errorMsg": "فشل في إنشاء الاختبار"
   },
   "profilePage": {
     "pageTitle": "إعدادات الحساب",

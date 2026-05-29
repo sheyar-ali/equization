@@ -10,7 +10,7 @@ const {
 const { protect, optionalAuth } = require('../middleware/auth.middleware');
 
 router.get ('/featured',              getFeaturedQuizzes);
-router.get ('/code/:code',            getQuizByCode);
+router.get ('/code/:code',            optionalAuth, getQuizByCode);
 router.get ('/user/my-quizzes',       protect, getMyQuizzes);
 
 router.route('/')

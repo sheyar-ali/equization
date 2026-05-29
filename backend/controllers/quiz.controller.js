@@ -78,10 +78,13 @@ exports.getAllQuizzes = async (req, res, next) => {
       difficulty,
       educationLevel,
       language,
-      sortBy = 'createdAt',
       order = 'desc',
       isPublic
     } = req.query;
+
+    // Allowlist sortBy to prevent NoSQL injection via user-controlled sort key
+    const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'title', 'statistics.totalPlays', 'statistics.views'];
+    const sortBy = ALLOWED_SORT_FIELDS.includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
 
     // Build query
     const query = { isActive: true };
@@ -198,6 +201,11 @@ exports.getQuizByCode = async (req, res, next) => {
       return errorResponse(res, 404, 'Quiz not found with that code');
     }
 
+    // Enforce privacy: private quizzes can only be fetched by their creator
+    if (!quiz.isPublic && (!req.user || quiz.creator._id.toString() !== req.user.id)) {
+      return errorResponse(res, 403, 'You do not have permission to access this quiz');
+    }
+
     successResponse(res, 200, 'Quiz retrieved successfully', { quiz });
   } catch (error) {
     next(error);
@@ -308,9 +316,12 @@ exports.getMyQuizzes = async (req, res, next) => {
     const {
       page = 1,
       limit = 12,
-      sortBy = 'createdAt',
       order = 'desc'
     } = req.query;
+
+    // Allowlist sortBy to prevent NoSQL injection via user-controlled sort key
+    const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'title', 'statistics.totalPlays', 'statistics.views'];
+    const sortBy = ALLOWED_SORT_FIELDS.includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
 
     const skip = (page - 1) * limit;
     const total = await Quiz.countDocuments({ creator: req.user.id });

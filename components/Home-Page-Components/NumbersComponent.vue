@@ -38,104 +38,105 @@ export default {
 </script>
 
 <style scoped>
-/* Start Numbers Section */
+/* ── Numbers stat card ── */
 .num-content {
   align-items: center;
   flex-direction: column;
-  padding: 25px 5px 10px;
-  border-radius: 50px;
-  cursor: context-menu;
+  padding: 30px 20px 20px;
+  border-radius: 32px;
+  cursor: default;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(108, 99, 255, 0.12);
+  position: relative;
+  overflow: visible;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.num-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.05), rgba(255, 94, 148, 0.05));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.num-content:hover::before { opacity: 1; }
 
 .num-content:hover {
-  transform: scale(1.02);
-  box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.08);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 24px 60px rgba(54, 57, 153, 0.22), 0 0 40px rgba(255, 196, 97, 0.15);
+  border-color: rgba(108, 99, 255, 0.25);
 }
 
-.num-content:hover .num-img,
-.num-content:hover img {
-  -webkit-transform: rotate(0deg);
-  -moz-transform: rotate(0deg);
-  -ms-transform: rotate(0deg);
-  -o-transform: rotate(0deg);
-  transform: rotate(0deg);
-}
-
-.num-content:hover .num-img {
-  border-radius: 50%;
-}
-
+/* ── Icon diamond badge ── */
 .num-img {
-  top: -50px;
-  width: 100px;
-  height: 100px;
-  background: linear-gradient(69deg, #ffc961, #fde4b4);
-  padding: 17px;
-  border-radius: 25px;
-  -webkit-transform: rotate(-45deg);
-  -moz-transform: rotate(-45deg);
-  -o-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
+  top: -54px;
+  width: 108px;
+  height: 108px;
+  background: linear-gradient(135deg, #ffc961, #ffb347, #fde4b4);
+  padding: 20px;
+  border-radius: 28px;
   transform: rotate(-45deg);
-  transform: rotate(-45deg);
-  border-left: 1px solid #efedff;
-  border-bottom: 1px solid #efedff;
+  border: none;
+  box-shadow: 0 8px 28px rgba(255, 196, 97, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.num-content:hover .num-img {
+  transform: rotate(0deg);
+  border-radius: 50%;
+  box-shadow: 0 12px 40px rgba(255, 94, 148, 0.45);
+  background: linear-gradient(135deg, #ff5e94, #ff3d7f);
 }
 
 .num-img img {
-  -webkit-transform: rotate(45deg);
-  -moz-transform: rotate(45deg);
-  -o-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
   transform: rotate(45deg);
-  filter: invert(1);
+  filter: invert(1) brightness(1.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.num-content:hover .num-img img { transform: rotate(0deg) scale(1.1); }
 
-.num-content,
-.num-img,
-.num-img img {
-  -webkit-transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-  -moz-transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-  -ms-transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-  -o-transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-}
-
+/* ── Label ── */
 .num-title {
-  color: #b5b5b5;
-  margin: 50px 0 0;
+  color: #a0a0c0;
+  margin: 54px 0 4px;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
 }
 
+/* ── Big gradient number ── */
 .num-value {
-  color: #3a3798;
-  font-size: 65px;
+  background: linear-gradient(135deg, #1e1b4b, #363999, #6c63ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 900;
+  position: relative;
+  z-index: 1;
 }
-/* End Numbers Section */
+.num-content:hover .num-value {
+  background: linear-gradient(135deg, #ff5e94, #ff3d7f, #ffc961);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
 
 @media only screen and (max-width: 600px) {
-  .numbers-box:nth-of-type(2) {
-    margin: 80px 0 !important;
-  }
-
-  .num-value {
-    font-size: 58px !important;
-  }
+  .numbers-box:nth-of-type(2) { margin: 80px 0 !important; }
+  .num-value { font-size: 58px !important; }
 }
 
 @media only screen and (min-width: 600px) and (max-width: 992px) {
-  .numbers-box:nth-of-type(2) {
-    margin: 70px 0 !important;
-  }
+  .numbers-box:nth-of-type(2) { margin: 70px 0 !important; }
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1264px) {
-  .numbers-box:nth-of-type(2) {
-    margin: 70px 0 !important;
-  }
+  .numbers-box:nth-of-type(2) { margin: 70px 0 !important; }
 }
 </style>

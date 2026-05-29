@@ -3,15 +3,13 @@
     <PageTitle :titleText="$t('quizPage.pageTitle')" />
 
     <!-- Loading -->
-    <div v-if="loading" class="d-flex justify-center align-center" style="min-height:60vh">
-      <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
-    </div>
+    <AppLoader v-if="loading" :fullpage="true" />
 
     <!-- Error -->
     <div v-else-if="error" class="text-center py-16">
       <v-icon size="80" color="grey">mdi-alert-circle-outline</v-icon>
       <p class="title mt-4 grey--text">{{ error }}</p>
-      <v-btn color="primary" @click="$router.push(localePath('/explore'))">العودة للاختبارات</v-btn>
+      <v-btn color="primary" @click="$router.push(localePath('/explore'))">{{ $t("quizPage.backToQuizzes") }}</v-btn>
     </div>
 
     <!-- Quiz Details -->
@@ -51,77 +49,79 @@
 
           <v-divider Horizontal class="rounded"></v-divider>
 
-          <v-col cols="12" class="d-flex justify-space-between quiz-container">
-            <v-row>
-              <v-col md="6" cols="12">
-                <div class="quiz-content">
-                  <h1 class="quiz-title font-weight-bold text-justify">{{ quiz.title }}</h1>
-                  <p class="title-line rounded"></p>
-                  <!-- Quiz Code Badge -->
-                  <div v-if="quiz.quizCode" class="quiz-code-badge d-flex align-center mb-3">
-                    <v-chip color="primary" text-color="white" class="font-weight-bold" label>
-                      <v-icon left small>mdi-key-variant</v-icon>
-                      كود الكويز: {{ quiz.quizCode }}
-                    </v-chip>
-                    <v-btn icon x-small class="mx-2" @click="copyCode(quiz.quizCode)" title="نسخ الكود">
-                      <v-icon small>mdi-content-copy</v-icon>
-                    </v-btn>
-                  </div>
-                  <div class="quiz-description overflow-hidden">
-                    <p class="font-weight-bold">{{ quiz.description }}</p>
-                    <p class="full-desc" id="fullDesc">{{ quiz.detailedDescription }}</p>
-                    <p @click="showDesc = true" class="read-more hidden" id="read-more">
-                      {{ $t("quizPage.showMore") }}
-                    </p>
-                  </div>
-                  <v-row class="d-flex w-100 player-details justify-space-between">
-                    <PlayersDetails
-                      v-for="detail in playersDetails"
-                      :key="detail.id"
-                      :iconClass="detail.icon"
-                      :text="detail.text"
+          <!-- Main body: two columns -->
+          <v-col cols="12" class="quiz-container pa-0">
+            <v-row class="quiz-body-row ma-0">
+
+              <!-- In RTL this renders on the RIGHT; in LTR on the LEFT -->
+              <!-- Content: title + description + creator + stats -->
+              <v-col md="6" sm="6" cols="12" class="quiz-content-col pa-2">
+                <h1 class="quiz-title font-weight-bold text-right">{{ quiz.title }}</h1>
+                <p class="title-line"></p>
+
+                <!-- Descriptions -->
+                <div class="quiz-description overflow-hidden">
+                  <p class="font-weight-bold">{{ quiz.description }}</p>
+                  <p class="full-desc" id="fullDesc">{{ quiz.detailedDescription }}</p>
+                  <p @click="showDesc = true" class="read-more hidden" id="read-more">{{ $t("quizPage.showMore") }}</p>
+                </div>
+
+                <!-- Creator + Date side by side -->
+                <v-row class="player-details ma-0 mb-3">
+                  <PlayersDetails
+                    v-for="detail in playersDetails"
+                    :key="detail.id"
+                    :iconClass="detail.icon"
+                    :text="detail.text"
+                  />
+                </v-row>
+
+                <!-- Stats side by side -->
+                <v-row class="quiz-info-row ma-0">
+                  <QuizInfo
+                    v-for="info in quizInfo"
+                    :key="info.id"
+                    :title="info.infoTitle"
+                    :number="info.infoNumber"
+                    :imgSrc="info.infoImgSrc"
+                  />
+                </v-row>
+              </v-col>
+
+              <!-- In RTL this renders on the LEFT; in LTR on the RIGHT -->
+              <!-- Media: image + categories -->
+              <v-col md="6" sm="6" cols="12" class="quiz-media-col d-flex flex-column pa-2">
+
+                <!-- Placeholder image (no cover wrapper) -->
+                <div class="quiz-image-wrap">
+                  <img
+                    v-if="quiz.coverImage && !coverImgError"
+                    :src="quiz.coverImage"
+                    class="cover-img"
+                    alt="quiz-img"
+                    @error="coverImgError = true"
+                  />
+                  <img v-else src="@/assets/images/Home-Page-Images/EQUIZATION.png" alt="eQuization" class="placeholder-logo" />
+                </div>
+
+                <!-- Categories -->
+                <div v-if="quiz.categories && quiz.categories.length" class="quiz-categories mt-3">
+                  <h2 class="categories-title text-right">{{ $t("quizPage.quizCategoriesTitle") }}</h2>
+                  <v-divider class="my-2"></v-divider>
+                  <v-row class="quiz-page-categories ma-0">
+                    <Categories
+                      v-for="(cat, i) in quiz.categories"
+                      :key="i"
+                      :catLink="`/quizes-cat?cat=${cat.slug || cat._id}`"
+                      :catImgSrc="getCategoryImage(cat.slug)"
+                      :catTitle="typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || '')"
                     />
                   </v-row>
                 </div>
               </v-col>
-              <v-col md="6" cols="12">
-                <div class="quiz-img h-100">
-                  <img
-                    :src="quiz.coverImage || require('@/assets/images/Home-Page-Images/EQUIZATION.png')"
-                    class="d-block w-100 h-100"
-                    alt="quiz-img"
-                  />
-                </div>
-              </v-col>
+
             </v-row>
           </v-col>
-
-          <v-row class="quiz-info justify-space-between">
-            <v-col md="6" cols="12" class="quiz-info-content">
-              <v-row class="justify-space-between ma-0">
-                <QuizInfo
-                  v-for="info in quizInfo"
-                  :key="info.id"
-                  :title="info.infoTitle"
-                  :number="info.infoNumber"
-                  :imgSrc="info.infoImgSrc"
-                />
-              </v-row>
-            </v-col>
-            <v-col class="quiz-categories-content" v-if="quiz.categories && quiz.categories.length">
-              <h2 class="w-100 text-right">{{ $t("quizPage.quizCategoriesTitle") }}</h2>
-              <v-divider Horizontal class="rounded"></v-divider>
-              <div class="d-flex ma-0 quiz-page-categories align-center">
-                <Categories
-                  v-for="(cat, i) in quiz.categories"
-                  :key="i"
-                  :catLink="`/quizes-cat?cat=${cat.slug || cat._id}`"
-                  :catImgSrc="getCategoryImage(cat.slug)"
-                  :catTitle="typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || '')"
-                />
-              </div>
-            </v-col>
-          </v-row>
         </v-row>
       </v-container>
     </section>
@@ -193,18 +193,19 @@ const CATEGORY_IMAGES = {
 };
 
 export default {
-  layout: "form",
+  layout: "quiz-detail",
   head() {
     return { title: this.quiz ? this.quiz.title : this.$t("quizPage.quizDetails.title") };
   },
   data() {
     return {
-      loading:   true,
-      error:     null,
-      quiz:      null,
-      showDesc:  false,
-      share:     false,
-      startQuiz: false,
+      loading:       true,
+      error:         null,
+      quiz:          null,
+      coverImgError: false,
+      showDesc:      false,
+      share:         false,
+      startQuiz:     false,
       shareURL:  '',
       networks: [
         { network: 'facebook',  icon: 'mdi-facebook',                   color: '#1877f2' },
@@ -252,7 +253,7 @@ export default {
     } else if (code) {
       await this.fetchQuizByCode(code);
     } else {
-      this.error   = 'لم يتم تحديد اختبار';
+      this.error   = this.$t('quizPage.errorNoQuiz');
       this.loading = false;
     }
     // Build share URL
@@ -277,7 +278,7 @@ export default {
         const res = await this.$axios.get(`/quizzes/${id}`);
         this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
-        this.error = e.response?.data?.message || 'حدث خطأ في تحميل الاختبار';
+        this.error = e.response?.data?.message || this.$t('quizPage.errorLoading');
       } finally {
         this.loading = false;
       }
@@ -288,7 +289,7 @@ export default {
         const res = await this.$axios.get(`/quizzes/code/${code}`);
         this.quiz  = res.data?.data?.quiz || res.data?.data || null;
       } catch (e) {
-        this.error = 'كود الاختبار غير صحيح';
+        this.error = this.$t('quizPage.errorInvalidCode');
       } finally {
         this.loading = false;
       }
@@ -299,7 +300,7 @@ export default {
     copyCode(code) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(code).then(() => {
-          this.$toast?.success?.('تم نسخ الكود!') || alert('تم نسخ الكود: ' + code);
+          this.$toast?.success?.(this.$t('quizPage.codeCopied')) || alert(this.$t('quizPage.codeCopiedAlert') + code);
         });
       } else {
         const el = document.createElement('input');
@@ -308,7 +309,7 @@ export default {
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
-        alert('تم نسخ الكود: ' + code);
+        alert(this.$t('quizPage.codeCopiedAlert') + code);
       }
     },
     startIndividual() {
@@ -323,40 +324,76 @@ export default {
       this.$router.push(this.localePath('/host/options'));
     },
   },
-  components: { PageTitle, PlayersDetails, QuizInfo, Categories },
+  components: { PageTitle, PlayersDetails, QuizInfo, Categories, AppLoader: () => import("@/components/Shared-Components/AppLoader") },
 };
 </script>
 
 <style scoped>
-.quiz-page { margin-top: 50px; }
-.container { padding: 10px 25px !important; }
+/* ── Page ── */
+.quiz-page  { margin-top: 50px; }
+.container  { padding: 10px 25px !important; }
+
+/* ── Header ── */
 .quiz-header { padding: 17px 10px !important; }
 .back-link, .start-quiz { width: 15% !important; cursor: pointer; }
-.back-icon { font-size: 28px; margin-left: 7px; }
-.back-text { font-size: 20px; }
+.back-icon  { font-size: 28px; margin-left: 7px; }
+.back-text  { font-size: 20px; }
 .back-text, .back-icon { color: #ff5e94; }
 .popup-icons i { font-size: 25px; color: #d3d6db; margin: 0 13px; cursor: pointer; transition: color 0.2s ease-in-out; }
 .start-quiz { height: auto !important; padding: 5px 30px !important; background-color: #ff5e94; font-family: "Cairo" !important; border-radius: 10px !important; }
-hr { margin: 0 0 0.2rem !important; }
+
+/* ── Body ── */
+.quiz-container { padding-top: 4px !important; }
+.quiz-body-row  { }
+.quiz-media-col { }
+.quiz-content-col { }
+
+/* ── Image ── */
+.quiz-image-wrap { width: 100%; }
+.cover-img       { width: 100%; border-radius: 10px; object-fit: cover; display: block; }
+.placeholder-logo { width: 100%; object-fit: contain; display: block; }
+
+/* ── Categories ── */
+.categories-title { color: #3a3798; font-size: 20px; margin-bottom: 7px; }
+
+/* ── Title ── */
 .quiz-title { font-size: 35px; color: #3a3798; }
-.title-line { width: 80%; height: 3px; margin: 20px 0 15px; background-color: #ffc961; }
+.title-line { width: 80%; height: 3px; margin: 20px 0 15px; background-color: #ffc961; border-radius: 2px; }
+
+/* ── Descriptions ── */
 .quiz-description p { font-family: "Almarai"; color: #a8a6d4; font-size: 20px; margin-bottom: 20px; text-align: right; line-height: 35px; }
 .quiz-description p.full-desc { height: 100px; overflow: hidden; color: #a9aac5; margin-bottom: 35px; text-align: justify; }
 .quiz-description p.read-more { text-align: center; margin-top: -100px; background-image: linear-gradient(0deg, #fff, rgba(255,255,255,0)); position: relative; padding-top: 42px; color: #ff5e94; cursor: pointer; margin-bottom: 25px; }
 .quiz-description p.read-more.hidden { display: none; }
-.quiz-img img { object-fit: cover; }
-.quiz-info { padding: 12px; }
-.quiz-info-content { flex: 0 0 48.5% !important; padding: 0; }
-.quiz-categories-content { flex: 0 0 48.5% !important; padding: 0; }
-.quiz-categories-content hr { margin-bottom: 10px !important; }
-.quiz-categories-content h2 { color: #3a3798; margin-bottom: 7px; }
+
+/* ── Dialogs ── */
 .v-dialog .v-card { overflow: hidden !important; text-align: center; min-height: 200px; }
 .v-dialog .v-card p.full-desc { padding: 20px; font-size: 20px; color: #a9aac5; text-align: justify; }
+
+/* ── Tablet (600–959px) ── */
+@media only screen and (min-width: 600px) and (max-width: 959px) {
+  .quiz-title       { font-size: 18px; }
+  .title-line       { margin: 8px 0 8px; width: 90%; }
+  .quiz-description p { font-size: 14px; line-height: 22px; margin-bottom: 10px; }
+  .quiz-description p.full-desc { height: 66px; margin-bottom: 20px; }
+  .back-link, .start-quiz { width: 22% !important; }
+  .back-text        { font-size: 14px; }
+  .back-icon        { font-size: 18px; }
+  .quiz-header      { padding: 10px 6px !important; }
+  .start-quiz       { padding: 4px 12px !important; }
+}
+
+/* ── Mobile ── */
 @media only screen and (max-width: 600px) {
   .back-link, .start-quiz { width: 32% !important; }
-  .quiz-container { flex-direction: column-reverse !important; }
-  .quiz-info-content, .quiz-categories-content { flex: 0 0 100% !important; }
+  .quiz-media-col { order: -1; }
+  .quiz-title { font-size: 20px; }
+  .title-line { width: 100%; }
 }
+
+/* ── LTR ── */
 .ltr .back-icon { margin-left: 0 !important; margin-right: 7px !important; }
-.ltr .quiz-categories-content h2 { text-align: left !important; }
+.ltr .categories-title { text-align: left !important; }
+.ltr .quiz-title { text-align: left !important; }
+.ltr .quiz-description p { text-align: left !important; }
 </style>

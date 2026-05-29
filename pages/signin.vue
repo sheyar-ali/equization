@@ -135,7 +135,7 @@ export default {
           // حفظ في Vuex + localStorage معاً
           this.$store.dispatch('login', { token, user });
 
-          this.successMsg = "تم تسجيل الدخول بنجاح! جاري التحويل...";
+          this.successMsg = this.$t("loginPage.successMsg");
           setTimeout(() => {
             this.$router.push(this.localePath("/account"));
           }, 800);
@@ -143,11 +143,11 @@ export default {
       } catch (err) {
         const msg = err.response?.data?.message;
         if (msg === "Invalid credentials") {
-          this.errorMsg = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+          this.errorMsg = this.$t("loginPage.errorInvalidCredentials");
         } else if (msg === "Please verify your email first") {
-          this.errorMsg = "يرجى تفعيل حسابك أولاً من بريدك الإلكتروني";
+          this.errorMsg = this.$t("loginPage.errorNotVerified");
         } else {
-          this.errorMsg = msg || "حدث خطأ أثناء تسجيل الدخول، حاول مرة أخرى";
+          this.errorMsg = msg || this.$t("loginPage.errorGeneric");
         }
       } finally {
         this.loading = false;

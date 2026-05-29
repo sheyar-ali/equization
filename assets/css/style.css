@@ -1,3 +1,72 @@
+/* =============================================
+   CSS Design Tokens & Animations – eQuization
+   ============================================= */
+:root {
+  --primary:       #363999;
+  --primary-dark:  #1e1b4b;
+  --primary-light: #6c63ff;
+  --accent:        #ff5e94;
+  --accent-dark:   #e0356f;
+  --gold:          #ffc961;
+  --gold-light:    #ffe4a3;
+  --cyan:          #38bdf8;
+  --bg-soft:       #f0f4ff;
+  --card-shadow:       0 8px 40px rgba(54, 57, 153, 0.11);
+  --card-shadow-hover: 0 24px 64px rgba(54, 57, 153, 0.24), 0 0 40px rgba(255, 94, 148, 0.14);
+  --glow-accent:   0 0 32px rgba(255, 94, 148, 0.45);
+  --glow-primary:  0 0 32px rgba(54, 57, 153, 0.45);
+  --radius-card:   28px;
+  --transition-smooth: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Animated hero gradient */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating bob for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-14px) rotate(4deg); }
+  66%       { transform: translateY(-7px) rotate(-3deg); }
+}
+@keyframes floatAlt {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-20px) rotate(6deg); }
+}
+
+/* Glow pulse for CTA buttons */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(255, 94, 148, 0.35); }
+  50%       { box-shadow: 0 8px 40px rgba(255, 94, 148, 0.75), 0 0 60px rgba(255, 94, 148, 0.3); }
+}
+
+/* Shimmer for loading / decorative uses */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Sparkle for small decorative stars */
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(1.4); }
+}
+
+/* Slide-up entrance */
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f0f4ff; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--primary-light), var(--accent)); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
 * {
   box-sizing: border-box !important;
   font-family: "Cairo";
@@ -171,46 +240,38 @@ footer {
 .account-section-content,
 .account-menu,
 .play-page-container {
-  border: 1px solid #efedff;
-  -webkit-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
-  -moz-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
-  -ms-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
-  -o-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
-  box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.07);
+  border: 1px solid rgba(108, 99, 255, 0.1);
+  box-shadow: var(--card-shadow);
 }
 
 .tests-container .card:hover,
 .categories-content .card:hover {
-  -webkit-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
-  -moz-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
-  -ms-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
-  -o-box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
-  box-shadow: 12px 12px 55px rgba(60, 55, 152, 0.19);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .tests-container .card:hover,
-.categories-content .card:hover,
+.categories-content .card:hover {
+  transform: translateY(-8px) scale(1.015);
+}
+
 .tests-container .departments span:hover,
 .categories-content .category-description span:hover {
-  -webkit-transform: scale(1.02);
-  -moz-transform: scale(1.02);
-  -ms-transform: scale(1.02);
-  -o-transform: scale(1.02);
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .tests-container .departments span,
 .categories-content .category-description span {
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
   width: fit-content;
   max-width: 45%;
   margin: 0 5px 10px;
-  color: #3a3798;
-  padding: 1px 7px;
-  font-size: 15px;
-  border: 1.5px solid #3a3798;
-  border-radius: 5px;
+  color: var(--primary);
+  padding: 3px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(255, 94, 148, 0.08));
+  border: 1.5px solid rgba(108, 99, 255, 0.25);
+  border-radius: 20px;
+  letter-spacing: 0.3px;
 }
 
 .tests-container .departments span:hover,
@@ -224,16 +285,16 @@ footer {
 .categories-content .card,
 .categories-content h4,
 .categories-content .category-description span {
-  -webkit-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
-    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  -moz-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
-    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  -ms-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
-    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  -o-transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
-    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out,
-    transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: var(--transition-smooth);
+}
+
+/* Glassmorphism navbar on scroll */
+.scroll-navbar.navbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-bottom: 1px solid rgba(108, 99, 255, 0.12) !important;
+  box-shadow: 0 4px 32px rgba(54, 57, 153, 0.12) !important;
 }
 
 .departments span:hover,

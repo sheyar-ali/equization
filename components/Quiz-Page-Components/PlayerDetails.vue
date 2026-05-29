@@ -1,5 +1,5 @@
 <template>
-  <v-col md="6" sm="12" cols="12" class="details-card">
+  <v-col md="6" sm="6" cols="6" class="details-card">
     <div class="players-details-columns d-flex align-center">
       <i :class="iconClass"></i>
       <p class="details-text text-center w-100 ma-0">
@@ -53,13 +53,11 @@ p {
 }
 
 @media only screen and (min-width: 600px) and (max-width: 992px) {
-  .details-card {
-    margin: 0px auto 15px;
-  }
-
-  .details-text {
-    margin: auto !important;
-  }
+  .details-card { margin: 0 0 8px; padding: 0 4px !important; }
+  .players-details-columns { padding: 8px; }
+  i, p { font-size: 13px !important; }
+  p { padding-right: 8px; max-width: 120px; }
+  .ltr p { padding-right: 0 !important; padding-left: 8px !important; }
 }
 
 @media only screen and (min-width: 960px) and (max-width: 992px) {
