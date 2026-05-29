@@ -53,39 +53,8 @@
           <v-col cols="12" class="quiz-container pa-0">
             <v-row class="quiz-body-row ma-0">
 
-              <!-- LEFT: image + categories -->
-              <v-col md="6" cols="12" class="quiz-media-col d-flex flex-column pa-2">
-                <!-- Cover image -->
-                <div class="quiz-cover">
-                  <img
-                    v-if="quiz.coverImage && !coverImgError"
-                    :src="quiz.coverImage"
-                    class="cover-img"
-                    alt="quiz-img"
-                    @error="coverImgError = true"
-                  />
-                  <div v-else class="cover-placeholder">
-                    <img src="@/assets/images/Home-Page-Images/EQUIZATION.png" alt="eQuization" class="placeholder-logo" />
-                  </div>
-                </div>
-
-                <!-- Categories below image -->
-                <div v-if="quiz.categories && quiz.categories.length" class="quiz-categories mt-3">
-                  <h2 class="categories-title text-right">{{ $t("quizPage.quizCategoriesTitle") }}</h2>
-                  <v-divider class="my-2"></v-divider>
-                  <div class="d-flex flex-wrap quiz-page-categories align-center">
-                    <Categories
-                      v-for="(cat, i) in quiz.categories"
-                      :key="i"
-                      :catLink="`/quizes-cat?cat=${cat.slug || cat._id}`"
-                      :catImgSrc="getCategoryImage(cat.slug)"
-                      :catTitle="typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || '')"
-                    />
-                  </div>
-                </div>
-              </v-col>
-
-              <!-- RIGHT: title + description + creator + stats -->
+              <!-- In RTL this renders on the RIGHT; in LTR on the LEFT -->
+              <!-- Content: title + description + creator + stats -->
               <v-col md="6" cols="12" class="quiz-content-col pa-2">
                 <h1 class="quiz-title font-weight-bold text-right">{{ quiz.title }}</h1>
                 <p class="title-line"></p>
@@ -117,6 +86,39 @@
                     :imgSrc="info.infoImgSrc"
                   />
                 </v-row>
+              </v-col>
+
+              <!-- In RTL this renders on the LEFT; in LTR on the RIGHT -->
+              <!-- Media: image + categories -->
+              <v-col md="6" cols="12" class="quiz-media-col d-flex flex-column pa-2">
+                <!-- Cover image -->
+                <div class="quiz-cover">
+                  <img
+                    v-if="quiz.coverImage && !coverImgError"
+                    :src="quiz.coverImage"
+                    class="cover-img"
+                    alt="quiz-img"
+                    @error="coverImgError = true"
+                  />
+                  <div v-else class="cover-placeholder">
+                    <img src="@/assets/images/Home-Page-Images/EQUIZATION.png" alt="eQuization" class="placeholder-logo" />
+                  </div>
+                </div>
+
+                <!-- Categories directly below image -->
+                <div v-if="quiz.categories && quiz.categories.length" class="quiz-categories mt-3">
+                  <h2 class="categories-title text-right">{{ $t("quizPage.quizCategoriesTitle") }}</h2>
+                  <v-divider class="my-2"></v-divider>
+                  <div class="d-flex flex-wrap quiz-page-categories align-center">
+                    <Categories
+                      v-for="(cat, i) in quiz.categories"
+                      :key="i"
+                      :catLink="`/quizes-cat?cat=${cat.slug || cat._id}`"
+                      :catImgSrc="getCategoryImage(cat.slug)"
+                      :catTitle="typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || '')"
+                    />
+                  </div>
+                </div>
               </v-col>
 
             </v-row>
