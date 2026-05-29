@@ -1,5 +1,5 @@
 <template>
-  <v-col md="6" sm="12" cols="12" class="quiz-numbers">
+  <v-col md="6" sm="6" cols="6" class="quiz-numbers">
     <div class="info-columns d-flex justify-space-between align-center">
       <div class="quiz-description">
         <h2 class="info-title text-center">{{ title }}</h2>
@@ -81,18 +81,12 @@ export default {
   }
 }
 
-@media only screen and (min-width: 767px) and (max-width: 992px) {
-  .quiz-numbers {
-    margin: 15px auto 15px !important;
-  }
-
-  .info-img {
-    width: 25% !important;
-  }
-
-  .info-title {
-    margin: auto !important;
-  }
+@media only screen and (min-width: 600px) and (max-width: 992px) {
+  .quiz-numbers   { margin: 0 0 8px !important; padding: 0 4px !important; }
+  .info-columns   { padding: 8px 10px; }
+  .info-number    { font-size: 24px !important; }
+  .info-title     { font-size: 13px !important; max-width: 90px; }
+  .info-img       { width: 22% !important; }
 }
 
 @media only screen and (min-width: 960px) and (max-width: 992px) {
