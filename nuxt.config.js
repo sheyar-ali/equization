@@ -91,7 +91,12 @@ export default {
         href:
           "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;600;700&display=swap",
       },
-      // Calling Of The Fot Awesome Library
+      // Bootstrap CSS (required for utility classes: container-fluid, position-*, text-white, etc.)
+      {
+        rel: "stylesheet",
+        href: "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css",
+      },
+      // Calling Of The Font Awesome Library
       {
         rel: "stylesheet",
         href: "https://use.fontawesome.com/releases/v5.12.1/css/all.css",
@@ -229,8 +234,6 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify"],
-    parallel: true,
     cache: true,
-    hardSource: true,
   },
 };
