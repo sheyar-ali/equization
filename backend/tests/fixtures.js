@@ -3,18 +3,17 @@
  * Factory helpers that create persisted test data in MongoDB Memory Server.
  */
 const mongoose = require('mongoose');
-const bcrypt   = require('bcryptjs');
 const User     = require('../models/User.model');
 const Quiz     = require('../models/Quiz.model');
 const Question = require('../models/Question.model');
 
 /** Create a user and return it (password is 'TestPass123!') */
 async function createUser(overrides = {}) {
-  const hash = await bcrypt.hash('TestPass123!', 4);
+  // Pass the plain password — the User model's pre('save') hook hashes it
   return User.create({
     username:  overrides.username  || 'testuser',
     email:     overrides.email     || 'test@example.com',
-    password:  hash,
+    password:  'TestPass123!',      // plain; pre-save hook will hash
     firstName: overrides.firstName || 'Test',
     lastName:  overrides.lastName  || 'User',
     role:      overrides.role      || 'user',
