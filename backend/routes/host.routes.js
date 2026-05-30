@@ -8,7 +8,7 @@ const {
 
 const { protect } = require('../middleware/auth.middleware');
 
-router.post('/',                            protect, createGameSession);  // create session (REST)
+router.post('/create-session',              protect, createGameSession);
 router.get ('/my-sessions',                 protect, getHostSessions);
 router.get ('/session/:sessionCode',        getSessionDetails);
 router.get ('/session/:sessionCode/stats',  protect, getSessionStatistics);

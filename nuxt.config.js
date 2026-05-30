@@ -91,7 +91,7 @@ export default {
         href:
           "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;600;700&display=swap",
       },
-      // Bootstrap CSS (required for utility classes: container-fluid, position-*, text-white, etc.)
+      // Bootstrap CSS (required for utility classes: text-white, list-unstyled, text-muted, etc.)
       {
         rel: "stylesheet",
         href: "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css",
@@ -168,14 +168,14 @@ export default {
 
   // تعريف متغيرات البيئة المتاحة للـ client
   env: {
-    API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
-    SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:5000',
+    API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1',
+    SOCKET_URL: process.env.SOCKET_URL || 'http://localhost:5001',
   },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
-    browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
+    baseURL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1',
+    browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1',
     credentials: false,
     headers: {
       common: {
@@ -188,16 +188,16 @@ export default {
   // Public runtime config
   publicRuntimeConfig: {
     axios: {
-      browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1'
+      browserBaseURL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1'
     },
-    apiURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1',
-    socketURL: process.env.SOCKET_URL || 'http://localhost:5000'
+    apiURL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1',
+    socketURL: process.env.SOCKET_URL || 'http://localhost:5001'
   },
 
   // Private runtime config
   privateRuntimeConfig: {
     axios: {
-      baseURL: process.env.API_BASE_URL || 'http://localhost:5000/api/v1'
+      baseURL: process.env.API_BASE_URL || 'http://localhost:5001/api/v1'
     }
   },
 

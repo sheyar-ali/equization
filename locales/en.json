@@ -159,7 +159,11 @@
     "buttonText": "Sign in",
     "forgetPasswordText": "forget password ?",
     "formDividerText": "Don't have an account?",
-    "formDividerLink": "Register a new account"
+    "formDividerLink": "Register a new account",
+    "successMsg": "Signed in successfully! Redirecting...",
+    "errorInvalidCredentials": "Incorrect email or password",
+    "errorNotVerified": "Please verify your account from your email first",
+    "errorGeneric": "An error occurred while signing in, please try again"
   },
   "confirmEmailPage": {
     "pageTitle": "verify your e-mail",
@@ -190,7 +194,11 @@
     "formDividerText": "Already have an account?",
     "formDividerLink": "Sign in",
     "formContentTitle": "Register a new account",
-    "formContentDescription": "Register a new account now and enjoy the platform's features and services"
+    "formContentDescription": "Register a new account now and enjoy the platform's features and services",
+    "successMsg": "Account created successfully! Please check your email.",
+    "errorDuplicate": "This email or username is already in use",
+    "errorRateLimit": "Too many requests, please wait a moment and try again",
+    "errorGeneric": "An error occurred while creating the account, please try again"
   },
   "emailConfirmedPage": {
     "pageTitle": "verify your e-mail",
@@ -240,7 +248,11 @@
     "quiz": "quiz"
   },
   "quizesCatPage": {
-    "pageTitle": "Categories: Chemistry"
+    "pageTitle": "Categories: Chemistry",
+    "allCategories": "All",
+    "errorLoading": "Failed to load quizzes",
+    "emptyState": "No quizzes in this category",
+    "retry": "Retry"
   },
   "categoriesNames": {
     "allCategories": "All",
@@ -273,7 +285,15 @@
     "playersInfoTitle": "Players Number",
     "quizDetails": {
       "title": "Try a demo title quiz"
-    }
+    },
+    "errorNoQuiz": "No quiz specified",
+    "errorLoading": "An error occurred while loading the quiz",
+    "errorInvalidCode": "Invalid quiz code",
+    "codeCopied": "Code copied!",
+    "codeCopiedAlert": "Code copied: ",
+    "quizCodeLabel": "Quiz code: ",
+    "copyCode": "Copy code",
+    "backToQuizzes": "Back to quizzes"
   },
   "myQuizPage": {
     "deleteBtn": "Delete"
@@ -348,7 +368,13 @@
     "publicRadio": "Public",
     "privateRadio": "Private",
     "selectErrorText": "The quiz language must be chosen",
-    "subBtn": "Create Quiz"
+    "subBtn": "Create Quiz",
+    "difficultyLabel": "Difficulty level",
+    "difficultyEasy": "Easy",
+    "difficultyMedium": "Medium",
+    "difficultyHard": "Hard",
+    "successMsg": "Quiz created successfully!",
+    "errorMsg": "Failed to create quiz"
   },
   "profilePage": {
     "pageTitle": "Account Settings",

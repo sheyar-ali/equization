@@ -55,7 +55,17 @@ exports.createCategory = async (req, res, next) => {
 // PUT /api/v1/categories/:id
 exports.updateCategory = async (req, res, next) => {
   try {
-    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+    // Whitelist updatable fields — prevent Mass Assignment on internal fields (quizCount, isActive, _id)
+    const { name, slug, description, icon, color } = req.body;
+    const allowedUpdate = {
+      ...(name        !== undefined && { name }),
+      ...(slug        !== undefined && { slug: slug.toLowerCase() }),
+      ...(description !== undefined && { description }),
+      ...(icon        !== undefined && { icon }),
+      ...(color       !== undefined && { color })
+    };
+
+    const category = await Category.findByIdAndUpdate(req.params.id, allowedUpdate, {
       new: true, runValidators: true
     });
     if (!category) return errorResponse(res, 404, 'Category not found');

@@ -45,14 +45,14 @@ export default {
           var homeSectionImg = document.querySelector(".home-content img");
 
           if (!homeSectionImg) {
-            // Not on the home page — always show white navbar with logo
+            // Not on the home page — always use white navbar with visible logo
             if (navbar) navbar.classList.add("scroll-navbar");
             if (menuLinks) menuLinks.classList.remove("top-menu-links");
             window.onscroll = null;
             return;
           }
 
-          // Home page — reset to transparent then set up scroll toggle
+          // Home page — reset to transparent state then set up scroll toggle
           navbar.classList.remove("scroll-navbar");
           menuLinks.classList.add("top-menu-links");
           homeSectionImg.style.visibility = "visible";

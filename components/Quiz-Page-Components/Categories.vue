@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" md="4" class="cat-content">
+  <v-col cols="6" sm="6" md="4" class="cat-content">
     <div class="cat-columns">
       <nuxt-link
         :to="localePath(catLink)"
@@ -66,18 +66,10 @@ h6 {
   }
 }
 
-@media only screen and (min-width: 600px) and (max-width: 767px) {
-  .cat-columns {
-    margin: 15px auto 0 !important;
-  }
-
-  img {
-    width: 16%;
-  }
-
-  h6 {
-    font-size: 18px !important;
-  }
+@media only screen and (min-width: 600px) and (max-width: 959px) {
+  .cat-columns { margin: 6px 2px 0 !important; padding: 5px 6px; }
+  img { width: 18%; }
+  h6  { font-size: 12px !important; }
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1200px) {

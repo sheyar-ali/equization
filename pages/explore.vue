@@ -74,7 +74,7 @@
 
           <!-- Loading -->
           <v-row v-if="loading" class="justify-center my-8">
-            <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+            <AppLoader />
           </v-row>
 
           <!-- Quizzes from API -->
@@ -130,8 +130,10 @@
 <script>
 import PageTitle    from "@/components/Shared-Components/PageTitle";
 import QuizComponent from "@/components/Shared-Components/QuizComponent";
+import quizHelpers   from "@/mixins/quizHelpers";
 
 export default {
+  mixins: [quizHelpers],
   layout: "form",
   head() {
     return { title: this.$t("quizesExplorePage.pageTitle") };
@@ -214,15 +216,9 @@ export default {
       this.currentPage      = 1;
       this.fetchQuizzes();
     },
-    formatCategories(categories) {
-      if (!categories || !categories.length) return [];
-      return categories.map(cat => ({
-        categoryName: typeof cat.name === 'object' ? (cat.name.ar || cat.name.en || '') : (cat.name || ''),
-        categoryLink: `/quizes-cat?cat=${cat.slug || cat._id}`,
-      }));
-    },
+    // formatCategories provided by quizHelpers mixin
   },
-  components: { PageTitle, QuizComponent },
+  components: { PageTitle, QuizComponent, AppLoader: () => import("@/components/Shared-Components/AppLoader") },
 };
 </script>
 

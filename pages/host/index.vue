@@ -159,7 +159,7 @@ export default {
       try {
         this.loading = true;
         // Create session via REST API
-        const res    = await this.$axios.post('/host', { quizId });
+        const res    = await this.$axios.post('/host/create-session', { quizId });
         this.session = res.data?.data?.session || res.data?.data;
         if (!this.session) throw new Error('لم يتم إنشاء الجلسة');
         // Now setup socket listeners

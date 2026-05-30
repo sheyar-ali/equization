@@ -112,23 +112,26 @@ require('./config/socket.config')(io);
 // ── Connect to MongoDB & start server ─────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser:    true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
-      console.log(`📡 Socket.IO ready for real-time connections`);
-      console.log(`🔗 Health: http://localhost:${PORT}/api/v1/health`);
+// In test mode the test runner manages the DB connection; skip auto-start.
+if (process.env.NODE_ENV !== 'test') {
+  mongoose
+    .connect(process.env.MONGODB_URI, {
+      useNewUrlParser:    true,
+      useUnifiedTopology: true
+    })
+    .then(() => {
+      console.log('✅ MongoDB connected');
+      server.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+        console.log(`📡 Socket.IO ready for real-time connections`);
+        console.log(`🔗 Health: http://localhost:${PORT}/api/v1/health`);
+      });
+    })
+    .catch(err => {
+      console.error('❌ MongoDB connection error:', err.message);
+      process.exit(1);
     });
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {

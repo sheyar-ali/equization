@@ -159,7 +159,11 @@
     "buttonText": "Oturum aç",
     "forgetPasswordText": "Parolanızı mı unuttunuz ?",
     "formDividerText": "Hesabın yok mu?",
-    "formDividerLink": "Yeni bir hesap oluştur"
+    "formDividerLink": "Yeni bir hesap oluştur",
+    "successMsg": "Başarıyla giriş yapıldı! Yönlendiriliyor...",
+    "errorInvalidCredentials": "Hatalı e-posta veya şifre",
+    "errorNotVerified": "Lütfen önce e-postanızdan hesabınızı doğrulayın",
+    "errorGeneric": "Giriş yapılırken bir hata oluştu, lütfen tekrar deneyin"
   },
   "confirmEmailPage": {
     "pageTitle": "Eposta adresinizi doğrulayın",
@@ -190,7 +194,11 @@
     "formDividerText": "Zaten hesabınız var mı?",
     "formDividerLink": "oturum aç",
     "formContentTitle": "Yeni bir hesap oluştur",
-    "formContentDescription": "Yeni bir hesap için şimdi kaydolun ve platformun özelliklerinden ve hizmetlerinden yararlanın."
+    "formContentDescription": "Yeni bir hesap için şimdi kaydolun ve platformun özelliklerinden ve hizmetlerinden yararlanın.",
+    "successMsg": "Hesap başarıyla oluşturuldu! Lütfen e-postanızı kontrol edin.",
+    "errorDuplicate": "Bu e-posta veya kullanıcı adı zaten kullanımda",
+    "errorRateLimit": "Çok fazla istek, lütfen biraz bekleyin ve tekrar deneyin",
+    "errorGeneric": "Hesap oluşturulurken bir hata oluştu, lütfen tekrar deneyin"
   },
   "emailConfirmedPage": {
     "pageTitle": "Eposta adresinizi doğrulayın",
@@ -240,7 +248,11 @@
     "quiz": "sınav"
   },
   "quizesCatPage": {
-    "pageTitle": "Kategoriler: Kimya"
+    "pageTitle": "Kategoriler: Kimya",
+    "allCategories": "Tümü",
+    "errorLoading": "Sınavlar yüklenemedi",
+    "emptyState": "Bu kategoride sınav yok",
+    "retry": "Tekrar dene"
   },
   "categoriesNames": {
     "allCategories": "Herşey",
@@ -273,7 +285,15 @@
     "playersInfoTitle": "Oyuncu Sayısı",
     "quizDetails": {
       "title": "Bir demo başlık testi deneyin"
-    }
+    },
+    "errorNoQuiz": "Sınav belirtilmedi",
+    "errorLoading": "Sınav yüklenirken bir hata oluştu",
+    "errorInvalidCode": "Geçersiz sınav kodu",
+    "codeCopied": "Kod kopyalandı!",
+    "codeCopiedAlert": "Kod kopyalandı: ",
+    "quizCodeLabel": "Sınav kodu: ",
+    "copyCode": "Kodu kopyala",
+    "backToQuizzes": "Sınavlara geri dön"
   },
   "myQuizPage": {
     "deleteBtn": "Sil"
@@ -348,7 +368,13 @@
     "publicRadio": "halka açık",
     "privateRadio": "Özel",
     "selectErrorText": "Sınav dili seçilmelidir",
-    "subBtn": "Sınav Oluştur"
+    "subBtn": "Sınav Oluştur",
+    "difficultyLabel": "Zorluk seviyesi",
+    "difficultyEasy": "Kolay",
+    "difficultyMedium": "Orta",
+    "difficultyHard": "Zor",
+    "successMsg": "Sınav başarıyla oluşturuldu!",
+    "errorMsg": "Sınav oluşturulamadı"
   },
   "profilePage": {
     "pageTitle": "Hesap ayarları",

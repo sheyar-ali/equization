@@ -26,15 +26,15 @@ exports.startIndividualQuiz = async (req, res, next) => {
       return errorResponse(res, 403, 'This quiz is private');
     }
 
-    // ✅ Fix #1: Do NOT include isCorrect — prevents cheating via DevTools
-    // Correct answers are only revealed upon /play/submit
+    // Solo/individual mode: include isCorrect so player sees immediate feedback
+    // (learning app — knowing the right answer is the educational goal)
     const questions = quiz.questions.map(q => {
       const questionObj = q.toObject();
       questionObj.answers = questionObj.answers.map(a => ({
-        _id:   a._id,
-        text:  a.text,
-        image: a.image,
-        // isCorrect intentionally omitted
+        _id:       a._id,
+        text:      a.text,
+        image:     a.image,
+        isCorrect: a.isCorrect,
       }));
       return questionObj;
     });
