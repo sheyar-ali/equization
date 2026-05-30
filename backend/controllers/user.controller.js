@@ -119,6 +119,54 @@ exports.getMyStatistics = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ── List all users (Admin) ────────────────────────────────────────────────────
+// GET /api/v1/users
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, search } = req.query;
+    const query = {};
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email:    { $regex: search, $options: 'i' } },
+      ];
+    }
+    const skip  = (page - 1) * limit;
+    const total = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select('-password -verificationToken -resetPasswordToken')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    return paginatedResponse(res, 200, 'Users retrieved successfully', { users }, page, limit, total);
+  } catch (err) { next(err); }
+};
+
+// ── Update user role (Admin) ──────────────────────────────────────────────────
+// PUT /api/v1/users/:id/role
+exports.updateUserRole = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!['user', 'admin'].includes(role))
+      return errorResponse(res, 400, 'Invalid role. Must be "user" or "admin"');
+
+    // Prevent admin from removing their own admin role
+    if (req.params.id === req.user.id)
+      return errorResponse(res, 400, 'Cannot change your own role');
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) return errorResponse(res, 404, 'User not found');
+    return successResponse(res, 200, 'User role updated successfully', { user });
+  } catch (err) { next(err); }
+};
+
 // ── Delete account ────────────────────────────────────────────────────────────
 // DELETE /api/v1/users/account
 exports.deleteAccount = async (req, res, next) => {
